@@ -1,0 +1,151 @@
+import 'package:flutter/material.dart';
+
+class CustomCard extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+  final Color? backgroundColor;
+  final EdgeInsetsGeometry? margin;
+
+  const CustomCard({
+    super.key,
+    required this.child,
+    this.padding,
+    this.backgroundColor,
+    this.margin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: margin ?? EdgeInsets.zero,
+      color: backgroundColor ?? Theme.of(context).cardColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outlineVariant,
+          width: 1,
+        ),
+      ),
+      elevation: 0, // En la web suele ser sin elevación (flat)
+      child: Padding(
+        padding: padding ?? EdgeInsets.zero,
+        child: child,
+      ),
+    );
+  }
+}
+
+class CustomCardHeader extends StatelessWidget {
+  final Widget? title;
+  final Widget? description;
+  final Widget? action;
+  final EdgeInsetsGeometry padding;
+
+  const CustomCardHeader({
+    super.key,
+    this.title,
+    this.description,
+    this.action,
+    this.padding = const EdgeInsets.fromLTRB(24, 24, 24, 6),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (title != null) title!,
+                if (title != null && description != null) const SizedBox(height: 6),
+                // ignore: use_null_aware_elements
+                if (description != null) description!,
+              ],
+            ),
+          ),
+          if (action != null) ...[
+            const SizedBox(width: 16),
+            action!,
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class CustomCardTitle extends StatelessWidget {
+  final String text;
+
+  const CustomCardTitle(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            height: 1,
+            letterSpacing: -0.5,
+          ),
+    );
+  }
+}
+
+class CustomCardDescription extends StatelessWidget {
+  final String text;
+
+  const CustomCardDescription(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+    );
+  }
+}
+
+class CustomCardContent extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  const CustomCardContent({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding,
+      child: child,
+    );
+  }
+}
+
+class CustomCardFooter extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  const CustomCardFooter({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.fromLTRB(24, 6, 24, 24),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding,
+      child: child,
+    );
+  }
+}
