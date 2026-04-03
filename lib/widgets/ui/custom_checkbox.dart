@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 class CustomCheckbox extends StatelessWidget {
   final bool value;
@@ -23,7 +24,7 @@ class CustomCheckbox extends StatelessWidget {
       value: value,
       onChanged: enabled ? onChanged : null,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4), // Equivalente a rounded-[4px]
+        borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
       side: BorderSide(
         color: colorScheme.outlineVariant, // border nativo
@@ -32,7 +33,7 @@ class CustomCheckbox extends StatelessWidget {
       checkColor: colorScheme.onPrimary, // text-primary-foreground (icono palomita)
       fillColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
         if (!enabled) {
-          return colorScheme.onSurface.withOpacity(0.12);
+          return colorScheme.onSurface.withValues(alpha: 0.12);
         }
         if (states.contains(WidgetState.selected)) {
           return colorScheme.primary; // bg-primary al estar seleccionado
@@ -59,20 +60,23 @@ class CustomCheckbox extends StatelessWidget {
               }
             }
           : null,
-      borderRadius: BorderRadius.circular(4),
+      borderRadius: BorderRadius.circular(AppRadius.xs),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSpacing.xxs,
+          horizontal: AppSpacing.xs,
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             checkbox,
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.xs),
             Text(
               label!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: enabled
                         ? colorScheme.onSurface
-                        : colorScheme.onSurface.withOpacity(0.5),
+                        : colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
             ),
           ],

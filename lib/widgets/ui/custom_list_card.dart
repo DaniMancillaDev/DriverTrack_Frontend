@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 class CustomListCard extends StatelessWidget {
   final Widget? leading;
@@ -30,27 +31,27 @@ class CustomListCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        highlightColor: const Color(0xFFFF6B1A).withOpacity(0.1),
-        splashColor: const Color(0xFFFF6B1A).withOpacity(0.1),
-        hoverColor: Colors.white.withOpacity(0.02),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        highlightColor: AppColors.orangePrimary.withValues(alpha: 0.1),
+        splashColor: AppColors.orangePrimary.withValues(alpha: 0.1),
+        hoverColor: Colors.white.withValues(alpha: 0.02),
         child: Ink(
-          padding: padding ?? const EdgeInsets.all(16),
+          padding: padding ?? const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
             color: isSelected 
-                ? const Color(0xFFFF6B1A).withOpacity(0.08)
-                : const Color(0xFF16161A),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isSelected 
-                  ? const Color(0xFFFF6B1A).withOpacity(0.4)
-                  : const Color(0xFF222228),
-              width: isSelected ? 1.5 : 1,
-            ),
+                ? AppColors.orangePrimary.withValues(alpha: 0.08)
+                : AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+            border: isSelected 
+                ? Border.all(
+                    color: AppColors.orangePrimary.withValues(alpha: 0.4),
+                    width: 1.5,
+                  )
+                : null,
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFFFF6B1A).withOpacity(0.1),
+                      color: AppColors.orangePrimary.withValues(alpha: 0.1),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     )
@@ -63,37 +64,35 @@ class CustomListCard extends StatelessWidget {
               children: [
                 if (leading != null) ...[
                   leading!,
-                  const SizedBox(width: 16),
+                  const SizedBox(width: AppSpacing.md),
                 ],
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (title != null)
-                        Text(
-                          title!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                        if (title != null)
+                          Text(
+                            title!,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
                           ),
-                        ),
                       if (subtitle != null) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: AppSpacing.xxs),
                         Text(
                           subtitle!,
-                          style: const TextStyle(
-                            color: Color(0xFF6B6B7A),
-                            fontSize: 13,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.textMuted,
+                              ),
                         ),
                       ],
                     ],
                   ),
                 ),
                 if (trailing != null) ...[
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.md),
                   trailing!,
                 ],
               ],

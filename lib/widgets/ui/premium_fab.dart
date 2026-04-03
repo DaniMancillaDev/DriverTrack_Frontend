@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
+import '../../core/responsive/responsive.dart';
 
 class PremiumFAB extends StatelessWidget {
   final VoidCallback onPressed;
@@ -16,21 +18,21 @@ class PremiumFAB extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final r = context.responsive;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
-      height: 56,
+      height: r.dim(56),
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFFF6B1A), Color(0xFFFF9C1A)],
-          ),
-          borderRadius: BorderRadius.circular(28),
+          gradient: AppColors.primaryGradient,
+          borderRadius: BorderRadius.circular(AppRadius.full),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF6B1A).withOpacity(0.4),
+              color: colorScheme.primary.withValues(alpha: 0.4),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -40,22 +42,21 @@ class PremiumFAB extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: onPressed,
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(AppRadius.full),
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: isExtended ? 20 : 16,
+                horizontal: isExtended ? r.space(AppSpacing.lg) : r.space(AppSpacing.md),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(icon, color: Colors.white, size: 24),
+                  Icon(icon, color: Colors.white, size: AppIconSizes.xl(context)),
                   if (isExtended) ...[
-                    const SizedBox(width: 10),
+                    SizedBox(width: r.space(AppSpacing.s)),
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: AppTextStyles.body(context).copyWith(
                         color: Colors.white,
-                        fontSize: 15,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.2,
                       ),

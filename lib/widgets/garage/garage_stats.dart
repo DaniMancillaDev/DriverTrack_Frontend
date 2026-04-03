@@ -1,0 +1,147 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../theme/app_theme.dart';
+import '../../models/vehicle_model.dart';
+import '../../viewmodels/vehicle_view_model.dart';
+import '../../providers/app_providers.dart';
+import '../ui/summary_stats.dart';
+import '../../core/i18n/translations.g.dart';
+import '../../core/units/presentation/unit_system_provider.dart';
+import '../../core/units/domain/unit_system.dart';
+
+class GarageStats extends ConsumerWidget {
+  final List<Vehicle> vehicles;
+
+  const GarageStats({super.key, required this.vehicles});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = Translations.of(context);
+    final isMetric = ref.watch(unitSystemProvider) == UnitSystem.metric;
+    final totalDistanceLabel = isMetric ? t.garage.totalDistanceKm : t.garage.totalDistanceMiles;
+
+    if (vehicles.isEmpty) {
+      return SummaryStats(
+        stats: [
+          StatItem(label: t.garage.avgHealth, value: '100%', accent: AppColors.green),
+          StatItem(
+            label: t.garage.vehicles,
+            value: '0',
+            accent: AppColors.orangePrimary,
+          ),
+          StatItem(label: t.garage.alerts, value: '0', accent: AppColors.red),
+        ],
+      );
+    }
+
+    // Watch for maintenance records for all vehicles
+    final maintenanceAsync = ref.watch(
+      maintenanceDocsProvider(const MaintenanceParams()),
+    );
+
+    return maintenanceAsync.maybeWhen(
+      data: (allRecords) {
+        // Calculate Total Miles by taking the max mileage for each vehicle
+        int totalCalculatedMiles = 0;
+        double totalHealth = 0;
+
+        for (var vehicle in vehicles) {
+          int vehicleMileage = vehicle.mileage;
+          final vehicleRecords = allRecords
+              .where((r) => r.vehicleId == vehicle.id)
+              .toList(); // materialize to avoid multiple iterations
+
+          if (vehicleRecords.isNotEmpty) {
+            final latestRecordMileage = vehicleRecords
+                .map((r) => r.mileage)
+                .reduce((a, b) => a > b ? a : b);
+            if (latestRecordMileage > vehicleMileage) {
+              vehicleMileage = latestRecordMileage;
+            }
+          }
+
+          totalCalculatedMiles += vehicleMileage;
+          totalHealth += VehicleViewModel(
+            vehicle,
+            vehicleMileage,
+          ).healthPercentage;
+        }
+
+        final avgHealth = vehicles.isNotEmpty
+            ? (totalHealth / vehicles.length).round()
+            : 100;
+        final servicesDue = vehicles.where((v) {
+          int vehicleMileage = v.mileage;
+          final vehicleRecords = allRecords.where((r) => r.vehicleId == v.id);
+          if (vehicleRecords.isNotEmpty) {
+            final latest = vehicleRecords
+                .map((r) => r.mileage)
+                .reduce((a, b) => a > b ? a : b);
+            if (latest > vehicleMileage) vehicleMileage = latest;
+          }
+          return VehicleViewModel(v, vehicleMileage).status != 'good';
+        }).length;
+
+        return SummaryStats(
+          stats: [
+            StatItem(
+              label: t.garage.avgHealth,
+              value: '$avgHealth%',
+              accent: AppColors.green,
+            ),
+            StatItem(
+              label: totalDistanceLabel,
+              value: totalCalculatedMiles >= 1000
+                  ? '${(totalCalculatedMiles / 1000).toStringAsFixed(1)}K'
+                  : totalCalculatedMiles.toString(),
+              accent: AppColors.orangePrimary,
+            ),
+            StatItem(
+              label: t.garage.servicesDue,
+              value: servicesDue.toString(),
+              accent: servicesDue > 0 ? AppColors.red : AppColors.green,
+            ),
+          ],
+        );
+      },
+      // Keep showing basic stats while loading or on error
+      orElse: () {
+        final totalMiles = vehicles.fold<int>(0, (sum, v) => sum + v.mileage);
+        final servicesDue = vehicles
+            .where((v) => VehicleViewModel(v).status != 'good')
+            .length;
+
+        final avgHealth = vehicles.isNotEmpty
+            ? (vehicles.fold<double>(
+                        0,
+                        (sum, v) => sum + VehicleViewModel(v).healthPercentage,
+                      ) /
+                      vehicles.length)
+                  .round()
+            : 100;
+
+        return SummaryStats(
+          stats: [
+            StatItem(
+              label: t.garage.avgHealth,
+              value: '$avgHealth%',
+              accent: AppColors.green,
+            ),
+            StatItem(
+              label: totalDistanceLabel,
+              value: totalMiles >= 1000
+                  ? '${(totalMiles / 1000).toStringAsFixed(1)}K'
+                  : totalMiles.toString(),
+              accent: AppColors.orangePrimary,
+            ),
+            StatItem(
+              label: t.garage.servicesDue,
+              value: servicesDue.toString(),
+              accent: servicesDue > 0 ? AppColors.red : AppColors.green,
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

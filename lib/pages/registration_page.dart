@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ui/custom_input.dart';
 import '../widgets/ui/custom_button.dart';
+import '../utils/form_validators.dart';
+import '../core/i18n/translations.g.dart';
+import '../core/responsive/responsive.dart';
 
-class RegistrationPage extends StatefulWidget {
+class RegistrationPage extends ConsumerStatefulWidget {
   const RegistrationPage({super.key});
 
   @override
-  State<RegistrationPage> createState() => _RegistrationPageState();
+  ConsumerState<RegistrationPage> createState() => _RegistrationPageState();
 }
 
-class _RegistrationPageState extends State<RegistrationPage> {
-  final _formKey = GlobalKey<FormState>();
-  
+class _RegistrationPageState extends ConsumerState<RegistrationPage> {
   final _fullNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
@@ -22,6 +24,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   bool _showPassword = false;
   bool _submitted = false;
+  bool _isLoading = false;
 
   String? _fullNameError;
   String? _phoneError;
@@ -39,54 +42,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
     super.dispose();
   }
 
-  String? _validateFullName(String? value) {
-    if (value == null || value.trim().isEmpty) return "Full name is required";
-    if (value.trim().length < 3) return "Name must be at least 3 characters";
-    return null;
-  }
-
-  String? _validatePhone(String? value) {
-    if (value == null || value.trim().isEmpty) return "Phone number is required";
-    final digits = value.replaceAll(RegExp(r'\D'), '');
-    if (digits.length < 10 || digits.length > 15) return "Phone must be 10–15 digits";
-    return null;
-  }
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.trim().isEmpty) return "Email is required";
-    if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(value)) {
-      return "Enter a valid email address";
-    }
-    return null;
-  }
-
-  String? _validateBirthDate(String? value) {
-    if (value == null || value.isEmpty) return "Birth date is required";
-    try {
-      final dob = DateTime.parse(value);
-      final age = DateTime.now().difference(dob).inDays / 365.25;
-      if (age < 16) return "You must be at least 16 years old";
-    } catch (e) {
-      return "Invalid date format";
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) return "Password is required";
-    if (value.length < 8) return "Password must be at least 8 characters";
-    if (!RegExp(r'[A-Z]').hasMatch(value)) return "Must contain at least one uppercase letter";
-    if (!RegExp(r'[0-9]').hasMatch(value)) return "Must contain at least one number";
-    return null;
-  }
-
-  void _handleSubmit() {
+  void _handleSubmit() async {
     setState(() {
-      _fullNameError = _validateFullName(_fullNameController.text);
-      _phoneError = _validatePhone(_phoneController.text);
-      _emailError = _validateEmail(_emailController.text);
-      _birthDateError = _validateBirthDate(_birthDateController.text);
-      _passwordError = _validatePassword(_passwordController.text);
+      _fullNameError = FormValidators.fullName(_fullNameController.text, context);
+      _phoneError = FormValidators.phone(_phoneController.text, context);
+      _emailError = FormValidators.email(_emailController.text, context);
+      _birthDateError = FormValidators.birthDate(_birthDateController.text, context);
+      _passwordError = FormValidators.password(_passwordController.text, context);
     });
 
     if (_fullNameError == null &&
@@ -94,58 +56,78 @@ class _RegistrationPageState extends State<RegistrationPage> {
         _emailError == null &&
         _birthDateError == null &&
         _passwordError == null) {
-      setState(() => _submitted = true);
-      Timer(const Duration(milliseconds: 1200), () {
+      setState(() => _isLoading = true);
+      try {
+        await ref
+            .read(authProvider.notifier)
+            .register(
+              _emailController.text.trim(),
+              _passwordController.text,
+              _fullNameController.text.trim(),
+            );
+
         if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/app');
+          setState(() => _submitted = true);
         }
-      });
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.toString().replaceAll('Exception: ', '')),
+              backgroundColor: AppColors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final r = context.responsive;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Center(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final bool isMobile = constraints.maxWidth < 600;
-              
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: Column(
-                    children: [
-                      _buildHeader(isMobile),
-                      _buildFormCard(isMobile),
-                    ],
-                  ),
-                ),
-              );
-            },
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: r.value(mobile: 600, tablet: 640)),
+              child: Column(
+                children: [
+                  _buildHeader(r),
+                  _buildFormCard(r),
+                ],
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader(bool isMobile) {
+  Widget _buildHeader(AppResponsive r) {
+    final t = Translations.of(context);
+    final isMobile = r.isMobile;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(
-        top: isMobile ? 32 : 48,
-        bottom: isMobile ? 32 : 40,
-        left: 24,
-        right: 24,
+        top: isMobile ? r.space(AppSpacing.xl) : r.space(AppSpacing.xxxl),
+        bottom: isMobile ? r.space(AppSpacing.xl) : r.space(AppSpacing.xxl),
+        left: r.space(AppSpacing.lg),
+        right: r.space(AppSpacing.lg),
       ),
       decoration: BoxDecoration(
         gradient: RadialGradient(
           center: const Alignment(0, -1),
           radius: 0.8,
           colors: [
-            AppColors.orangePrimary.withOpacity(0.12),
+            AppColors.orangePrimary.withValues(alpha: 0.12),
             Colors.transparent,
           ],
         ),
@@ -153,37 +135,38 @@ class _RegistrationPageState extends State<RegistrationPage> {
       child: Column(
         children: [
           Container(
-            width: isMobile ? 56 : 64,
-            height: isMobile ? 56 : 64,
+            width: r.dim(isMobile ? 56 : 64),
+            height: r.dim(isMobile ? 56 : 64),
             decoration: BoxDecoration(
               gradient: AppColors.primaryGradient,
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.orangePrimary.withOpacity(0.35),
+                  color: AppColors.orangePrimary.withValues(alpha: 0.35),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                 ),
               ],
             ),
-            child: const Icon(Icons.directions_car, color: Colors.white, size: 32),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'DriveTrack',
-            style: TextStyle(
+            child: Icon(
+              Icons.directions_car,
               color: Colors.white,
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
+              size: AppIconSizes.xxl(context),
             ),
           ),
-          const SizedBox(height: 4),
-          const Text(
-            'Your intelligent vehicle companion',
-            style: TextStyle(
+          SizedBox(height: r.space(AppSpacing.s)),
+          Text(
+            t.common.appName,
+            style: AppTextStyles.headline(context).copyWith(
+              color: AppColors.textMain,
+              fontSize: r.sp(26),
+            ),
+          ),
+          SizedBox(height: r.space(AppSpacing.xxs)),
+          Text(
+            t.registration.appTagline,
+            style: AppTextStyles.bodySmall(context).copyWith(
               color: AppColors.textMuted,
-              fontSize: 14,
             ),
           ),
         ],
@@ -191,142 +174,180 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 
-  Widget _buildFormCard(bool isMobile) {
+  Widget _buildFormCard(AppResponsive r) {
+    final t = Translations.of(context);
+    final isMobile = r.isMobile;
     return Container(
       margin: EdgeInsets.symmetric(
-        horizontal: isMobile ? 12 : 24,
-        vertical: isMobile ? 16 : 0,
+        horizontal: isMobile ? r.space(AppSpacing.s) : r.space(AppSpacing.lg),
+        vertical: isMobile ? r.space(AppSpacing.md) : r.space(AppSpacing.zero),
       ),
-      padding: EdgeInsets.all(isMobile ? 20 : 28),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(isMobile ? 24 : 32),
-        border: Border.all(color: AppColors.border),
+      padding: EdgeInsets.only(bottom: r.space(AppSpacing.xxxl)),
+      decoration: const BoxDecoration(
+        color: Colors.transparent, // Freed the inputs from a bounding border box (Tip 1)
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Create Account',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isMobile ? 18 : 20,
-              fontWeight: FontWeight.w700,
+            t.registration.title,
+            style: AppTextStyles.headlineMedium(context).copyWith(
+              color: AppColors.textMain,
+              fontSize: r.sp(isMobile ? 18 : 20),
             ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: r.space(AppSpacing.xxs)),
           Text(
-            'Fill in your details to get started',
-            style: TextStyle(
-              color: AppColors.textDim,
-              fontSize: isMobile ? 12 : 13,
+            t.registration.subtitle,
+            style: AppTextStyles.caption(context).copyWith(
+              color: AppColors.textSecondary,
+              fontSize: r.sp(isMobile ? 12 : 13),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: r.space(AppSpacing.lg)),
           CustomInput(
             controller: _fullNameController,
-            label: 'FULL NAME',
-            placeholder: 'John Doe',
+            label: t.registration.fullName,
+            placeholder: t.registration.fullNamePlaceholder,
             errorText: _fullNameError,
-            prefixIcon: const Icon(Icons.person_outline, size: 18, color: AppColors.textDim),
+            prefixIcon: Icon(
+              Icons.person_outline,
+              size: AppIconSizes.md(context),
+              color: AppColors.textMuted,
+            ),
             onChanged: (_) {
               if (_fullNameError != null) {
-                setState(() => _fullNameError = _validateFullName(_fullNameController.text));
+                setState(
+                  () => _fullNameError = FormValidators.fullName(
+                    _fullNameController.text, context,
+                  ),
+                );
               }
             },
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: r.space(AppSpacing.lg)),
           CustomInput(
             controller: _phoneController,
-            label: 'PHONE NUMBER',
-            placeholder: '+1 234 567 8900',
+            label: t.registration.phoneNumber,
+            placeholder: t.registration.phonePlaceholder,
             keyboardType: TextInputType.phone,
             errorText: _phoneError,
-            subHint: _phoneError == null ? '10–15 digits, including country code' : null,
-            prefixIcon: const Icon(Icons.phone_outlined, size: 18, color: AppColors.textDim),
+            subHint: _phoneError == null ? t.registration.phoneHint : null,
+            prefixIcon: Icon(
+              Icons.phone_outlined,
+              size: AppIconSizes.md(context),
+              color: AppColors.textMuted,
+            ),
             onChanged: (_) {
               if (_phoneError != null) {
-                setState(() => _phoneError = _validatePhone(_phoneController.text));
+                setState(
+                  () => _phoneError = FormValidators.phone(_phoneController.text, context),
+                );
               }
             },
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: r.space(AppSpacing.lg)),
           CustomInput(
             controller: _emailController,
-            label: 'EMAIL ADDRESS',
-            placeholder: 'john@example.com',
+            label: t.auth.emailAddress,
+            placeholder: t.auth.emailPlaceholder,
             keyboardType: TextInputType.emailAddress,
             errorText: _emailError,
-            prefixIcon: const Icon(Icons.mail_outline, size: 18, color: AppColors.textDim),
+            prefixIcon: Icon(
+              Icons.mail_outline,
+              size: AppIconSizes.md(context),
+              color: AppColors.textMuted,
+            ),
             onChanged: (_) {
               if (_emailError != null) {
-                setState(() => _emailError = _validateEmail(_emailController.text));
+                setState(
+                  () => _emailError = FormValidators.email(_emailController.text, context),
+                );
               }
             },
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: r.space(AppSpacing.lg)),
           CustomInput(
             controller: _birthDateController,
-            label: 'DATE OF BIRTH',
-            placeholder: 'YYYY-MM-DD',
+            label: t.registration.dateOfBirth,
+            placeholder: t.registration.datePlaceholder,
             keyboardType: TextInputType.datetime,
             errorText: _birthDateError,
-            prefixIcon: const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.textDim),
+            prefixIcon: Icon(
+              Icons.calendar_today_outlined,
+              size: AppIconSizes.md(context),
+              color: AppColors.textMuted,
+            ),
             onChanged: (_) {
               if (_birthDateError != null) {
-                setState(() => _birthDateError = _validateBirthDate(_birthDateController.text));
+                setState(
+                  () => _birthDateError = FormValidators.birthDate(
+                    _birthDateController.text, context,
+                  ),
+                );
               }
             },
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: r.space(AppSpacing.lg)),
           CustomInput(
             controller: _passwordController,
-            label: 'PASSWORD',
-            placeholder: 'Min. 8 characters',
+            label: t.auth.password,
+            placeholder: t.registration.passwordPlaceholder,
             obscureText: !_showPassword,
             errorText: _passwordError,
-            prefixIcon: const Icon(Icons.lock_outline, size: 18, color: AppColors.textDim),
+            prefixIcon: Icon(
+              Icons.lock_outline,
+              size: AppIconSizes.md(context),
+              color: AppColors.textMuted,
+            ),
             suffixIcon: GestureDetector(
               onTap: () => setState(() => _showPassword = !_showPassword),
               child: Icon(
-                _showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                size: 18,
-                color: AppColors.textDim,
+                _showPassword
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                size: AppIconSizes.md(context),
+                color: AppColors.textMuted,
               ),
             ),
             onChanged: (val) {
               setState(() {
                 if (_passwordError != null) {
-                  _passwordError = _validatePassword(val);
+                  _passwordError = FormValidators.password(val, context);
                 }
               });
             },
           ),
           PasswordStrengthIndicator(password: _passwordController.text),
-          const SizedBox(height: 24),
-          _buildSubmitButton(),
-          const SizedBox(height: 20),
+          SizedBox(height: r.space(AppSpacing.lg)),
+          _buildSubmitButton(t),
+          SizedBox(height: r.space(AppSpacing.md)),
           Center(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'Already have an account? ',
-                  style: TextStyle(color: AppColors.textDim, fontSize: 13),
+                Flexible(
+                  child: Text(
+                    t.registration.alreadyHaveAccount,
+                    style: AppTextStyles.bodySmall(context).copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
+                  onPressed: () =>
+                      Navigator.of(context).pushReplacementNamed('/'),
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: const Text(
-                    'Sign In',
-                    style: TextStyle(
+                  child: Text(
+                    t.auth.signIn,
+                    style: AppTextStyles.bodySmall(context).copyWith(
                       color: AppColors.cyan,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -338,34 +359,38 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(Translations t) {
     return CustomButton(
       onPressed: _handleSubmit,
       variant: ButtonVariant.gradient,
-      gradientColors: _submitted ? [const Color(0xFF4CAF82), const Color(0xFF00D4A0)] : null,
+      isLoading: _isLoading,
+      gradientColors: _submitted
+          ? [AppColors.green, AppColors.green.withValues(alpha: 0.8)]
+          : null,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (_submitted)
-            const Icon(Icons.check_circle, color: Colors.white, size: 20)
+            Icon(Icons.check_circle, color: Colors.white, size: AppIconSizes.lg(context))
           else
             const SizedBox.shrink(),
-          if (_submitted) const SizedBox(width: 8) else const SizedBox.shrink(),
+          if (_submitted) SizedBox(width: context.responsive.space(AppSpacing.xs)) else const SizedBox.shrink(),
           Flexible(
             child: Text(
-              _submitted ? 'Welcome to DriveTrack!' : 'Create Account',
+              _submitted ? t.registration.welcomeSuccess : t.registration.createAccount,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: AppTextStyles.button(context).copyWith(
                 color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
               ),
             ),
           ),
-          if (!_submitted) const SizedBox(width: 8) else const SizedBox.shrink(),
           if (!_submitted)
-            const Icon(Icons.chevron_right, color: Colors.white, size: 20)
+            SizedBox(width: context.responsive.space(AppSpacing.xs))
+          else
+            const SizedBox.shrink(),
+          if (!_submitted)
+            Icon(Icons.chevron_right, color: Colors.white, size: AppIconSizes.lg(context))
           else
             const SizedBox.shrink(),
         ],
@@ -373,7 +398,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 }
-
 
 class PasswordStrengthIndicator extends StatelessWidget {
   final String password;
@@ -384,6 +408,9 @@ class PasswordStrengthIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     if (password.isEmpty) return const SizedBox.shrink();
 
+    final t = Translations.of(context);
+    final r = context.responsive;
+
     final checks = [
       password.length >= 8,
       RegExp(r'[A-Z]').hasMatch(password),
@@ -391,17 +418,21 @@ class PasswordStrengthIndicator extends StatelessWidget {
     ];
     final score = checks.where((c) => c).length;
     final colors = [AppColors.red, AppColors.orangeSecondary, AppColors.green];
-    final labels = ["Weak", "Fair", "Strong"];
+    final labels = [
+      t.registration.passwordWeak,
+      t.registration.passwordFair,
+      t.registration.passwordStrong,
+    ];
 
     return Column(
       children: [
-        const SizedBox(height: 8),
+        SizedBox(height: r.space(AppSpacing.xs)),
         Row(
           children: List.generate(3, (i) {
             return Expanded(
               child: Container(
                 height: 3,
-                margin: EdgeInsets.only(right: i == 2 ? 0 : 6),
+                margin: EdgeInsets.only(right: i == 2 ? 0 : r.space(6)),
                 decoration: BoxDecoration(
                   color: i < score ? colors[score - 1] : AppColors.borderLight,
                   borderRadius: BorderRadius.circular(2),
@@ -410,24 +441,25 @@ class PasswordStrengthIndicator extends StatelessWidget {
             );
           }),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: r.space(AppSpacing.xs)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                _buildCheckItem(checks[0], "8+ characters"),
-                const SizedBox(width: 12),
-                _buildCheckItem(checks[1], "Uppercase"),
-                const SizedBox(width: 12),
-                _buildCheckItem(checks[2], "Number"),
-              ],
+            Flexible(
+              child: Row(
+                children: [
+                  _buildCheckItem(context, checks[0], t.registration.passwordCheck8Chars),
+                  SizedBox(width: r.space(AppSpacing.s)),
+                  _buildCheckItem(context, checks[1], t.registration.passwordCheckUppercase),
+                  SizedBox(width: r.space(AppSpacing.s)),
+                  _buildCheckItem(context, checks[2], t.registration.passwordCheckNumber),
+                ],
+              ),
             ),
             if (score > 0)
               Text(
                 labels[score - 1],
-                style: TextStyle(
-                  fontSize: 11,
+                style: AppTextStyles.caption(context).copyWith(
                   color: colors[score - 1],
                   fontWeight: FontWeight.w600,
                 ),
@@ -438,20 +470,24 @@ class PasswordStrengthIndicator extends StatelessWidget {
     );
   }
 
-  Widget _buildCheckItem(bool ok, String label) {
+  Widget _buildCheckItem(BuildContext context, bool ok, String label) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           Icons.check_circle,
-          size: 10,
+          size: AppIconSizes.xxs(context),
           color: ok ? AppColors.green : AppColors.textDim,
         ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: ok ? AppColors.green : AppColors.textDim,
+        SizedBox(width: context.responsive.space(4)),
+        Flexible(
+          child: Text(
+            label,
+            style: AppTextStyles.label(context).copyWith(
+              color: ok ? AppColors.green : AppColors.textDim,
+              fontWeight: FontWeight.w400,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],

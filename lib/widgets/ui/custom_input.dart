@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
+import '../../core/responsive/responsive.dart';
 
 class CustomInput extends StatelessWidget {
   final TextEditingController? controller;
@@ -40,7 +41,9 @@ class CustomInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final r = context.responsive;
 
     Widget input = TextFormField(
       controller: controller,
@@ -52,43 +55,47 @@ class CustomInput extends StatelessWidget {
       validator: validator,
       maxLines: maxLines,
       inputFormatters: inputFormatters,
-      style: const TextStyle(color: AppColors.textMain, fontSize: 15),
+      style: AppTextStyles.body(context),
       cursorColor: colorScheme.primary,
       decoration: InputDecoration(
         hintText: placeholder,
         prefixIcon: prefixIcon != null
             ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.s)),
                 child: prefixIcon,
               )
             : null,
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         suffixIcon: suffixIcon != null
             ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.s)),
                 child: suffixIcon,
               )
             : null,
         suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        hintStyle: const TextStyle(color: AppColors.textDim, fontSize: 15),
+        hintStyle: AppTextStyles.body(context).copyWith(
+          color: AppColors.textDim,
+        ),
         errorText: errorText,
-        errorStyle: const TextStyle(fontSize: 12),
+        errorStyle: AppTextStyles.label(context).copyWith(
+          color: colorScheme.error,
+        ),
         filled: true,
         fillColor: AppColors.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: r.space(AppSpacing.md),
+          vertical: r.space(AppSpacing.s),
+        ),
         
         // Default border
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(
-            color: AppColors.border,
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+          borderSide: BorderSide.none, // Flattened form design (Tip 1)
         ),
 
         // Focus state
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
           borderSide: BorderSide(
             color: colorScheme.primary,
             width: 1.5,
@@ -97,7 +104,7 @@ class CustomInput extends StatelessWidget {
 
         // Error state
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
           borderSide: BorderSide(
             color: colorScheme.error,
             width: 1,
@@ -105,7 +112,7 @@ class CustomInput extends StatelessWidget {
         ),
 
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
           borderSide: BorderSide(
             color: colorScheme.error,
             width: 1.5,
@@ -113,11 +120,8 @@ class CustomInput extends StatelessWidget {
         ),
 
         disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(
-            color: AppColors.surfaceLight,
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+          borderSide: BorderSide.none,
         ),
       ),
     );
@@ -130,13 +134,14 @@ class CustomInput extends StatelessWidget {
       children: [
         if (label != null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 8.0, left: 4),
+            padding: EdgeInsets.only(
+              bottom: r.space(AppSpacing.xs),
+              left: r.space(AppSpacing.xxs),
+            ),
             child: Text(
               label!.toUpperCase(),
-              style: const TextStyle(
+              style: AppTextStyles.label(context).copyWith(
                 color: AppColors.textSecondary,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
                 letterSpacing: 0.6,
               ),
             ),
@@ -144,14 +149,19 @@ class CustomInput extends StatelessWidget {
         input,
         if (subHint != null)
           Padding(
-            padding: const EdgeInsets.only(top: 6, left: 4),
+            padding: EdgeInsets.only(
+              top: r.space(AppSpacing.xxs),
+              left: r.space(AppSpacing.xxs),
+            ),
             child: Text(
               subHint!,
-              style: const TextStyle(color: AppColors.textDark, fontSize: 11),
+              style: AppTextStyles.label(context).copyWith(
+                color: AppColors.textDark,
+                fontWeight: FontWeight.normal,
+              ),
             ),
           ),
       ],
     );
   }
 }
-

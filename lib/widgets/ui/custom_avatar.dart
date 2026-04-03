@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 class CustomAvatar extends StatelessWidget {
   final String? imageUrl;
@@ -23,8 +24,8 @@ class CustomAvatar extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     
     // El color de fondo "muted"
-    final bgColor = backgroundColor ?? colorScheme.surfaceContainerHighest;
-    final fgColor = foregroundColor ?? colorScheme.onSurfaceVariant;
+    final bgColor = backgroundColor ?? AppColors.surfaceLight;
+    final fgColor = foregroundColor ?? AppColors.textMain;
 
     return CircleAvatar(
       radius: radius,

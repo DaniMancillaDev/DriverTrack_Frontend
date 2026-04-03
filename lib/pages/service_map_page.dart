@@ -1,634 +1,353 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../theme/app_theme.dart';
-import '../widgets/ui/star_rating.dart';
-import '../widgets/ui/custom_button.dart';
+import '../core/i18n/translations.g.dart';
+import '../core/responsive/responsive.dart';
+
+import '../features/map/domain/entities/map_location.dart';
+import '../features/map/presentation/providers/map_providers.dart';
+import '../features/map/presentation/widgets/map_marker_layer.dart';
+import '../features/map/presentation/widgets/map_controls.dart';
+import '../features/map/presentation/widgets/map_header.dart';
 import '../widgets/map/place_detail_sheet.dart';
 import '../widgets/map/places_list_sheet.dart';
 
-class Location {
-  final String id;
-  final String name;
-  final String type; // 'workshop' | 'gasstation'
-  final String address;
-  final double rating;
-  final int reviews;
-  final String distance;
-  final bool open;
-  final String hours;
-  final String phone;
-  final double x; // percent position on map
-  final double y;
-  final List<String>? specialties;
-  final String priceLevel;
-
-  Location({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.address,
-    required this.rating,
-    required this.reviews,
-    required this.distance,
-    required this.open,
-    required this.hours,
-    required this.phone,
-    required this.x,
-    required this.y,
-    this.specialties,
-    required this.priceLevel,
-  });
-}
-
-final List<Location> locations = [
-  Location(
-    id: "l1",
-    name: "AutoTech Pro Workshop",
-    type: "workshop",
-    address: "1420 Motor Lane, Downtown",
-    rating: 4.8,
-    reviews: 247,
-    distance: "0.3 mi",
-    open: true,
-    hours: "Mon–Sat 8AM–7PM",
-    phone: "+1 (555) 201-4455",
-    x: 28,
-    y: 35,
-    specialties: ["Oil Change", "Brakes", "Engine Repair"],
-    priceLevel: "\$\$",
-  ),
-  Location(
-    id: "l2",
-    name: "SpeedFix Garage",
-    type: "workshop",
-    address: "88 Gear Street, Midtown",
-    rating: 4.5,
-    reviews: 183,
-    distance: "0.7 mi",
-    open: true,
-    hours: "Mon–Sun 7AM–9PM",
-    phone: "+1 (555) 307-8821",
-    x: 62,
-    y: 52,
-    specialties: ["Tires", "Alignment", "Diagnostics"],
-    priceLevel: "\$",
-  ),
-  Location(
-    id: "l3",
-    name: "QuickFuel Station",
-    type: "gasstation",
-    address: "333 Highway Blvd",
-    rating: 4.2,
-    reviews: 95,
-    distance: "0.4 mi",
-    open: true,
-    hours: "Open 24 Hours",
-    phone: "+1 (555) 400-2200",
-    x: 45,
-    y: 22,
-    priceLevel: "\$",
-  ),
-  Location(
-    id: "l4",
-    name: "Premium Auto Care",
-    type: "workshop",
-    address: "750 Service Rd, Westside",
-    rating: 4.9,
-    reviews: 512,
-    distance: "1.2 mi",
-    open: false,
-    hours: "Mon–Fri 9AM–6PM",
-    phone: "+1 (555) 511-6690",
-    x: 74,
-    y: 68,
-    specialties: ["Luxury Cars", "Full Detail", "AC Repair"],
-    priceLevel: "\$\$\$",
-  ),
-  Location(
-    id: "l5",
-    name: "EnergyFuel 24/7",
-    type: "gasstation",
-    address: "12 Central Ave",
-    rating: 3.9,
-    reviews: 78,
-    distance: "0.9 mi",
-    open: true,
-    hours: "Open 24 Hours",
-    phone: "+1 (555) 600-1133",
-    x: 20,
-    y: 65,
-    priceLevel: "\$\$",
-  ),
-  Location(
-    id: "l6",
-    name: "MotoFix Specialist",
-    type: "workshop",
-    address: "501 Rider's Blvd, East",
-    rating: 4.7,
-    reviews: 134,
-    distance: "1.5 mi",
-    open: true,
-    hours: "Tue–Sun 10AM–8PM",
-    phone: "+1 (555) 712-3344",
-    x: 50,
-    y: 75,
-    specialties: ["Motorcycles", "Scooters", "Tune-up"],
-    priceLevel: "\$\$",
-  ),
-];
-
-class ServiceMapPage extends StatefulWidget {
+class ServiceMapPage extends ConsumerStatefulWidget {
   const ServiceMapPage({super.key});
 
   @override
-  State<ServiceMapPage> createState() => _ServiceMapPageState();
+  ConsumerState<ServiceMapPage> createState() => _ServiceMapPageState();
 }
 
-class _ServiceMapPageState extends State<ServiceMapPage> {
-  String? _selectedId;
-  String _filter = 'all';
-  String _searchQuery = '';
+class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProviderStateMixin {
+  final MapController _mapController = MapController();
+  late final AnimationController _animationController;
+  late Tween<double> _latTween;
+  late Tween<double> _lngTween;
+  late Tween<double> _zoomTween;
   bool _sheetExpanded = false;
+  bool _mapMovedSinceSearch = false;
+  bool _hasSearched = false;
+  LatLng? _lastSearchCenter;
+  
+  // Default center if no user location (e.g. Mexico City for the mock data)
+  final LatLng _defaultCenter = const LatLng(19.4326, -99.1332);
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this, 
+      duration: const Duration(milliseconds: 600)
+    );
+    final curve = CurvedAnimation(parent: _animationController, curve: Curves.fastOutSlowIn);
+    _animationController.addListener(() {
+      _mapController.move(
+        LatLng(_latTween.evaluate(curve), _lngTween.evaluate(curve)),
+        _zoomTween.evaluate(curve)
+      );
+    });
+    
+    // GPS will now only activate upon user request via the "My Location" button
+    // which calls _centerOnUser -> fetchCurrentLocation.
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _animatedMapMove(LatLng destLocation, double destZoom) {
+    if (_animationController.isAnimating) {
+      _animationController.stop();
+    }
+    _latTween = Tween<double>(begin: _mapController.camera.center.latitude, end: destLocation.latitude);
+    _lngTween = Tween<double>(begin: _mapController.camera.center.longitude, end: destLocation.longitude);
+    _zoomTween = Tween<double>(begin: _mapController.camera.zoom, end: destZoom);
+
+    _animationController.reset();
+    _animationController.forward();
+  }
+
+  void _onLocationSelected(MapLocation loc) {
+    ref.read(selectedLocationProvider.notifier).setLocation(loc);
+    setState(() => _sheetExpanded = false);
+    
+    // Animate map to location
+    _animatedMapMove(LatLng(loc.latitude, loc.longitude), 15.0);
+  }
+
+  void _unselectLocation() {
+    ref.read(selectedLocationProvider.notifier).setLocation(null);
+    setState(() => _sheetExpanded = false);
+  }
+
+  void _centerOnUser() {
+    final userLocState = ref.read(userLocationProvider);
+    userLocState.whenData((LatLng? loc) {
+      if (loc != null) {
+        _animatedMapMove(loc, 15.0);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Buscando ubicación GPS... Asegúrate de tener la ubicación activada en tu dispositivo.')),
+        );
+        ref.read(userLocationProvider.notifier).fetchCurrentLocation();
+      }
+    });
+  }
+
+  void _zoomIn() {
+    final currentZoom = _mapController.camera.zoom;
+    _animatedMapMove(_mapController.camera.center, currentZoom + 1);
+  }
+
+  void _zoomOut() {
+    final currentZoom = _mapController.camera.zoom;
+    _animatedMapMove(_mapController.camera.center, currentZoom - 1);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final filtered = locations.where((l) {
-      if (_filter != 'all' && l.type != _filter) return false;
-      if (_searchQuery.isNotEmpty && !l.name.toLowerCase().contains(_searchQuery.toLowerCase())) return false;
-      return true;
-    }).toList();
+    final r = context.responsive;
+    final locationsAsync = ref.watch(nearbyLocationsProvider);
+    final selectedLocation = ref.watch(selectedLocationProvider);
+    final userLocationAsync = ref.watch(userLocationProvider);
 
-    final selected = _selectedId != null ? locations.firstWhere((l) => l.id == _selectedId) : null;
+    // Show errors (e.g. 429/504 from Overpass)
+    ref.listen(nearbyLocationsProvider, (previous, next) {
+      if (next.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(Translations.of(context).map.overpassError),
+            backgroundColor: AppColors.red,
+          ),
+        );
+      }
+    });
+
+    // Auto-fly removed to prevent "returning to previous zone" annoyance.
+    // The user will now stay where they panned.
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Map Background
-          Positioned.fill(
-            child: CustomPaint(
-              painter: MapBackgroundPainter(),
+          // 1. Interactive Map
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _defaultCenter,
+              initialZoom: 13.0,
+              minZoom: 3.0,
+              maxZoom: 18.0,
+              onTap: (_, __) => _unselectLocation(),
+              onPositionChanged: (camera, hasGesture) {
+                ref.read(mapBoundsProvider.notifier).setBounds(camera.visibleBounds);
+                
+                // If the user moved the map manually, show the "Search here" button
+                if (hasGesture) {
+                  setState(() => _mapMovedSinceSearch = true);
+                }
+              },
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ),
             ),
-          ),
-
-          // User Location
-          const Center(
-            child: UserLocationMarker(),
-          ),
-
-          // Markers
-          ...filtered.map((loc) => MapMarker(
-                location: loc,
-                isSelected: _selectedId == loc.id,
-                onTap: () {
-                  setState(() {
-                    if (_selectedId == loc.id) {
-                      _selectedId = null;
-                      _sheetExpanded = false;
-                    } else {
-                      _selectedId = loc.id;
-                      _sheetExpanded = false;
-                    }
-                  });
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.drivetrack',
+                tileProvider: CancellableNetworkTileProvider(),
+              ),
+              
+              // Map locations from provider
+              locationsAsync.when(
+                skipLoadingOnReload: true, // Crucial: Don't hide markers while dragging/loading new ones
+                data: (locations) => MapMarkerLayer(
+                  locations: locations,
+                  selectedId: selectedLocation?.id,
+                  onMarkerTap: _onLocationSelected,
+                ),
+                loading: () => const SizedBox.shrink(),
+                error: (err, stack) {
+                  print('DEBUG: Error loading markers: $err');
+                  return const SizedBox.shrink();
                 },
-              )),
+              ),
 
-          // Top Header Overlay
+              // User location marker
+              userLocationAsync.when(
+                data: (LatLng? loc) {
+                  if (loc == null) return const SizedBox.shrink();
+                  return MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: loc,
+                        width: r.dim(40),
+                        height: r.dim(40),
+                        child: _buildUserLocationMarker(context, r),
+                      )
+                    ],
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
+              
+              const RichAttributionWidget(
+                attributions: [
+                  TextSourceAttribution('OpenStreetMap contributors'),
+                ],
+              ),
+            ],
+          ),
+
+          // 2. Top Header Overlay (Search & Filters)
           Positioned(
             top: 0,
             left: 0,
             right: 0,
-            child: _buildHeader(),
+            child: MapHeaderWidget(
+              onFilterChanged: () {
+                _unselectLocation();
+                setState(() {
+                  _mapMovedSinceSearch = false;
+                  _hasSearched = true;
+                });
+              },
+            ),
           ),
 
-          // Bottom Detail Sheet
-          if (selected != null)
+          // 2.5 "Search this area" — bottom floating pill (Google Maps pattern)
+          if (_mapMovedSinceSearch)
+            Positioned(
+              bottom: 24,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _mapMovedSinceSearch = false;
+                      _hasSearched = true;
+                    });
+                    ref.read(mapSearchTriggerProvider.notifier).trigger();
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: r.space(AppSpacing.lg),
+                      vertical: r.space(AppSpacing.s),
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.search_rounded, size: AppIconSizes.xs(context), color: AppColors.cyan),
+                        SizedBox(width: r.space(AppSpacing.xs)),
+                        Text(
+                          Translations.of(context).map.searchThisArea,
+                          style: AppTextStyles.bodySmall(context).copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+          // 3. Map Controls (Zoom, My Location)
+          Positioned(
+            right: r.space(AppSpacing.lg),
+            bottom: r.dim(180),
+            child: MapControls(
+              onZoomIn: _zoomIn,
+              onZoomOut: _zoomOut,
+              onMyLocation: _centerOnUser,
+            ),
+          ),
+
+          // 4. Bottom Detail / List Sheets
+          if (selectedLocation != null)
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
               child: PlaceDetailSheet(
-                location: selected,
+                location: selectedLocation,
                 isExpanded: _sheetExpanded,
                 onToggle: () => setState(() => _sheetExpanded = !_sheetExpanded),
-                onClose: () => setState(() {
-                  _selectedId = null;
-                  _sheetExpanded = false;
-                }),
+                onClose: _unselectLocation,
               ),
             )
-          else
+          else if (_hasSearched && locationsAsync.hasValue && locationsAsync.value!.isNotEmpty)
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
               child: PlacesListSheet(
-                locations: filtered,
+                locations: locationsAsync.value!,
                 isExpanded: _sheetExpanded,
                 onToggle: () => setState(() => _sheetExpanded = !_sheetExpanded),
-                onLocationSelected: (loc) {
-                  setState(() {
-                    _selectedId = loc.id;
-                    _sheetExpanded = false;
-                  });
-                },
+                onLocationSelected: _onLocationSelected,
               ),
+            ),
+            
+          // Loading Overlay if fetching first time
+          if (locationsAsync.isLoading && !locationsAsync.hasValue)
+            Container(
+              color: Colors.black.withValues(alpha: 0.5),
+              child: const Center(child: CircularProgressIndicator(color: AppColors.cyan)),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppColors.background,
-            AppColors.background.withOpacity(0.8),
-            Colors.transparent,
-          ],
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text('Explore Nearby', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                  Text(
-                    'Service Map 📍',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.4,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.cyan.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.cyan.withOpacity(0.2)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.near_me, size: 12, color: AppColors.cyan),
-                    SizedBox(width: 6),
-                    Text('Live', style: TextStyle(color: AppColors.cyan, fontSize: 12, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Search Bar
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: TextField(
-              onChanged: (val) => setState(() => _searchQuery = val),
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'Search workshops, gas stations...',
-                hintStyle: const TextStyle(color: AppColors.textDark),
-                prefixIcon: const Icon(Icons.search, color: AppColors.textDark, size: 18),
-                suffixIcon: _searchQuery.isNotEmpty 
-                    ? IconButton(
-                        icon: const Icon(Icons.close, color: AppColors.textDark, size: 16),
-                        onPressed: () => setState(() => _searchQuery = ''),
-                      )
-                    : null,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Filter Pills
-          Row(
-            children: [
-              _buildFilterPill('all', 'All', Icons.filter_list),
-              const SizedBox(width: 8),
-              _buildFilterPill('workshop', 'Workshops', Icons.build),
-              const SizedBox(width: 8),
-              _buildFilterPill('gasstation', 'Gas Stations', Icons.local_gas_station),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterPill(String key, String label, IconData icon) {
-    final bool isSelected = _filter == key;
-    Color accent = AppColors.orangePrimary;
-    if (key == 'gasstation') accent = AppColors.cyan;
-
-    return GestureDetector(
-      onTap: () => setState(() => _filter = key),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? accent.withOpacity(0.15) : AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? accent.withOpacity(0.4) : AppColors.border,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 12, color: isSelected ? accent : AppColors.textMuted),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? accent : AppColors.textMuted,
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoTag(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 14, color: AppColors.textMuted),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCountBadge(IconData icon, Color color, String count) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.2)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 6),
-          Text(count, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
-}
-
-class MapMarker extends StatelessWidget {
-  final Location location;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const MapMarker({
-    super.key,
-    required this.location,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isWorkshop = location.type == 'workshop';
-    final Color accent = isWorkshop ? AppColors.orangePrimary : AppColors.cyan;
-
-    return AnimatedPositioned(
-      duration: const Duration(milliseconds: 200),
-      left: MediaQuery.of(context).size.width * (location.x / 100),
-      top: MediaQuery.of(context).size.height * (location.y / 100),
-      child: FractionalTranslation(
-        translation: const Offset(-0.5, -1.0),
-        child: GestureDetector(
-          onTap: onTap,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: isSelected ? 44 : 36,
-                height: isSelected ? 44 : 36,
-                decoration: BoxDecoration(
-                  color: isSelected ? accent : accent.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(isSelected ? 20 : 16),
-                  border: Border.all(color: accent, width: 2),
-                  boxShadow: isSelected ? [
-                    BoxShadow(color: accent.withOpacity(0.5), blurRadius: 12, spreadRadius: 2),
-                  ] : null,
-                ),
-                child: Icon(
-                  isWorkshop ? Icons.build : Icons.local_gas_station,
-                  color: isSelected ? Colors.white : accent,
-                  size: isSelected ? 20 : 16,
-                ),
-              ),
-              Container(
-                width: 2,
-                height: 8,
-                color: accent,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class UserLocationMarker extends StatelessWidget {
-  const UserLocationMarker({super.key});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildUserLocationMarker(BuildContext context, AppResponsive r) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 40,
-          height: 40,
+          width: r.dim(20),
+          height: r.dim(20),
           decoration: BoxDecoration(
-            color: AppColors.cyan.withOpacity(0.15),
+            color: AppColors.cyan.withValues(alpha: 0.15),
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.cyan.withOpacity(0.4), width: 2),
+            border: Border.all(color: AppColors.cyan.withValues(alpha: 0.4), width: 2),
+            boxShadow: [
+              BoxShadow(color: AppColors.cyan.withValues(alpha: 0.5), blurRadius: 12),
+            ],
           ),
           child: Center(
             child: Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
+              width: r.dim(10),
+              height: r.dim(10),
+              decoration: const BoxDecoration(
                 color: AppColors.cyan,
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(color: AppColors.cyan.withOpacity(0.5), blurRadius: 12),
-                ],
               ),
             ),
           ),
         ),
-        const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: AppColors.cyan.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.cyan.withOpacity(0.3)),
-          ),
-          child: const Text('You', style: TextStyle(color: AppColors.cyan, fontSize: 9, fontWeight: FontWeight.w700)),
-        ),
       ],
     );
   }
-}
-
-class MapBackgroundPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF141418)
-      ..style = PaintingStyle.fill;
-
-    // Background
-    canvas.drawRect(Offset.zero & size, paint);
-
-    // City Blocks
-    paint.color = const Color(0xFF1A1A20);
-    final blocks = [
-      [10, 10, 110, 80],
-      [130, 10, 110, 80],
-      [260, 10, 130, 80],
-      [10, 110, 80, 90],
-      [110, 100, 160, 100],
-      [290, 100, 100, 90],
-      [10, 230, 120, 80],
-      [150, 210, 100, 90],
-      [270, 220, 120, 80],
-    ];
-
-    for (var b in blocks) {
-      canvas.drawRRect(
-        RRect.fromLTRBR(
-          b[0] * size.width / 400,
-          b[1] * size.height / 320,
-          (b[0] + b[2]) * size.width / 400,
-          (b[1] + b[3]) * size.height / 320,
-          const Radius.circular(4),
-        ),
-        paint,
-      );
-    }
-
-    // Main Roads
-    paint.color = const Color(0xFF202028);
-    // Horizontal roads
-    canvas.drawRect(
-      Rect.fromLTRB(0, 90 * size.height / 320, size.width, 108 * size.height / 320),
-      paint,
-    );
-    canvas.drawRect(
-      Rect.fromLTRB(0, 195 * size.height / 320, size.width, 213 * size.height / 320),
-      paint,
-    );
-    // Vertical roads
-    canvas.drawRect(
-      Rect.fromLTRB(120 * size.width / 400, 0, 134 * size.width / 400, size.height),
-      paint,
-    );
-    canvas.drawRect(
-      Rect.fromLTRB(252 * size.width / 400, 0, 266 * size.width / 400, size.height),
-      paint,
-    );
-
-    // Lane markings
-    paint.color = const Color(0xFF2E2E38);
-    final hMarkings = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360];
-    for (var x in hMarkings) {
-      canvas.drawRRect(
-        RRect.fromLTRBR(x * size.width / 400, 98 * size.height / 320, (x + 20) * size.width / 400, 100 * size.height / 320, const Radius.circular(1)),
-        paint,
-      );
-      canvas.drawRRect(
-        RRect.fromLTRBR(x * size.width / 400, 203 * size.height / 320, (x + 20) * size.width / 400, 205 * size.height / 320, const Radius.circular(1)),
-        paint,
-      );
-    }
-    final vMarkings = [0, 40, 80, 120, 160, 200, 240, 280];
-    for (var y in vMarkings) {
-      canvas.drawRRect(
-        RRect.fromLTRBR(128 * size.width / 400, y * size.height / 320, 130 * size.width / 400, (y + 20) * size.height / 320, const Radius.circular(1)),
-        paint,
-      );
-      canvas.drawRRect(
-        RRect.fromLTRBR(260 * size.width / 400, y * size.height / 320, 262 * size.width / 400, (y + 20) * size.height / 320, const Radius.circular(1)),
-        paint,
-      );
-    }
-
-    // Park area
-    paint.color = const Color(0xFF172218);
-    canvas.drawRRect(
-      RRect.fromLTRBR(
-        130 * size.width / 400,
-        108 * size.height / 320,
-        250 * size.width / 400,
-        188 * size.height / 320,
-        const Radius.circular(8),
-      ),
-      paint,
-    );
-
-    // Park Text
-    const textStyle = TextStyle(
-      color: Color(0xFF243024),
-      fontSize: 10,
-      fontWeight: FontWeight.bold,
-    );
-    final textPainter = TextPainter(
-      text: const TextSpan(text: 'CITY PARK', style: textStyle),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(
-        190 * size.width / 400 - textPainter.width / 2,
-        148 * size.height / 320 - textPainter.height / 2,
-      ),
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 class CustomSwitch extends StatelessWidget {
   final bool value;
@@ -41,20 +42,23 @@ class CustomSwitch extends StatelessWidget {
               if (onChanged != null) onChanged!(!value);
             }
           : null,
-      borderRadius: BorderRadius.circular(4),
+      borderRadius: BorderRadius.circular(AppRadius.xs),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSpacing.xxs,
+          horizontal: AppSpacing.xs,
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             switchWidget,
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.xs),
             Text(
               label!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: enabled
                         ? colorScheme.onSurface
-                        : colorScheme.onSurface.withOpacity(0.5),
+                        : colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
             ),
           ],

@@ -1,75 +1,96 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../core/responsive/responsive.dart';
 
 class StatItem {
   final String label;
-  final String value;
+  final String? value;
+  final Widget? customValue;
   final Color accent;
 
   StatItem({
-    required this.label,
-    required this.value,
-    required this.accent,
-  });
+    required this.label, 
+    this.value, 
+    this.customValue, 
+    required this.accent
+  }) : assert(value != null || customValue != null);
 }
 
 class SummaryStats extends StatelessWidget {
   final List<StatItem> stats;
 
-  const SummaryStats({
-    super.key,
-    required this.stats,
-  });
+  const SummaryStats({super.key, required this.stats});
 
   @override
   Widget build(BuildContext context) {
+    final r = context.responsive;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final bool isWide = constraints.maxWidth > 400;
-          return Wrap(
-            alignment: WrapAlignment.spaceAround,
-            runAlignment: WrapAlignment.center,
-            spacing: 20,
-            runSpacing: 20,
-            children: stats.map((stat) {
-              return SizedBox(
-                width: isWide ? (constraints.maxWidth - 80) / stats.length : (constraints.maxWidth - 60) / 2,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      stat.value,
-                      style: TextStyle(
-                        color: stat.accent,
-                        fontSize: isWide ? 22 : 20,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.5,
+      child: Row(
+        children: () {
+          final List<Widget> cells = [];
+          for (int i = 0; i < stats.length; i++) {
+            final StatItem stat = stats[i];
+            cells.add(
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: r.space(AppSpacing.md),
+                    vertical: r.space(AppSpacing.lg),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      if (stat.customValue != null)
+                        stat.customValue!
+                      else if (stat.value != null)
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            stat.value!,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: stat.accent,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ),
+                      SizedBox(height: r.space(4)),
+                      Text(
+                        stat.label.toUpperCase(),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.tiny(context).copyWith(
+                          color: AppColors.textMuted,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      stat.label.toUpperCase(),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.textDark,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+            if (i < stats.length - 1) {
+              cells.add(
+                Container(
+                  width: 1,
+                  height: 36,
+                  margin: EdgeInsets.symmetric(vertical: r.space(AppSpacing.md)),
+                  color: Colors.white.withValues(alpha: 0.07),
                 ),
               );
-            }).toList(),
-          );
-        },
+            }
+          }
+          return cells;
+        }(),
       ),
     );
   }

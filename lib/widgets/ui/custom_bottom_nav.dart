@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../core/i18n/translations.g.dart';
+import '../../core/responsive/responsive.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -13,17 +15,27 @@ class CustomBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final t = Translations.of(context);
+    final r = context.responsive;
+
     final List<Map<String, dynamic>> tabs = [
-      {'label': 'Garage', 'icon': Icons.directions_car_outlined, 'activeIcon': Icons.directions_car},
-      {'label': 'Maintenance', 'icon': Icons.build_outlined, 'activeIcon': Icons.build},
-      {'label': 'Maps', 'icon': Icons.map_outlined, 'activeIcon': Icons.map},
-      {'label': 'Profile', 'icon': Icons.person_outline, 'activeIcon': Icons.person},
+      {'icon': Icons.directions_car_outlined, 'activeIcon': Icons.directions_car, 'label': t.nav.garage},
+      {'icon': Icons.history_rounded, 'activeIcon': Icons.history_rounded, 'label': t.nav.history},
+      {'icon': Icons.map_outlined, 'activeIcon': Icons.map, 'label': t.nav.map},
+      {'icon': Icons.person_outline_rounded, 'activeIcon': Icons.person_rounded, 'label': t.nav.profile},
     ];
 
     return Container(
-      padding: const EdgeInsets.only(bottom: 10, top: 6, left: 8, right: 8),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
+      padding: EdgeInsets.only(
+        bottom: r.space(AppSpacing.s),
+        top: r.space(AppSpacing.xxs),
+        left: r.space(AppSpacing.xs),
+        right: r.space(AppSpacing.xs),
+      ),
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
         border: Border(
           top: BorderSide(color: AppColors.border, width: 1),
         ),
@@ -39,21 +51,21 @@ class CustomBottomNav extends StatelessWidget {
               onTap: () => onTap(index),
               behavior: HitTestBehavior.opaque,
               child: SizedBox(
-                height: 52,
+                height: r.dim(56),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
                     if (isSelected)
                       Positioned(
-                        top: 4,
+                        top: r.space(4),
                         child: Container(
-                          width: 48,
-                          height: 32,
+                          width: r.dim(48),
+                          height: r.dim(32),
                           decoration: BoxDecoration(
-                            color: AppColors.orangePrimary.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(16),
+                            color: colorScheme.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
                             border: Border.all(
-                              color: AppColors.orangePrimary.withOpacity(0.2),
+                              color: colorScheme.primary.withValues(alpha: 0.2),
                             ),
                           ),
                         ),
@@ -63,17 +75,15 @@ class CustomBottomNav extends StatelessWidget {
                       children: [
                         Icon(
                           isSelected ? (tab['activeIcon'] as IconData) : (tab['icon'] as IconData),
-                          size: 22,
-                          color: isSelected ? AppColors.orangePrimary : AppColors.textDim,
+                          size: AppIconSizes.lg(context),
+                          color: isSelected ? colorScheme.primary : AppColors.textDim,
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: r.space(2)),
                         Text(
                           tab['label'] as String,
-                          style: TextStyle(
-                            fontSize: 10,
+                          style: AppTextStyles.micro(context).copyWith(
                             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-                            color: isSelected ? AppColors.orangePrimary : AppColors.textDim,
-                            fontFamily: 'Inter',
+                            color: isSelected ? colorScheme.primary : AppColors.textDim,
                           ),
                         ),
                       ],
@@ -82,14 +92,14 @@ class CustomBottomNav extends StatelessWidget {
                       Positioned(
                         bottom: 0,
                         child: Container(
-                          width: 4,
-                          height: 4,
+                          width: r.dim(4),
+                          height: r.dim(4),
                           decoration: BoxDecoration(
-                            color: AppColors.orangePrimary,
+                            color: colorScheme.primary,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.orangePrimary.withOpacity(0.6),
+                                color: colorScheme.primary.withValues(alpha: 0.6),
                                 blurRadius: 6,
                               ),
                             ],

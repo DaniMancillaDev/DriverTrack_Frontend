@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 enum BadgeVariant {
   defaultVariant,
@@ -64,10 +65,13 @@ class CustomBadge extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(6), // Equivalente as rounded-md de TW
+        borderRadius: BorderRadius.circular(AppRadius.s),
         border: border,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2), // Equivalente px-2 py-0.5
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xs,
+        vertical: AppSpacing.xxs,
+      ),
       child: DefaultTextStyle(
         style: (Theme.of(context).textTheme.labelSmall ?? const TextStyle()).copyWith(
               color: foregroundColor,

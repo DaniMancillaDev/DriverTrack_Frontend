@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Backgrounds
-  static const Color background = Color(0xFF0F0F12);
-  static const Color surface = Color(0xFF16161A);
-  static const Color surfaceLight = Color(0xFF1C1C24);
+  static const Color background = Color(0xFF000000);
+  static const Color surface = Color(0xFF1C1C1E);
+  static const Color surfaceLight = Color(0xFF2C2C2E);
   
-  static const Color surfaceLight2 = Color(0xFF252530);
+  static const Color surfaceLight2 = Color(0xFF3A3A3C);
   static const Color accent = Color(0xFFB8A0FF);
   static const Color border = Color(0xFF222228);
   static const Color borderLight = Color(0xFF2E2E38);
@@ -39,8 +39,31 @@ class AppColors {
   static LinearGradient surfaceGradient(Color accent) => LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [accent.withOpacity(0.1), Colors.transparent],
+    colors: [accent.withValues(alpha: 0.1), Colors.transparent],
   );
+}
+
+class AppSpacing {
+  static const double zero = 0;
+  static const double xxs = 4.0;
+  static const double xs = 8.0;
+  static const double s = 12.0;
+  static const double md = 16.0;
+  static const double lg = 24.0;
+  static const double xl = 32.0;
+  static const double xxl = 40.0;
+  static const double xxxl = 48.0;
+  static const double massive = 64.0;
+}
+
+class AppRadius {
+  static const double xs = 8.0;
+  static const double s = 12.0;
+  static const double md = 16.0;
+  static const double lg = 20.0;
+  static const double xl = 24.0;
+  static const double xxl = 32.0;
+  static const double full = 999.0;
 }
 
 class AppTheme {
@@ -52,7 +75,7 @@ class AppTheme {
         primary: AppColors.orangePrimary,
         secondary: AppColors.orangeSecondary,
         surface: AppColors.surface,
-        background: AppColors.background,
+        surfaceContainer: AppColors.surface,
         error: AppColors.red,
       ),
       fontFamily: 'Inter',

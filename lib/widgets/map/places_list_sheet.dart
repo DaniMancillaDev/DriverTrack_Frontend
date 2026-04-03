@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
-import '../../pages/service_map_page.dart';
+import '../../features/map/domain/entities/map_location.dart';
 import '../ui/custom_list_card.dart';
+import '../../core/i18n/translations.g.dart';
+import '../../core/responsive/responsive.dart';
 
 class PlacesListSheet extends StatelessWidget {
-  final List<Location> locations;
+  final List<MapLocation> locations;
   final bool isExpanded;
   final VoidCallback onToggle;
-  final Function(Location) onLocationSelected;
+  final Function(MapLocation) onLocationSelected;
 
   const PlacesListSheet({
     super.key,
@@ -19,20 +21,25 @@ class PlacesListSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final r = context.responsive;
     return Align(
       alignment: Alignment.bottomCenter,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 600),
+        constraints: BoxConstraints(
+          maxWidth: r.value(mobile: 600, tablet: 700),
+          maxHeight: MediaQuery.of(context).size.height * 0.45,
+        ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border.all(color: AppColors.border),
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(r.r(AppRadius.xl)),
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withValues(alpha: 0.35),
                 blurRadius: 32,
                 offset: const Offset(0, -8),
               ),
@@ -51,13 +58,18 @@ class PlacesListSheet extends StatelessWidget {
                   }
                 },
                 onTap: onToggle,
-                child: _buildHandleStrip(),
+                child: _buildHandleStrip(context),
               ),
               
               if (isExpanded)
                 Flexible(
                   child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+                    padding: EdgeInsets.fromLTRB(
+                      r.space(AppSpacing.lg),
+                      0,
+                      r.space(AppSpacing.lg),
+                      r.space(AppSpacing.xl),
+                    ),
                     itemCount: locations.length,
                     shrinkWrap: true,
                     physics: const BouncingScrollPhysics(),
@@ -67,21 +79,20 @@ class PlacesListSheet extends StatelessWidget {
                       final Color accent = isWorkshop ? AppColors.orangePrimary : AppColors.cyan;
                       
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding: EdgeInsets.only(bottom: r.space(AppSpacing.md)),
                         child: CustomListCard(
                           onTap: () => onLocationSelected(loc),
                           leading: Container(
-                            width: 44,
-                            height: 44,
+                            width: r.dim(44),
+                            height: r.dim(44),
                             decoration: BoxDecoration(
-                              color: accent.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: accent.withOpacity(0.2)),
+                              color: accent.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(r.r(AppRadius.xs)),
                             ),
                             child: Icon(
                               isWorkshop ? Icons.build_rounded : Icons.local_gas_station_rounded,
                               color: accent,
-                              size: 20,
+                              size: AppIconSizes.lg(context),
                             ),
                           ),
                           title: loc.name,
@@ -92,22 +103,20 @@ class PlacesListSheet extends StatelessWidget {
                             children: [
                               Text(
                                 loc.distance,
-                                style: const TextStyle(
+                                style: AppTextStyles.bodySmall(context).copyWith(
                                   color: AppColors.cyan,
-                                  fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: r.space(4)),
                               Row(
                                 children: [
-                                  const Icon(Icons.star_rounded, size: 12, color: AppColors.orangeSecondary),
-                                  const SizedBox(width: 2),
+                                  Icon(Icons.star_rounded, size: AppIconSizes.xs(context), color: AppColors.orangeSecondary),
+                                  SizedBox(width: r.space(2)),
                                   Text(
                                     loc.rating.toString(),
-                                    style: const TextStyle(
+                                    style: AppTextStyles.caption(context).copyWith(
                                       color: AppColors.textMain,
-                                      fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -127,53 +136,63 @@ class PlacesListSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildHandleStrip() {
+  Widget _buildHandleStrip(BuildContext context) {
+    final r = context.responsive;
     return Container(
       width: double.infinity,
       color: Colors.transparent,
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      padding: EdgeInsets.fromLTRB(
+        r.space(AppSpacing.lg),
+        r.space(AppSpacing.s),
+        r.space(AppSpacing.lg),
+        r.space(AppSpacing.lg),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 36,
-            height: 4,
+            width: r.dim(36),
+            height: r.dim(4),
             decoration: BoxDecoration(
               color: AppColors.borderLight,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(r.r(AppRadius.xs)),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: r.space(AppSpacing.md)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Nearby Results',
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 12),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${locations.length} locations found',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      Translations.of(context).map.nearbyResults,
+                      style: AppTextStyles.caption(context).copyWith(
+                        color: AppColors.textMuted,
+                      ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: r.space(4)),
+                    Text(
+                      Translations.of(context).map.locationsFound.replaceAll('{count}', locations.length.toString()),
+                      style: AppTextStyles.button(context).copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Row(
                 children: [
                   _buildCountBadge(
+                    context,
                     Icons.build_rounded,
                     AppColors.orangePrimary,
                     locations.where((l) => l.type == 'workshop').length.toString(),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: r.space(AppSpacing.xs)),
                   _buildCountBadge(
+                    context,
                     Icons.local_gas_station_rounded,
                     AppColors.cyan,
                     locations.where((l) => l.type == 'gasstation').length.toString(),
@@ -183,12 +202,14 @@ class PlacesListSheet extends StatelessWidget {
             ],
           ),
           if (!isExpanded) ...[
-            const SizedBox(height: 12),
-            const Align(
+            SizedBox(height: r.space(AppSpacing.s)),
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Swipe up to see all options',
-                style: TextStyle(color: AppColors.textDim, fontSize: 12),
+                Translations.of(context).map.swipeUp,
+                style: AppTextStyles.caption(context).copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
           ],
@@ -197,21 +218,27 @@ class PlacesListSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildCountBadge(IconData icon, Color color, String count) {
+  Widget _buildCountBadge(BuildContext context, IconData icon, Color color, String count) {
+    final r = context.responsive;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: r.space(AppSpacing.s),
+        vertical: r.space(AppSpacing.xxs),
+      ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.2)),
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 6),
+          Icon(icon, size: AppIconSizes.xs(context), color: color),
+          SizedBox(width: r.space(6)),
           Text(
             count,
-            style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
+            style: AppTextStyles.caption(context).copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

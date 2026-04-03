@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 class CustomCard extends StatelessWidget {
   final Widget child;
@@ -20,7 +21,7 @@ class CustomCard extends StatelessWidget {
       margin: margin ?? EdgeInsets.zero,
       color: backgroundColor ?? Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         side: BorderSide(
           color: Theme.of(context).colorScheme.outlineVariant,
           width: 1,
@@ -46,7 +47,12 @@ class CustomCardHeader extends StatelessWidget {
     this.title,
     this.description,
     this.action,
-    this.padding = const EdgeInsets.fromLTRB(24, 24, 24, 6),
+    this.padding = const EdgeInsets.fromLTRB(
+      AppSpacing.xl,
+      AppSpacing.xl,
+      AppSpacing.xl,
+      AppSpacing.xxs,
+    ),
   });
 
   @override
@@ -62,14 +68,15 @@ class CustomCardHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (title != null) title!,
-                if (title != null && description != null) const SizedBox(height: 6),
+                if (title != null && description != null)
+                  const SizedBox(height: AppSpacing.xxs),
                 // ignore: use_null_aware_elements
                 if (description != null) description!,
               ],
             ),
           ),
           if (action != null) ...[
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.md),
             action!,
           ],
         ],
@@ -119,7 +126,10 @@ class CustomCardContent extends StatelessWidget {
   const CustomCardContent({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    this.padding = const EdgeInsets.symmetric(
+      horizontal: AppSpacing.xl,
+      vertical: AppSpacing.md,
+    ),
   });
 
   @override
@@ -138,7 +148,12 @@ class CustomCardFooter extends StatelessWidget {
   const CustomCardFooter({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.fromLTRB(24, 6, 24, 24),
+    this.padding = const EdgeInsets.fromLTRB(
+      AppSpacing.xl,
+      AppSpacing.xxs,
+      AppSpacing.xl,
+      AppSpacing.xl,
+    ),
   });
 
   @override
