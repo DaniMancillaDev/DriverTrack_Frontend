@@ -17,8 +17,8 @@ class NotificationRepositoryImpl implements NotificationRepository {
   NotificationRepositoryImpl({
     required NotificationRemoteDataSource remoteDataSource,
     required NotificationLocalDataSource localDataSource,
-  })  : _remoteDataSource = remoteDataSource,
-        _localDataSource = localDataSource;
+  }) : _remoteDataSource = remoteDataSource,
+       _localDataSource = localDataSource;
 
   @override
   Future<PaginatedNotifications> getNotifications({
@@ -75,15 +75,17 @@ class NotificationRepositoryImpl implements NotificationRepository {
     final cached = _localDataSource.getCachedNotifications();
     if (cached != null) {
       final updated = cached
-          .map((n) => NotificationModel(
-                id: n.id,
-                userId: n.userId,
-                title: n.title,
-                message: n.message,
-                type: n.type,
-                isRead: true,
-                createdAt: n.createdAt,
-              ))
+          .map(
+            (n) => NotificationModel(
+              id: n.id,
+              userId: n.userId,
+              title: n.title,
+              message: n.message,
+              type: n.type,
+              isRead: true,
+              createdAt: n.createdAt,
+            ),
+          )
           .toList();
       await _localDataSource.cacheNotifications(updated);
     }

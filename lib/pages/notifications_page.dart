@@ -6,6 +6,8 @@ import '../core/i18n/translations.g.dart';
 import '../core/responsive/responsive.dart';
 import '../features/notifications/presentation/providers/notifications_provider.dart';
 import '../features/notifications/domain/entities/notification_entity.dart';
+import '../widgets/ui/notification_card.dart';
+import '../theme/app_color_scheme.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
@@ -23,7 +25,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     final notificationsAsync = ref.watch(notificationsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: notificationsAsync.when(
         loading: () => const Center(
           child: CircularProgressIndicator(
@@ -37,10 +39,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
           final filteredNotifs = allNotifications.where((n) {
             if (_currentFilter == 'unread') return !n.isRead;
-            if (_currentFilter == 'warning') return n.type == NotificationType.warning;
-            if (_currentFilter == 'success') return n.type == NotificationType.success;
-            if (_currentFilter == 'info') return n.type == NotificationType.info;
-            if (_currentFilter == 'error') return n.type == NotificationType.error;
+            if (_currentFilter == 'warning')
+              return n.type == NotificationType.warning;
+            if (_currentFilter == 'success')
+              return n.type == NotificationType.success;
+            if (_currentFilter == 'info')
+              return n.type == NotificationType.info;
+            if (_currentFilter == 'error')
+              return n.type == NotificationType.error;
             return true;
           }).toList();
 
@@ -53,16 +59,20 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 child: filteredNotifs.isEmpty
                     ? _buildEmptyState(r)
                     : RefreshIndicator(
-                        onRefresh: () => ref.read(notificationsProvider.notifier).refresh(),
+                        onRefresh: () =>
+                            ref.read(notificationsProvider.notifier).refresh(),
                         color: AppColors.orangePrimary,
-                        backgroundColor: AppColors.surface,
+                        backgroundColor: context.colors.surface,
                         child: ListView.separated(
                           padding: EdgeInsets.symmetric(
                             horizontal: r.space(AppSpacing.lg),
                             vertical: r.space(AppSpacing.xs),
                           ),
-                          itemCount: filteredNotifs.length + (state.isLoadingMore ? 1 : 0),
-                          separatorBuilder: (_, __) => SizedBox(height: r.space(AppSpacing.lg)),
+                          itemCount:
+                              filteredNotifs.length +
+                              (state.isLoadingMore ? 1 : 0),
+                          separatorBuilder: (_, __) =>
+                              SizedBox(height: r.space(AppSpacing.lg)),
                           itemBuilder: (context, index) {
                             if (index == filteredNotifs.length) {
                               return Padding(
@@ -76,15 +86,19 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                               );
                             }
                             final notif = filteredNotifs[index];
-                            return _NotificationCard(
+                            return NotificationCard(
                               notif: notif,
                               onTap: () {
                                 if (!notif.isRead) {
-                                  ref.read(notificationsProvider.notifier).markAsRead(notif.id);
+                                  ref
+                                      .read(notificationsProvider.notifier)
+                                      .markAsRead(notif.id);
                                 }
                               },
                               onDelete: () {
-                                ref.read(notificationsProvider.notifier).deleteNotification(notif.id);
+                                ref
+                                    .read(notificationsProvider.notifier)
+                                    .deleteNotification(notif.id);
                               },
                             );
                           },
@@ -98,7 +112,12 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, int unread, int total, AppResponsive r) {
+  Widget _buildHeader(
+    BuildContext context,
+    int unread,
+    int total,
+    AppResponsive r,
+  ) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(
@@ -112,7 +131,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           center: const Alignment(0, -1.5),
           radius: 1.5,
           colors: [
-            AppColors.cyan.withValues(alpha: 0.1),
+            AppColors.orangePrimary.withValues(alpha: 0.08),
             Colors.transparent,
           ],
         ),
@@ -123,13 +142,20 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           Expanded(
             child: Row(
               children: [
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: Icon(Icons.arrow_back, color: AppColors.textMuted, size: AppIconSizes.md(context)),
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.surface,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
+                Tooltip(
+                  message: 'Volver',
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: context.colors.textMain,
+                      size: AppIconSizes.md(context),
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: context.colors.surfaceLight,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
+                      ),
                     ),
                   ),
                 ),
@@ -141,10 +167,10 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       Text(
                         Translations.of(context).notifications.title,
                         style: AppTextStyles.headlineMedium(context).copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.4,
-                            ),
+                          color: context.colors.textMain,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.4,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (unread > 0)
@@ -152,9 +178,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                           Translations.of(context).notifications.unreadSummary
                               .replaceAll('{unread}', '$unread')
                               .replaceAll('{total}', '$total'),
-                          style: AppTextStyles.caption(context).copyWith(
-                            color: AppColors.textMuted,
-                          ),
+                          style: AppTextStyles.caption(
+                            context,
+                          ).copyWith(color: context.colors.textMuted),
                           overflow: TextOverflow.ellipsis,
                         ),
                     ],
@@ -180,7 +206,11 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.done_all_rounded, color: AppColors.cyan, size: AppIconSizes.xs(context)),
+                    Icon(
+                      Icons.done_all_rounded,
+                      color: AppColors.cyan,
+                      size: AppIconSizes.xs(context),
+                    ),
                     SizedBox(width: r.space(4)),
                     Text(
                       Translations.of(context).notifications.markAllRead,
@@ -198,13 +228,38 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     );
   }
 
-  Widget _buildSummaryBar(List<NotificationEntity> notifications, AppResponsive r) {
+  Widget _buildSummaryBar(
+    List<NotificationEntity> notifications,
+    AppResponsive r,
+  ) {
     final t = Translations.of(context);
     final counts = [
-      {'label': t.notifications.summaryAll, 'value': notifications.length, 'color': AppColors.textMuted},
-      {'label': t.notifications.summaryWarnings, 'value': notifications.where((n) => n.type == NotificationType.warning).length, 'color': AppColors.orangeSecondary},
-      {'label': t.notifications.summarySuccess, 'value': notifications.where((n) => n.type == NotificationType.success).length, 'color': AppColors.green},
-      {'label': 'Info', 'value': notifications.where((n) => n.type == NotificationType.info).length, 'color': AppColors.cyan},
+      {
+        'label': t.notifications.summaryAll,
+        'value': notifications.length,
+        'color': context.colors.textMuted,
+      },
+      {
+        'label': t.notifications.summaryWarnings,
+        'value': notifications
+            .where((n) => n.type == NotificationType.warning)
+            .length,
+        'color': AppColors.orangeSecondary,
+      },
+      {
+        'label': t.notifications.summarySuccess,
+        'value': notifications
+            .where((n) => n.type == NotificationType.success)
+            .length,
+        'color': AppColors.green,
+      },
+      {
+        'label': 'Info',
+        'value': notifications
+            .where((n) => n.type == NotificationType.info)
+            .length,
+        'color': AppColors.cyan,
+      },
     ];
 
     return Padding(
@@ -215,7 +270,8 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       child: Container(
         padding: EdgeInsets.all(r.space(AppSpacing.md)),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surfaceLight,
+          border: Border.all(color: context.colors.borderLight, width: 1.0),
           borderRadius: BorderRadius.circular(r.r(AppRadius.xxl)),
         ),
         child: Row(
@@ -234,7 +290,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                   Text(
                     c['label'] as String,
                     style: AppTextStyles.tiny(context).copyWith(
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                       fontWeight: FontWeight.w500,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -248,7 +304,11 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     );
   }
 
-  Widget _buildFilterTabs(int unread, List<NotificationEntity> notifications, AppResponsive r) {
+  Widget _buildFilterTabs(
+    int unread,
+    List<NotificationEntity> notifications,
+    AppResponsive r,
+  ) {
     final t = Translations.of(context);
     final filters = [
       {'key': 'all', 'label': t.notifications.filterAll},
@@ -276,10 +336,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 vertical: r.space(AppSpacing.xs),
               ),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.orangePrimary.withValues(alpha: 0.12) : AppColors.surface,
+                color: isSelected
+                    ? AppColors.orangePrimary.withValues(alpha: 0.12)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
                 border: Border.all(
-                  color: isSelected ? AppColors.orangePrimary.withValues(alpha: 0.35) : AppColors.border,
+                  color: isSelected
+                      ? AppColors.orangePrimary.withValues(alpha: 0.35)
+                      : context.colors.borderLight,
                 ),
               ),
               child: Row(
@@ -287,8 +351,12 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                   Text(
                     f['label'] as String,
                     style: AppTextStyles.bodySmall(context).copyWith(
-                      color: isSelected ? AppColors.orangePrimary : AppColors.textMuted,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                      color: isSelected
+                          ? AppColors.orangePrimary
+                          : context.colors.textMain,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                     ),
                   ),
                   if (f['key'] == 'unread' && unread > 0) ...[
@@ -305,7 +373,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       child: Text(
                         '$unread',
                         style: AppTextStyles.tiny(context).copyWith(
-                          color: Colors.white,
+                          color: context.colors.textMain,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -321,38 +389,108 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   }
 
   Widget _buildEmptyState(AppResponsive r) {
+    final t = Translations.of(context);
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(r.space(AppSpacing.lg)),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceLight,
-              borderRadius: BorderRadius.circular(r.r(AppRadius.xxl)),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.xl)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Ícono con halo y badge de check
+            Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(r.space(AppSpacing.xl)),
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      colors: [
+                        AppColors.green.withValues(alpha: 0.15),
+                        AppColors.green.withValues(alpha: 0.03),
+                        Colors.transparent,
+                      ],
+                      radius: 1.0,
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.all(r.space(AppSpacing.lg)),
+                    decoration: BoxDecoration(
+                      color: AppColors.green.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.green.withValues(alpha: 0.2),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.notifications_rounded,
+                      size: AppIconSizes.massive(context),
+                      color: AppColors.green,
+                    ),
+                  ),
+                ),
+                // Badge check verde
+                Container(
+                  width: r.dim(28),
+                  height: r.dim(28),
+                  decoration: BoxDecoration(
+                    color: AppColors.green,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: context.colors.background, width: 2),
+                  ),
+                  child: Icon(
+                    Icons.check_rounded,
+                    color: context.colors.textMain,
+                    size: r.dim(16),
+                  ),
+                ),
+              ],
             ),
-            child: Icon(Icons.notifications_off_outlined, size: AppIconSizes.massive(context), color: AppColors.textDim),
-          ),
-          SizedBox(height: r.space(AppSpacing.md)),
-          Text(
-            Translations.of(context).notifications.emptyTitle,
-            style: AppTextStyles.button(context).copyWith(
-              color: Colors.white,
+            SizedBox(height: r.space(AppSpacing.lg)),
+            Text(
+              t.notifications.emptyTitle,
+              style: AppTextStyles.button(context).copyWith(
+                color: context.colors.textMain,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.2,
+              ),
             ),
-          ),
-          SizedBox(height: r.space(AppSpacing.xxs)),
-          Text(
-            Translations.of(context).notifications.emptySubtitle,
-            style: AppTextStyles.bodySmall(context).copyWith(
-              color: AppColors.textMuted,
+            SizedBox(height: r.space(AppSpacing.xs)),
+            Text(
+              t.notifications.emptySubtitle,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodySmall(context).copyWith(
+                color: context.colors.textMuted,
+                height: 1.5,
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: r.space(AppSpacing.lg)),
+            // Botón de acción — da agencia al usuario
+            TextButton.icon(
+              onPressed: () =>
+                  ref.read(notificationsProvider.notifier).refresh(),
+              icon: Icon(
+                Icons.refresh_rounded,
+                size: r.dim(16),
+                color: context.colors.textDim,
+              ),
+              label: Text(
+                t.notifications.retryButton,
+                style: AppTextStyles.caption(context).copyWith(
+                  color: context.colors.textDim,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildErrorState(AppResponsive r) {
+    // #7 fix: use i18n keys instead of hardcoded Spanish strings
+    final t = Translations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -360,187 +498,31 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           Container(
             padding: EdgeInsets.all(r.space(AppSpacing.lg)),
             decoration: BoxDecoration(
-              color: AppColors.surfaceLight,
+              color: context.colors.surfaceLight,
               borderRadius: BorderRadius.circular(r.r(AppRadius.xxl)),
             ),
-            child: Icon(Icons.cloud_off_rounded, size: AppIconSizes.massive(context), color: AppColors.textDim),
+            child: Icon(
+              Icons.cloud_off_rounded,
+              size: AppIconSizes.massive(context),
+              color: context.colors.textDim,
+            ),
           ),
           SizedBox(height: r.space(AppSpacing.md)),
           Text(
-            'Error al cargar notificaciones',
+            t.notifications.errorLoading,
             style: AppTextStyles.button(context).copyWith(color: Colors.white),
           ),
           SizedBox(height: r.space(AppSpacing.lg)),
           FilledButton.icon(
             onPressed: () => ref.read(notificationsProvider.notifier).refresh(),
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Reintentar'),
-            style: FilledButton.styleFrom(backgroundColor: AppColors.orangePrimary),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NotificationCard extends StatelessWidget {
-  final NotificationEntity notif;
-  final VoidCallback onTap;
-  final VoidCallback onDelete;
-
-  const _NotificationCard({
-    required this.notif,
-    required this.onTap,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final r = context.responsive;
-    final cfg = _getTypeConfig(notif.type, context);
-
-    // Wrap unread cards with a left accent strip — mobile pattern, no full border
-    Widget card = Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: !notif.isRead
-            ? Border(
-                left: BorderSide(color: cfg.accent, width: 3),
-              )
-            : null,
-      ),
-      child: Stack(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(r.space(AppSpacing.lg)),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Icon — compact 38×38
-                Container(
-                  width: r.dim(38),
-                  height: r.dim(38),
-                  decoration: BoxDecoration(
-                    color: cfg.accent.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(r.r(12)),
-                  ),
-                  child: Icon(cfg.icon, color: cfg.accent, size: AppIconSizes.md(context)),
-                ),
-                SizedBox(width: r.space(AppSpacing.s)),
-                // Content
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title only — icon color already communicates type
-                      Text(
-                        notif.title,
-                        style: AppTextStyles.bodyMedium(context).copyWith(
-                          color: Colors.white,
-                          fontWeight: notif.isRead ? FontWeight.w500 : FontWeight.w700,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: r.space(3)),
-                      Text(
-                        notif.message,
-                        style: AppTextStyles.caption(context).copyWith(
-                          color: AppColors.textMuted,
-                          height: 1.4,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: r.space(AppSpacing.xs)),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              if (!notif.isRead) ...[
-                                Container(
-                                  width: r.dim(5),
-                                  height: r.dim(5),
-                                  decoration: BoxDecoration(
-                                    color: cfg.accent,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                SizedBox(width: r.space(4)),
-                              ],
-                              Text(
-                                _formatTimestamp(notif.createdAt),
-                                style: AppTextStyles.label(context).copyWith(
-                                  color: AppColors.textMuted,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                          GestureDetector(
-                            onTap: onDelete,
-                            child: Container(
-                              width: r.dim(26),
-                              height: r.dim(26),
-                              decoration: BoxDecoration(
-                                color: AppColors.red.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(r.r(8)),
-                              ),
-                              child: Icon(Icons.delete_outline, color: AppColors.red, size: AppIconSizes.xs(context)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            label: Text(t.notifications.retryButton),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.orangePrimary,
             ),
           ),
         ],
       ),
     );
-
-    return GestureDetector(
-      onTap: onTap,
-      child: card,
-    );
   }
-
-  String _formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final diff = now.difference(timestamp);
-
-    if (diff.inMinutes < 1) return 'Ahora';
-    if (diff.inMinutes < 60) return 'Hace ${diff.inMinutes} min';
-    if (diff.inHours < 24) return 'Hace ${diff.inHours}h';
-    if (diff.inDays < 7) return 'Hace ${diff.inDays}d';
-    return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
-  }
-
-  _TypeConfig _getTypeConfig(NotificationType type, BuildContext context) {
-    final t = Translations.of(context);
-    switch (type) {
-      case NotificationType.warning:
-        return _TypeConfig(Icons.warning_amber_rounded, AppColors.orangeSecondary, t.notifications.typeWarning);
-      case NotificationType.success:
-        return _TypeConfig(Icons.check_circle_outline_rounded, AppColors.green, t.notifications.typeSuccess);
-      case NotificationType.info:
-        return _TypeConfig(Icons.info_outline_rounded, AppColors.accent, t.notifications.typeInfo);
-      case NotificationType.error:
-        return _TypeConfig(Icons.error_outline_rounded, AppColors.red, 'Error');
-      case NotificationType.weather:
-        return _TypeConfig(Icons.thermostat_rounded, AppColors.cyan, t.notifications.typeInfo);
-    }
-  }
-}
-
-class _TypeConfig {
-  final IconData icon;
-  final Color accent;
-  final String label;
-
-  _TypeConfig(this.icon, this.accent, this.label);
 }

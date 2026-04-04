@@ -8,6 +8,7 @@ import '../../../../theme/app_theme.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/i18n/translations.g.dart';
 import '../../domain/entities/notification_entity.dart';
+import '../../../../theme/app_color_scheme.dart';
 
 class NotificationTile extends StatelessWidget {
   final NotificationEntity notification;
@@ -54,12 +55,12 @@ class NotificationTile extends StatelessWidget {
             padding: EdgeInsets.all(r.space(AppSpacing.md)),
             decoration: BoxDecoration(
               color: isRead
-                  ? AppColors.surface
-                  : AppColors.surfaceLight.withValues(alpha: 0.8),
+                  ? context.colors.surface
+                  : context.colors.surfaceLight.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
               border: Border.all(
                 color: isRead
-                    ? AppColors.border
+                    ? context.colors.border
                     : _typeColor(notification.type).withValues(alpha: 0.3),
                 width: isRead ? 1 : 1.5,
               ),
@@ -84,10 +85,11 @@ class NotificationTile extends StatelessWidget {
                               notification.title,
                               style: AppTextStyles.body(context).copyWith(
                                 color: isRead
-                                    ? AppColors.textSecondary
-                                    : AppColors.textMain,
-                                fontWeight:
-                                    isRead ? FontWeight.w400 : FontWeight.w600,
+                                    ? context.colors.textSecondary
+                                    : context.colors.textMain,
+                                fontWeight: isRead
+                                    ? FontWeight.w400
+                                    : FontWeight.w600,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -115,8 +117,8 @@ class NotificationTile extends StatelessWidget {
                         notification.message,
                         style: AppTextStyles.bodySmall(context).copyWith(
                           color: isRead
-                              ? AppColors.textMuted
-                              : AppColors.textSecondary,
+                              ? context.colors.textMuted
+                              : context.colors.textSecondary,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -126,10 +128,13 @@ class NotificationTile extends StatelessWidget {
 
                       // Timestamp
                       Text(
-                        _formatTimestamp(notification.createdAt, Translations.of(context)),
-                        style: AppTextStyles.caption(context).copyWith(
-                          color: AppColors.textDark,
+                        _formatTimestamp(
+                          notification.createdAt,
+                          Translations.of(context),
                         ),
+                        style: AppTextStyles.caption(
+                          context,
+                        ).copyWith(color: context.colors.textDark),
                       ),
                     ],
                   ),
@@ -148,9 +153,12 @@ class NotificationTile extends StatelessWidget {
     final diff = now.difference(timestamp);
 
     if (diff.inMinutes < 1) return t.time.now;
-    if (diff.inMinutes < 60) return t.time.minutesAgo.replaceAll('{n}', '${diff.inMinutes}');
-    if (diff.inHours < 24) return t.time.hoursAgo.replaceAll('{n}', '${diff.inHours}');
-    if (diff.inDays < 7) return t.time.daysAgo.replaceAll('{n}', '${diff.inDays}');
+    if (diff.inMinutes < 60)
+      return t.time.minutesAgo.replaceAll('{n}', '${diff.inMinutes}');
+    if (diff.inHours < 24)
+      return t.time.hoursAgo.replaceAll('{n}', '${diff.inHours}');
+    if (diff.inDays < 7)
+      return t.time.daysAgo.replaceAll('{n}', '${diff.inDays}');
     return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 /// Mobile-native confirmation — uses bottom sheet instead of Dialog.
 /// Follows the design system: surface container, no borders, borderless buttons.
@@ -54,7 +55,7 @@ class ConfirmationDialog extends StatelessWidget {
         MediaQuery.of(context).padding.bottom + r.space(AppSpacing.lg),
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(r.r(AppRadius.xxl)),
         ),
@@ -94,17 +95,16 @@ class ConfirmationDialog extends StatelessWidget {
 
           Text(
             title,
-            style: AppTextStyles.sheetTitle(context).copyWith(
-              color: Colors.white,
-            ),
+            style: AppTextStyles.sheetTitle(
+              context,
+            ).copyWith(color: Colors.white),
           ),
           SizedBox(height: r.space(AppSpacing.xs)),
           Text(
             message,
-            style: AppTextStyles.bodyMedium(context).copyWith(
-              color: AppColors.textSecondary,
-              height: 1.5,
-            ),
+            style: AppTextStyles.bodyMedium(
+              context,
+            ).copyWith(color: context.colors.textSecondary, height: 1.5),
           ),
           SizedBox(height: r.space(AppSpacing.xl)),
 
@@ -115,16 +115,18 @@ class ConfirmationDialog extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: r.space(AppSpacing.md)),
+                    padding: EdgeInsets.symmetric(
+                      vertical: r.space(AppSpacing.md),
+                    ),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceLight,
+                      color: context.colors.surfaceLight,
                       borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       'Cancelar',
                       style: AppTextStyles.bodyMedium(context).copyWith(
-                        color: AppColors.textMuted,
+                        color: context.colors.textMuted,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -139,7 +141,9 @@ class ConfirmationDialog extends StatelessWidget {
                     onConfirm();
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: r.space(AppSpacing.md)),
+                    padding: EdgeInsets.symmetric(
+                      vertical: r.space(AppSpacing.md),
+                    ),
                     decoration: BoxDecoration(
                       color: confirmColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/i18n/translations.g.dart';
+import '../../theme/app_color_scheme.dart';
 
 class GarageEmptyState extends StatelessWidget {
   const GarageEmptyState({super.key});
@@ -17,7 +18,7 @@ class GarageEmptyState extends StatelessWidget {
         horizontal: AppSpacing.lg,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.xxl),
       ),
       child: Column(
@@ -47,7 +48,7 @@ class GarageEmptyState extends StatelessWidget {
             Translations.of(context).garage.emptyGarageMessage,
             textAlign: TextAlign.center,
             style: textTheme.bodySmall?.copyWith(
-              color: AppColors.textMuted,
+              color: context.colors.textMuted,
               height: 1.6,
             ),
           ),

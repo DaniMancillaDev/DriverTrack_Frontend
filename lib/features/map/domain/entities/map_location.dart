@@ -31,10 +31,7 @@ class MapLocation {
     required this.priceLevel,
   });
 
-  MapLocation copyWith({
-    String? distance,
-    bool? open,
-  }) {
+  MapLocation copyWith({String? distance, bool? open}) {
     return MapLocation(
       id: id,
       name: name,

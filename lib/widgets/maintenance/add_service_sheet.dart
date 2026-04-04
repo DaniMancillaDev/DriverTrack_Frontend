@@ -18,6 +18,7 @@ import '../../core/units/presentation/unit_system_provider.dart';
 import '../../features/currency/presentation/widgets/currency_display.dart';
 import '../../features/currency/presentation/providers/currency_provider.dart';
 import '../../features/currency/domain/entities/currency.dart';
+import '../../theme/app_color_scheme.dart';
 
 class AddServiceSheet extends ConsumerStatefulWidget {
   final List<Vehicle> vehicles;
@@ -53,7 +54,7 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
     'Wear & Tear',
     'Inspection',
     'Cosmetic',
-    'Electrical'
+    'Electrical',
   ];
 
   // Validation state
@@ -64,24 +65,31 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
   @override
   void initState() {
     super.initState();
-    
+
     if (widget.initialMaintenance != null) {
       final m = widget.initialMaintenance!;
       _selectedVehicle = widget.vehicles.firstWhere(
         (v) => v.id == m.vehicleId,
         orElse: () => widget.vehicles.first,
       );
-      _serviceController = TextEditingController(text: MaintenanceMapper.getTitle(m.description));
+      _serviceController = TextEditingController(
+        text: MaintenanceMapper.getTitle(m.description),
+      );
       _selectedDate = m.date;
       final currencyState = ref.read(currencyNotifierProvider).value;
       double initialCost = m.cost;
-      if (currencyState != null && currencyState.activeCurrency != Currency.usd) {
-         initialCost = initialCost * currencyState.exchangeRate.rate;
+      if (currencyState != null &&
+          currencyState.activeCurrency != Currency.usd) {
+        initialCost = initialCost * currencyState.exchangeRate.rate;
       }
-      _costController = TextEditingController(text: initialCost.toStringAsFixed(2));
+      _costController = TextEditingController(
+        text: initialCost.toStringAsFixed(2),
+      );
       _mileageController = TextEditingController(text: m.mileage.toString());
       _selectedCategory = m.category;
-      _notesController = TextEditingController(text: MaintenanceMapper.getNotes(m.description) ?? ''); 
+      _notesController = TextEditingController(
+        text: MaintenanceMapper.getNotes(m.description) ?? '',
+      );
     } else {
       _selectedVehicle = widget.vehicles.isNotEmpty
           ? widget.vehicles.first
@@ -111,7 +119,8 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
       final t = Translations.of(context);
       _serviceError = FormValidators.notEmpty(
         _serviceController.text,
-        t.maintenance.service, context,
+        t.maintenance.service,
+        context,
       );
       _costError = FormValidators.cost(_costController.text, context);
       _mileageError = FormValidators.mileage(_mileageController.text, context);
@@ -163,7 +172,7 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
 
     try {
       await widget.onSave(entry);
-      
+
       if (!mounted) return;
 
       setState(() {
@@ -214,9 +223,10 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final t = Translations.of(context);
-    
+
     final currencyAsync = ref.watch(currencyNotifierProvider);
-    final String activeCurrencyCode = currencyAsync.value?.activeCurrency.code ?? 'USD';
+    final String activeCurrencyCode =
+        currencyAsync.value?.activeCurrency.code ?? 'USD';
 
     return SheetContainer(
       child: SingleChildScrollView(
@@ -273,10 +283,10 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                 errorText: _dirtyFields.contains('service')
                     ? _serviceError
                     : null,
-                prefixIcon: const Icon(
+                prefixIcon: Icon(
                   Icons.build_circle_rounded,
                   size: 16,
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
                 onChanged: (_) => _markDirty('service'),
               ),
@@ -289,11 +299,14 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.s, left: 4),
+                    padding: const EdgeInsets.only(
+                      bottom: AppSpacing.s,
+                      left: 4,
+                    ),
                     child: Text(
                       t.maintenance.date.toUpperCase(),
                       style: textTheme.labelSmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.6,
                       ),
@@ -325,10 +338,10 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                       errorText: _dirtyFields.contains('cost')
                           ? _costError
                           : null,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.attach_money_rounded,
                         size: 16,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
@@ -348,10 +361,10 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                       errorText: _dirtyFields.contains('mileage')
                           ? _mileageError
                           : null,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.speed_rounded,
                         size: 16,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                       keyboardType: TextInputType.number,
                       onChanged: (_) => _markDirty('mileage'),
@@ -381,13 +394,19 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
             _buildAnimatedItem(
               7,
               SheetActionButton(
-                label: widget.initialMaintenance != null ? t.maintenance.btnUpdate : t.maintenance.btnSave,
-                successLabel: widget.initialMaintenance != null ? t.maintenance.btnUpdated : t.maintenance.btnSaved,
+                label: widget.initialMaintenance != null
+                    ? t.maintenance.btnUpdate
+                    : t.maintenance.btnSave,
+                successLabel: widget.initialMaintenance != null
+                    ? t.maintenance.btnUpdated
+                    : t.maintenance.btnSaved,
                 onPressed: _handleSave,
                 isEnabled: _isValid,
                 isLoading: _isSaving,
                 isSuccess: _isSaved,
-                icon: widget.initialMaintenance != null ? Icons.save_rounded : Icons.add_task_rounded,
+                icon: widget.initialMaintenance != null
+                    ? Icons.save_rounded
+                    : Icons.add_task_rounded,
                 successIcon: Icons.check_circle_rounded,
               ),
             ),
@@ -400,7 +419,7 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                   child: Text(
                     t.common.cancel,
                     style: textTheme.bodyLarge?.copyWith(
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -423,14 +442,14 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.xxl),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Column(
@@ -441,12 +460,12 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
               Container(
                 padding: const EdgeInsets.all(AppSpacing.s),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceLight,
+                  color: context.colors.surfaceLight,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.receipt_long_rounded,
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                   size: 16,
                 ),
               ),
@@ -454,10 +473,10 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
               Text(
                 Translations.of(context).maintenance.recordPreview,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textMuted,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                    ),
+                  color: context.colors.textMuted,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.8,
+                ),
               ),
             ],
           ),
@@ -467,16 +486,16 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                 ? Translations.of(context).maintenance.untitledService
                 : _serviceController.text,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(
             '${_selectedVehicle?.displayName ?? Translations.of(context).maintenance.unknownVehicle} • ${DateFormat('MMM d, y').format(_selectedDate)}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textMuted,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: context.colors.textMuted),
           ),
           const SizedBox(height: AppSpacing.md),
           Row(
@@ -488,22 +507,24 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                   Text(
                     Translations.of(context).maintenance.costLabel,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.textMuted,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      color: context.colors.textMuted,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   cost > 0
                       ? CurrencyDisplay(
                           amount: cost,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
                                 color: AppColors.green,
                                 fontWeight: FontWeight.w800,
                               ),
                         )
                       : Text(
                           Translations.of(context).maintenance.costFree,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: AppColors.textMuted,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: context.colors.textMuted,
                                 fontWeight: FontWeight.w800,
                               ),
                         ),
@@ -515,16 +536,20 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                   Text(
                     Translations.of(context).maintenance.mileageLabel,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.textMuted,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      color: context.colors.textMuted,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
-                    UnitFormatter.formatDistance(double.tryParse(_mileageController.text) ?? 0, ref.watch(unitSystemProvider), fractionDigits: 0),
+                    UnitFormatter.formatDistance(
+                      double.tryParse(_mileageController.text) ?? 0,
+                      ref.watch(unitSystemProvider),
+                      fractionDigits: 0,
+                    ),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ],
               ),

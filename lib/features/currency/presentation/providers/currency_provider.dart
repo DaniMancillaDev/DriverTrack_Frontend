@@ -11,21 +11,24 @@ import '../../domain/usecases/save_user_currency_preference.dart';
 import '../../data/datasources/currency_local_data_source.dart';
 import '../../data/datasources/currency_remote_data_source.dart';
 import '../../data/repositories/currency_repository_impl.dart';
-import '../../../../core/units/presentation/unit_system_provider.dart' show sharedPreferencesProvider;
+import '../../../../core/units/presentation/unit_system_provider.dart'
+    show sharedPreferencesProvider;
 
 /// Providers for Dependencies
 final httpClientProvider = Provider<http.Client>((ref) => http.Client());
 
-final currencyLocalDataSourceProvider = Provider<CurrencyLocalDataSource>((ref) {
+final currencyLocalDataSourceProvider = Provider<CurrencyLocalDataSource>((
+  ref,
+) {
   return CurrencyLocalDataSourceImpl(
     sharedPreferences: ref.read(sharedPreferencesProvider),
   );
 });
 
-final currencyRemoteDataSourceProvider = Provider<CurrencyRemoteDataSource>((ref) {
-  return CurrencyRemoteDataSourceImpl(
-    client: ref.read(httpClientProvider),
-  );
+final currencyRemoteDataSourceProvider = Provider<CurrencyRemoteDataSource>((
+  ref,
+) {
+  return CurrencyRemoteDataSourceImpl(client: ref.read(httpClientProvider));
 });
 
 final currencyRepositoryProvider = Provider<CurrencyRepositoryImpl>((ref) {
@@ -39,13 +42,15 @@ final getExchangeRateUseCaseProvider = Provider<GetExchangeRate>((ref) {
   return GetExchangeRate(ref.read(currencyRepositoryProvider));
 });
 
-final getUserCurrencyPreferenceUseCaseProvider = Provider<GetUserCurrencyPreference>((ref) {
-  return GetUserCurrencyPreference(ref.read(currencyRepositoryProvider));
-});
+final getUserCurrencyPreferenceUseCaseProvider =
+    Provider<GetUserCurrencyPreference>((ref) {
+      return GetUserCurrencyPreference(ref.read(currencyRepositoryProvider));
+    });
 
-final saveUserCurrencyPreferenceUseCaseProvider = Provider<SaveUserCurrencyPreference>((ref) {
-  return SaveUserCurrencyPreference(ref.read(currencyRepositoryProvider));
-});
+final saveUserCurrencyPreferenceUseCaseProvider =
+    Provider<SaveUserCurrencyPreference>((ref) {
+      return SaveUserCurrencyPreference(ref.read(currencyRepositoryProvider));
+    });
 
 final convertCurrencyUseCaseProvider = Provider<ConvertCurrency>((ref) {
   return ConvertCurrency();
@@ -56,10 +61,7 @@ class CurrencyState {
   final ExchangeRate exchangeRate;
   final Currency activeCurrency;
 
-  CurrencyState({
-    required this.exchangeRate,
-    required this.activeCurrency,
-  });
+  CurrencyState({required this.exchangeRate, required this.activeCurrency});
 
   CurrencyState copyWith({
     ExchangeRate? exchangeRate,
@@ -73,9 +75,10 @@ class CurrencyState {
 }
 
 /// AsyncNotifier Provider
-final currencyNotifierProvider = AsyncNotifierProvider<CurrencyNotifier, CurrencyState>(() {
-  return CurrencyNotifier();
-});
+final currencyNotifierProvider =
+    AsyncNotifierProvider<CurrencyNotifier, CurrencyState>(() {
+      return CurrencyNotifier();
+    });
 
 class CurrencyNotifier extends AsyncNotifier<CurrencyState> {
   @override
@@ -94,14 +97,14 @@ class CurrencyNotifier extends AsyncNotifier<CurrencyState> {
 
     // Get exchange rate (Fixed USD to MXN since that's our target conversion)
     // We always request USD -> MXN to have a stable cache, and can invert it later.
-    final rateResult = await getRateUseCase(base: Currency.usd, target: Currency.mxn);
+    final rateResult = await getRateUseCase(
+      base: Currency.usd,
+      target: Currency.mxn,
+    );
 
     return rateResult.fold(
       (failure) => throw Exception(failure.message),
-      (rate) => CurrencyState(
-        exchangeRate: rate,
-        activeCurrency: preferred,
-      ),
+      (rate) => CurrencyState(exchangeRate: rate, activeCurrency: preferred),
     );
   }
 
@@ -110,8 +113,11 @@ class CurrencyNotifier extends AsyncNotifier<CurrencyState> {
     state = const AsyncValue.loading();
     try {
       final getRateUseCase = ref.read(getExchangeRateUseCaseProvider);
-      final rateResult = await getRateUseCase(base: Currency.usd, target: Currency.mxn);
-      
+      final rateResult = await getRateUseCase(
+        base: Currency.usd,
+        target: Currency.mxn,
+      );
+
       final currentCurrency = state.value?.activeCurrency ?? Currency.usd;
 
       rateResult.fold(
@@ -119,10 +125,9 @@ class CurrencyNotifier extends AsyncNotifier<CurrencyState> {
           state = AsyncValue.error(failure.message, StackTrace.current);
         },
         (rate) {
-          state = AsyncValue.data(CurrencyState(
-            exchangeRate: rate,
-            activeCurrency: currentCurrency,
-          ));
+          state = AsyncValue.data(
+            CurrencyState(exchangeRate: rate, activeCurrency: currentCurrency),
+          );
         },
       );
     } catch (e, st) {
@@ -135,8 +140,8 @@ class CurrencyNotifier extends AsyncNotifier<CurrencyState> {
     final currentState = state.value;
     if (currentState == null) return;
 
-    final newCurrency = currentState.activeCurrency == Currency.usd 
-        ? Currency.mxn 
+    final newCurrency = currentState.activeCurrency == Currency.usd
+        ? Currency.mxn
         : Currency.usd;
 
     // Save to preferences
@@ -145,23 +150,20 @@ class CurrencyNotifier extends AsyncNotifier<CurrencyState> {
 
     state = AsyncValue.data(currentState.copyWith(activeCurrency: newCurrency));
   }
-  
+
   /// Helper to convert amount using the current state and use case
   double convert(double amount) {
     final currentState = state.value;
     if (currentState == null) return 0.0;
 
     final convertUseCase = ref.read(convertCurrencyUseCaseProvider);
-    
+
     // If our active currency is USD, we convert USD -> MXN using the standard rate.
     // If active is MXN, we convert MXN -> USD using the inverted rate.
-    final effectiveRate = currentState.activeCurrency == Currency.usd 
-        ? currentState.exchangeRate 
+    final effectiveRate = currentState.activeCurrency == Currency.usd
+        ? currentState.exchangeRate
         : currentState.exchangeRate.invert();
 
-    return convertUseCase(
-      amount: amount,
-      exchangeRate: effectiveRate,
-    );
+    return convertUseCase(amount: amount, exchangeRate: effectiveRate);
   }
 }

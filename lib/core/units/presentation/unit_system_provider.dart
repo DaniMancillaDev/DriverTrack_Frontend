@@ -5,7 +5,9 @@ import '../data/preferences_service.dart';
 
 /// Provider que debe sobrescribirse en el main.dart con el valor real
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
-  throw UnimplementedError('Se debe sobreescribir sharedPreferencesProvider en el runApp()');
+  throw UnimplementedError(
+    'Se debe sobreescribir sharedPreferencesProvider en el runApp()',
+  );
 });
 
 /// Provider para inyectar el servicio de preferencias
@@ -25,7 +27,7 @@ class UnitSystemNotifier extends Notifier<UnitSystem> {
   @override
   UnitSystem build() {
     _preferencesService = ref.watch(unitPreferencesServiceProvider);
-    return _preferencesService.getUnitSystem(); 
+    return _preferencesService.getUnitSystem();
   }
 
   /// Cambia el sistema a uno en específico
@@ -36,7 +38,9 @@ class UnitSystemNotifier extends Notifier<UnitSystem> {
 
   /// Alterna automáticamente el sistema actual
   Future<void> toggleSystem() async {
-    final newSystem = state == UnitSystem.metric ? UnitSystem.imperial : UnitSystem.metric;
+    final newSystem = state == UnitSystem.metric
+        ? UnitSystem.imperial
+        : UnitSystem.metric;
     await setSystem(newSystem);
   }
 }

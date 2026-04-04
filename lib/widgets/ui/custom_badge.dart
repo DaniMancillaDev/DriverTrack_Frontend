@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
-enum BadgeVariant {
-  defaultVariant,
-  secondary,
-  destructive,
-  outline,
-}
+enum BadgeVariant { defaultVariant, secondary, destructive, outline }
 
 class CustomBadge extends StatelessWidget {
   final Widget label;
@@ -24,11 +19,7 @@ class CustomBadge extends StatelessWidget {
     Key? key,
     BadgeVariant variant = BadgeVariant.defaultVariant,
   }) {
-    return CustomBadge(
-      key: key,
-      variant: variant,
-      label: Text(text),
-    );
+    return CustomBadge(key: key, variant: variant, label: Text(text));
   }
 
   @override
@@ -51,10 +42,7 @@ class CustomBadge extends StatelessWidget {
       case BadgeVariant.outline:
         backgroundColor = Colors.transparent;
         foregroundColor = colorScheme.onSurface;
-        border = Border.all(
-          color: colorScheme.outlineVariant,
-          width: 1,
-        );
+        border = Border.all(color: colorScheme.outlineVariant, width: 1);
         break;
       case BadgeVariant.defaultVariant:
         backgroundColor = colorScheme.primary;
@@ -73,9 +61,11 @@ class CustomBadge extends StatelessWidget {
         vertical: AppSpacing.xxs,
       ),
       child: DefaultTextStyle(
-        style: (Theme.of(context).textTheme.labelSmall ?? const TextStyle()).copyWith(
+        style: (Theme.of(context).textTheme.labelSmall ?? const TextStyle())
+            .copyWith(
               color: foregroundColor,
-              fontWeight: FontWeight.w600, // Medium/SemiBold equivalentes a font-medium
+              fontWeight:
+                  FontWeight.w600, // Medium/SemiBold equivalentes a font-medium
               height: 1.2,
             ),
         child: label,

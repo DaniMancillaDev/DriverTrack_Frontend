@@ -9,6 +9,7 @@ import '../../core/units/domain/unit_formatter.dart';
 import '../../features/currency/presentation/widgets/currency_display.dart';
 import '../../core/responsive/responsive.dart';
 import '../../core/i18n/translations.g.dart';
+import '../../theme/app_color_scheme.dart';
 
 class MaintenanceCard extends ConsumerStatefulWidget {
   final MaintenanceViewModel vm;
@@ -33,7 +34,8 @@ class _MaintenanceCardState extends ConsumerState<MaintenanceCard> {
   Widget build(BuildContext context) {
     final unitSystem = ref.watch(unitSystemProvider);
     final r = context.responsive;
-    
+    final accent = widget.vm.computedAccent;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) {
@@ -42,79 +44,94 @@ class _MaintenanceCardState extends ConsumerState<MaintenanceCard> {
       },
       onTapCancel: () => setState(() => _isPressed = false),
       child: AnimatedScale(
-          scale: _isPressed ? 0.98 : 1.0,
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOutBack,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            margin: EdgeInsets.only(bottom: r.space(AppSpacing.md)),
-            padding: EdgeInsets.all(r.space(AppSpacing.lg)),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
+        scale: _isPressed ? 0.98 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOutBack,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: EdgeInsets.only(bottom: r.space(AppSpacing.md)),
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
+            // Borde izquierdo de acento — misma técnica que el Status Ribbon
+            border: Border(
+              left: BorderSide(color: accent, width: 3),
             ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(r.space(AppSpacing.lg)),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Rounded-square icon container (Principio #8: radio moderno)
+                // Ícono de categoría con fondo accent
                 Container(
                   width: r.dim(44),
                   height: r.dim(44),
                   decoration: BoxDecoration(
-                    color: widget.vm.computedAccent.withValues(alpha: 0.12),
+                    color: accent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
                   ),
                   child: Icon(
                     widget.vm.computedIcon,
-                    color: widget.vm.computedAccent,
+                    color: accent,
                     size: AppIconSizes.md(context),
                   ),
                 ),
                 SizedBox(width: r.space(AppSpacing.lg)),
-                
+
                 // Central Info
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container( // The single accent dot
-                            width: 8, height: 8,
-                            decoration: BoxDecoration(
-                              color: widget.vm.computedAccent,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          SizedBox(width: r.space(AppSpacing.s)),
-                          Expanded(
-                            child: Text(
-                              widget.vm.title,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -0.5,
-                                  ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: r.space(AppSpacing.xs)),
-                      
-                      // Combined Meta string
                       Text(
-                        '${widget.vehicleName} • ${DateFormat('MMM d, y').format(widget.vm.date)} • ${UnitFormatter.formatDistance(widget.vm.mileage.toDouble(), unitSystem, fractionDigits: 0)}',
+                        widget.vm.title,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: context.colors.textMain,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.4,
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: r.space(AppSpacing.xxs)),
+
+                      // Meta: vehículo · fecha · km
+                      Text(
+                        '${widget.vehicleName} · ${DateFormat('MMM d, y').format(widget.vm.date)} · ${UnitFormatter.formatDistance(widget.vm.mileage.toDouble(), unitSystem, fractionDigits: 0)}',
                         style: AppTextStyles.caption(context).copyWith(
-                          color: AppColors.textMuted,
+                          color: context.colors.textMuted,
                           fontWeight: FontWeight.w500,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      
+
+                      SizedBox(height: r.space(AppSpacing.xs)),
+
+                      // Chip de categoría — visibilidad instantánea del tipo de servicio
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: r.space(AppSpacing.xs),
+                          vertical: r.space(3),
+                        ),
+                        decoration: BoxDecoration(
+                          color: accent.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
+                        ),
+                        child: Text(
+                          widget.vm.category.isNotEmpty
+                              ? widget.vm.category
+                              : 'General',
+                          style: AppTextStyles.tiny(context).copyWith(
+                            color: accent,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+
                       if (widget.vm.notes != null) ...[
                         SizedBox(height: r.space(AppSpacing.s)),
                         Container(
@@ -123,13 +140,14 @@ class _MaintenanceCardState extends ConsumerState<MaintenanceCard> {
                             vertical: r.space(4),
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceLight,
-                            borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
+                            color: context.colors.surfaceLight,
+                            borderRadius:
+                                BorderRadius.circular(r.r(AppRadius.s)),
                           ),
                           child: Text(
                             widget.vm.notes!,
                             style: AppTextStyles.caption(context).copyWith(
-                              color: AppColors.textSecondary,
+                              color: context.colors.textSecondary,
                               height: 1.4,
                             ),
                             maxLines: 2,
@@ -140,28 +158,29 @@ class _MaintenanceCardState extends ConsumerState<MaintenanceCard> {
                     ],
                   ),
                 ),
-                
-                // Trailing Cost
+
+                // Costo en color accent para jerarquía visual
                 SizedBox(width: r.space(AppSpacing.md)),
                 if (widget.vm.cost > 0)
                   CurrencyDisplay(
                     amount: widget.vm.cost,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      color: accent,
+                      fontWeight: FontWeight.w800,
+                    ),
                   )
-                 else 
+                else
                   Text(
                     Translations.of(context).common.free,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: AppColors.textMuted,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      color: AppColors.green,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
               ],
             ),
           ),
+        ),
       ),
     );
   }

@@ -8,16 +8,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../providers/notifications_provider.dart';
+import '../../../../theme/app_color_scheme.dart';
 
 class NotificationBadge extends ConsumerWidget {
   final VoidCallback? onTap;
   final double? iconSize;
 
-  const NotificationBadge({
-    super.key,
-    this.onTap,
-    this.iconSize,
-  });
+  const NotificationBadge({super.key, this.onTap, this.iconSize});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,7 +28,7 @@ class NotificationBadge extends ConsumerWidget {
         children: [
           Icon(
             Icons.notifications_outlined,
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
             size: iconSize ?? AppIconSizes.xl(context),
           ),
           if (unreadCount > 0)

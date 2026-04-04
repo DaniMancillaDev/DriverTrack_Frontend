@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_color_scheme.dart';
 
 class CustomAvatar extends StatelessWidget {
   final String? imageUrl;
@@ -22,10 +23,10 @@ class CustomAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     // El color de fondo "muted"
-    final bgColor = backgroundColor ?? AppColors.surfaceLight;
-    final fgColor = foregroundColor ?? AppColors.textMain;
+    final bgColor = backgroundColor ?? context.colors.surfaceLight;
+    final fgColor = foregroundColor ?? context.colors.textMain;
 
     return CircleAvatar(
       radius: radius,
@@ -55,9 +56,9 @@ class CustomAvatar extends StatelessWidget {
 
       return Text(
         displayInitials,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
       );
     }
 
@@ -67,10 +68,7 @@ class CustomAvatar extends StatelessWidget {
 
     // Por defecto, devolvemos un icono de usuario genérico si no hay fallbackText ni imageUrl válida
     if (imageUrl == null || imageUrl!.isEmpty) {
-      return Icon(
-        Icons.person,
-        size: radius * 1.2,
-      );
+      return Icon(Icons.person, size: radius * 1.2);
     }
 
     // Retorna null silenciosamente si se supone que la imagen cargará (el CircleAvatar internamente ya lo maneja hasta que da error)

@@ -6,6 +6,7 @@ import '../../providers/app_providers.dart';
 import '../../viewmodels/profile_view_model.dart';
 import '../../core/responsive/responsive.dart';
 import '../../core/i18n/translations.g.dart';
+import '../../theme/app_color_scheme.dart';
 
 class ProfileStatsDashboard extends ConsumerWidget {
   const ProfileStatsDashboard({super.key});
@@ -43,7 +44,8 @@ class ProfileStatsDashboard extends ConsumerWidget {
       padding: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.lg)),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surfaceLight,
+          border: Border.all(color: context.colors.borderLight, width: 1.0),
           borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
         ),
         child: Row(
@@ -56,7 +58,9 @@ class ProfileStatsDashboard extends ConsumerWidget {
                   Container(
                     width: 1,
                     height: 36,
-                    margin: EdgeInsets.symmetric(vertical: r.space(AppSpacing.md)),
+                    margin: EdgeInsets.symmetric(
+                      vertical: r.space(AppSpacing.md),
+                    ),
                     color: Colors.white.withValues(alpha: 0.07),
                   ),
                 );
@@ -64,7 +68,9 @@ class ProfileStatsDashboard extends ConsumerWidget {
               cells.add(
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: r.space(AppSpacing.md)),
+                    padding: EdgeInsets.symmetric(
+                      vertical: r.space(AppSpacing.md),
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -72,26 +78,27 @@ class ProfileStatsDashboard extends ConsumerWidget {
                           fit: BoxFit.scaleDown,
                           child: Text(
                             s['value'] as String,
-                            style: AppTextStyles.headlineMedium(context).copyWith(
-                              color: s['accent'] as Color,
-                              fontSize: r.sp(21),
-                              fontWeight: FontWeight.w800,
-                            ),
+                            style: AppTextStyles.headlineMedium(context)
+                                .copyWith(
+                                  color: s['accent'] as Color,
+                                  fontSize: r.sp(21),
+                                  fontWeight: FontWeight.w800,
+                                ),
                           ),
                         ),
                         Text(
                           s['label'] as String,
-                          style: AppTextStyles.label(context).copyWith(
-                            color: AppColors.textMuted,
-                          ),
+                          style: AppTextStyles.label(
+                            context,
+                          ).copyWith(color: context.colors.textMuted),
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                         ),
                         Text(
                           s['sub'] as String,
-                          style: AppTextStyles.micro(context).copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                          style: AppTextStyles.micro(
+                            context,
+                          ).copyWith(color: context.colors.textSecondary),
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                         ),

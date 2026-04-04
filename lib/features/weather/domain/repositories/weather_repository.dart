@@ -16,9 +16,7 @@ abstract class WeatherRepository {
   });
 
   /// Obtiene el clima actual por nombre de ciudad.
-  Future<WeatherEntity> getWeatherByCity({
-    required String cityName,
-  });
+  Future<WeatherEntity> getWeatherByCity({required String cityName});
 
   /// Limpia el cache local.
   Future<void> clearCache();

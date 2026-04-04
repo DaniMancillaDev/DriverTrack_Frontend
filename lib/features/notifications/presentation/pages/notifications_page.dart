@@ -13,6 +13,7 @@ import '../../../../core/responsive/responsive.dart';
 import '../../../../core/i18n/translations.g.dart';
 import '../providers/notifications_provider.dart';
 import '../widgets/notification_tile.dart';
+import '../../../../theme/app_color_scheme.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
@@ -51,15 +52,15 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     final notificationsAsync = ref.watch(notificationsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         elevation: 0,
         title: Text(
           t.notifications.title,
-          style: AppTextStyles.headline(context).copyWith(
-            color: AppColors.textMain,
-          ),
+          style: AppTextStyles.headline(
+            context,
+          ).copyWith(color: context.colors.textMain),
         ),
         actions: [
           // Botón marcar todas como leídas
@@ -114,7 +115,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     return RefreshIndicator(
       onRefresh: () => ref.read(notificationsProvider.notifier).refresh(),
       color: AppColors.orangePrimary,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       child: ListView.builder(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
@@ -183,22 +184,22 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             Icon(
               Icons.cloud_off_rounded,
               size: AppIconSizes.massive(context),
-              color: AppColors.textMuted,
+              color: context.colors.textMuted,
             ),
             SizedBox(height: r.space(AppSpacing.md)),
             Text(
               t.notifications.errorLoading,
-              style: AppTextStyles.title(context).copyWith(
-                color: AppColors.textMain,
-              ),
+              style: AppTextStyles.title(
+                context,
+              ).copyWith(color: context.colors.textMain),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: r.space(AppSpacing.xs)),
             Text(
               t.notifications.errorHint,
-              style: AppTextStyles.bodySmall(context).copyWith(
-                color: AppColors.textMuted,
-              ),
+              style: AppTextStyles.bodySmall(
+                context,
+              ).copyWith(color: context.colors.textMuted),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: r.space(AppSpacing.lg)),
@@ -225,7 +226,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     return RefreshIndicator(
       onRefresh: () => ref.read(notificationsProvider.notifier).refresh(),
       color: AppColors.orangePrimary,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
@@ -233,22 +234,22 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           Icon(
             Icons.notifications_off_outlined,
             size: AppIconSizes.massive(context),
-            color: AppColors.textDark,
+            color: context.colors.textDark,
           ),
           SizedBox(height: r.space(AppSpacing.md)),
           Text(
             t.notifications.emptyPageTitle,
-            style: AppTextStyles.title(context).copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: AppTextStyles.title(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: r.space(AppSpacing.xs)),
           Text(
             t.notifications.emptyPageSubtitle,
-            style: AppTextStyles.bodySmall(context).copyWith(
-              color: AppColors.textMuted,
-            ),
+            style: AppTextStyles.bodySmall(
+              context,
+            ).copyWith(color: context.colors.textMuted),
             textAlign: TextAlign.center,
           ),
         ],

@@ -1,61 +1,76 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/units/presentation/unit_system_provider.dart' show sharedPreferencesProvider;
 import '../models/user_model.dart';
 import 'app_providers.dart';
 
-/// Notifier that handles the logged-in user state.
-/// Null means no active session or still loading.
+/// Notifier que gestiona el usuario autenticado.
+/// null = sin sesión activa (o cargando).
 class AuthNotifier extends Notifier<User?> {
   static const _userKey = 'user_session';
+  static const _tokenKey = 'user_token';
 
   @override
   User? build() {
-    // Intentar cargar la sesión de forma asíncrona
-    _loadSession();
-    return null; // El estado inicial es nulo mientras se carga
+    return _loadSessionSync();
   }
 
-  Future<void> _loadSession() async {
-    final prefs = await SharedPreferences.getInstance();
+  // ─── Persistencia ─────────────────────────────────────────
+
+  User? _loadSessionSync() {
+    final prefs = ref.read(sharedPreferencesProvider);
     final userJson = prefs.getString(_userKey);
     if (userJson != null) {
       try {
-        state = User.fromJson(jsonDecode(userJson));
-        print('DEBUG [AuthNotifier]: Session loaded for ${state?.email}');
+        final user = User.fromJson(jsonDecode(userJson));
+        // Restaurar token
+        final token = prefs.getString(_tokenKey);
+        final restoredUser = token != null ? user.copyWith(token: token) : user;
+        _log('Session loaded for ${restoredUser.email}');
+        return restoredUser;
       } catch (e) {
-        print('DEBUG [AuthNotifier]: Corrupted session found, clearing.');
-        await prefs.remove(_userKey);
+        _log('Corrupted session, clearing.', isError: true);
+        prefs.remove(_userKey);
+        prefs.remove(_tokenKey);
       }
     } else {
-      print('DEBUG [AuthNotifier]: No session found in local storage.');
+      _log('No session found.');
     }
+    return null;
   }
 
   Future<void> _saveSession(User user) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setString(_userKey, jsonEncode(user.toJson()));
+    if (user.token != null) {
+      await prefs.setString(_tokenKey, user.token!);
+    }
   }
 
   Future<void> _clearSession() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = ref.read(sharedPreferencesProvider);
     await prefs.remove(_userKey);
+    await prefs.remove(_tokenKey);
   }
 
-  /// Inicia sesión y muta el estado
+  // ─── Acciones públicas ────────────────────────────────────
+
+  /// Inicia sesión y persiste la sesión.
   Future<void> login(String email, String password) async {
-    print('DEBUG [AuthNotifier]: Attempting login for $email');
+    _log('Attempting login for $email');
     final repo = ref.read(authRepositoryProvider);
     final user = await repo.login(email: email, password: password);
     await _saveSession(user);
     state = user;
-    print('DEBUG [AuthNotifier]: Login successful for ${user.email}');
+    _log('Login successful for ${user.email}');
   }
 
-  /// Registra una nueva cuenta y la deja iniciada
+  /// Registra una cuenta nueva y la deja activa.
   Future<void> register(String email, String password, String fullName) async {
-    print('DEBUG [AuthNotifier]: Attempting registration for $email');
+    _log('Attempting registration for $email');
     final repo = ref.read(authRepositoryProvider);
     final user = await repo.register(
       email: email,
@@ -64,21 +79,25 @@ class AuthNotifier extends Notifier<User?> {
     );
     await _saveSession(user);
     state = user;
-    print('DEBUG [AuthNotifier]: Registration successful for ${user.email}');
+    _log('Registration successful for ${user.email}');
   }
 
-  /// Cierra sesión
+  /// Cierra sesión — muta el estado síncronamente para que la UI reaccione.
   void logout() {
-    print('DEBUG [AuthNotifier]: Initiating logout...');
-    // Primero mutamos el estado síncronamente para que la UI reaccione ya
+    _log('Logout initiated.');
     state = null;
-    // Luego limpiamos la persistencia en "background"
-    _clearSession();
-    print('DEBUG [AuthNotifier]: State set to null (logged out).');
+    _clearSession(); // Fire-and-forget en background
+  }
+
+  // ─── Logging condicional ──────────────────────────────────
+
+  void _log(String message, {bool isError = false}) {
+    if (!kDebugMode) return;
+    dev.log(message, name: 'AuthNotifier', level: isError ? 1000 : 0);
   }
 }
 
-/// Provider global de Autenticación
+/// Provider global de Autenticación.
 final authProvider = NotifierProvider<AuthNotifier, User?>(
   () => AuthNotifier(),
 );

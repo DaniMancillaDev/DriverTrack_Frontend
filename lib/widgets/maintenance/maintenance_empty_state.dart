@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 class MaintenanceEmptyState extends StatelessWidget {
   final bool isFiltering;
@@ -18,7 +19,7 @@ class MaintenanceEmptyState extends StatelessWidget {
         horizontal: r.space(AppSpacing.xl),
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.4),
+        color: context.colors.surface.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(r.r(AppRadius.xxl)),
       ),
       child: Column(
@@ -38,12 +39,13 @@ class MaintenanceEmptyState extends StatelessWidget {
           ),
           SizedBox(height: r.space(AppSpacing.xxl)),
           Text(
-            isFiltering ? Translations.of(context).maintenance.noRecordsTitle : Translations.of(context).maintenance.noServiceRecords,
+            isFiltering
+                ? Translations.of(context).maintenance.noRecordsTitle
+                : Translations.of(context).maintenance.noServiceRecords,
             textAlign: TextAlign.center,
-            style: AppTextStyles.headlineMedium(context).copyWith(
-              color: Colors.white,
-              letterSpacing: -0.5,
-            ),
+            style: AppTextStyles.headlineMedium(
+              context,
+            ).copyWith(color: context.colors.textMain, letterSpacing: -0.5),
           ),
           SizedBox(height: r.space(AppSpacing.s)),
           Padding(
@@ -53,10 +55,9 @@ class MaintenanceEmptyState extends StatelessWidget {
                   ? Translations.of(context).maintenance.noRecordsFiltering
                   : Translations.of(context).maintenance.noRecordsEmpty,
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium(context).copyWith(
-                color: AppColors.textMuted,
-                height: 1.5,
-              ),
+              style: AppTextStyles.bodyMedium(
+                context,
+              ).copyWith(color: context.colors.textMuted, height: 1.5),
             ),
           ),
         ],

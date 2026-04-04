@@ -4,9 +4,13 @@ import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ui/custom_input.dart';
 import '../widgets/ui/custom_button.dart';
+import '../widgets/ui/password_strength_indicator.dart';
 import '../utils/form_validators.dart';
+import '../utils/snackbar_helper.dart';
+import 'package:go_router/go_router.dart';
 import '../core/i18n/translations.g.dart';
 import '../core/responsive/responsive.dart';
+import '../theme/app_color_scheme.dart';
 
 class RegistrationPage extends ConsumerStatefulWidget {
   const RegistrationPage({super.key});
@@ -44,11 +48,20 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
 
   void _handleSubmit() async {
     setState(() {
-      _fullNameError = FormValidators.fullName(_fullNameController.text, context);
+      _fullNameError = FormValidators.fullName(
+        _fullNameController.text,
+        context,
+      );
       _phoneError = FormValidators.phone(_phoneController.text, context);
       _emailError = FormValidators.email(_emailController.text, context);
-      _birthDateError = FormValidators.birthDate(_birthDateController.text, context);
-      _passwordError = FormValidators.password(_passwordController.text, context);
+      _birthDateError = FormValidators.birthDate(
+        _birthDateController.text,
+        context,
+      );
+      _passwordError = FormValidators.password(
+        _passwordController.text,
+        context,
+      );
     });
 
     if (_fullNameError == null &&
@@ -71,12 +84,9 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(e.toString().replaceAll('Exception: ', '')),
-              backgroundColor: AppColors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
+          SnackBarHelper.error(
+            context,
+            e.toString().replaceAll('Exception: ', ''),
           );
         }
       } finally {
@@ -92,18 +102,15 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
     final r = context.responsive;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: r.value(mobile: 600, tablet: 640)),
-              child: Column(
-                children: [
-                  _buildHeader(r),
-                  _buildFormCard(r),
-                ],
+              constraints: BoxConstraints(
+                maxWidth: r.value(mobile: 600, tablet: 640),
               ),
+              child: Column(children: [_buildHeader(r), _buildFormCard(r)]),
             ),
           ),
         ),
@@ -157,17 +164,16 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
           SizedBox(height: r.space(AppSpacing.s)),
           Text(
             t.common.appName,
-            style: AppTextStyles.headline(context).copyWith(
-              color: AppColors.textMain,
-              fontSize: r.sp(26),
-            ),
+            style: AppTextStyles.headline(
+              context,
+            ).copyWith(color: context.colors.textMain, fontSize: r.sp(26)),
           ),
           SizedBox(height: r.space(AppSpacing.xxs)),
           Text(
             t.registration.appTagline,
-            style: AppTextStyles.bodySmall(context).copyWith(
-              color: AppColors.textMuted,
-            ),
+            style: AppTextStyles.bodySmall(
+              context,
+            ).copyWith(color: context.colors.textMuted),
           ),
         ],
       ),
@@ -184,7 +190,8 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
       ),
       padding: EdgeInsets.only(bottom: r.space(AppSpacing.xxxl)),
       decoration: const BoxDecoration(
-        color: Colors.transparent, // Freed the inputs from a bounding border box (Tip 1)
+        color: Colors
+            .transparent, // Freed the inputs from a bounding border box (Tip 1)
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,7 +199,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
           Text(
             t.registration.title,
             style: AppTextStyles.headlineMedium(context).copyWith(
-              color: AppColors.textMain,
+              color: context.colors.textMain,
               fontSize: r.sp(isMobile ? 18 : 20),
             ),
           ),
@@ -200,7 +207,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
           Text(
             t.registration.subtitle,
             style: AppTextStyles.caption(context).copyWith(
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
               fontSize: r.sp(isMobile ? 12 : 13),
             ),
           ),
@@ -213,13 +220,14 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
             prefixIcon: Icon(
               Icons.person_outline,
               size: AppIconSizes.md(context),
-              color: AppColors.textMuted,
+              color: context.colors.textMuted,
             ),
             onChanged: (_) {
               if (_fullNameError != null) {
                 setState(
                   () => _fullNameError = FormValidators.fullName(
-                    _fullNameController.text, context,
+                    _fullNameController.text,
+                    context,
                   ),
                 );
               }
@@ -236,12 +244,15 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
             prefixIcon: Icon(
               Icons.phone_outlined,
               size: AppIconSizes.md(context),
-              color: AppColors.textMuted,
+              color: context.colors.textMuted,
             ),
             onChanged: (_) {
               if (_phoneError != null) {
                 setState(
-                  () => _phoneError = FormValidators.phone(_phoneController.text, context),
+                  () => _phoneError = FormValidators.phone(
+                    _phoneController.text,
+                    context,
+                  ),
                 );
               }
             },
@@ -256,12 +267,15 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
             prefixIcon: Icon(
               Icons.mail_outline,
               size: AppIconSizes.md(context),
-              color: AppColors.textMuted,
+              color: context.colors.textMuted,
             ),
             onChanged: (_) {
               if (_emailError != null) {
                 setState(
-                  () => _emailError = FormValidators.email(_emailController.text, context),
+                  () => _emailError = FormValidators.email(
+                    _emailController.text,
+                    context,
+                  ),
                 );
               }
             },
@@ -276,13 +290,14 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
             prefixIcon: Icon(
               Icons.calendar_today_outlined,
               size: AppIconSizes.md(context),
-              color: AppColors.textMuted,
+              color: context.colors.textMuted,
             ),
             onChanged: (_) {
               if (_birthDateError != null) {
                 setState(
                   () => _birthDateError = FormValidators.birthDate(
-                    _birthDateController.text, context,
+                    _birthDateController.text,
+                    context,
                   ),
                 );
               }
@@ -298,7 +313,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
             prefixIcon: Icon(
               Icons.lock_outline,
               size: AppIconSizes.md(context),
-              color: AppColors.textMuted,
+              color: context.colors.textMuted,
             ),
             suffixIcon: GestureDetector(
               onTap: () => setState(() => _showPassword = !_showPassword),
@@ -307,7 +322,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
                 size: AppIconSizes.md(context),
-                color: AppColors.textMuted,
+                color: context.colors.textMuted,
               ),
             ),
             onChanged: (val) {
@@ -329,15 +344,14 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
                 Flexible(
                   child: Text(
                     t.registration.alreadyHaveAccount,
-                    style: AppTextStyles.bodySmall(context).copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                    style: AppTextStyles.bodySmall(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 TextButton(
-                  onPressed: () =>
-                      Navigator.of(context).pushReplacementNamed('/'),
+                  onPressed: () => context.go('/login'),
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: Size.zero,
@@ -346,7 +360,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
                   child: Text(
                     t.auth.signIn,
                     style: AppTextStyles.bodySmall(context).copyWith(
-                      color: AppColors.cyan,
+                      color: AppColors.orangeSecondary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -372,17 +386,26 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (_submitted)
-            Icon(Icons.check_circle, color: Colors.white, size: AppIconSizes.lg(context))
+            Icon(
+              Icons.check_circle,
+              color: Colors.white,
+              size: AppIconSizes.lg(context),
+            )
           else
             const SizedBox.shrink(),
-          if (_submitted) SizedBox(width: context.responsive.space(AppSpacing.xs)) else const SizedBox.shrink(),
+          if (_submitted)
+            SizedBox(width: context.responsive.space(AppSpacing.xs))
+          else
+            const SizedBox.shrink(),
           Flexible(
             child: Text(
-              _submitted ? t.registration.welcomeSuccess : t.registration.createAccount,
+              _submitted
+                  ? t.registration.welcomeSuccess
+                  : t.registration.createAccount,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.button(context).copyWith(
-                color: Colors.white,
-              ),
+              style: AppTextStyles.button(
+                context,
+              ).copyWith(color: Colors.white),
             ),
           ),
           if (!_submitted)
@@ -390,107 +413,15 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
           else
             const SizedBox.shrink(),
           if (!_submitted)
-            Icon(Icons.chevron_right, color: Colors.white, size: AppIconSizes.lg(context))
+            Icon(
+              Icons.chevron_right,
+              color: Colors.white,
+              size: AppIconSizes.lg(context),
+            )
           else
             const SizedBox.shrink(),
         ],
       ),
-    );
-  }
-}
-
-class PasswordStrengthIndicator extends StatelessWidget {
-  final String password;
-
-  const PasswordStrengthIndicator({super.key, required this.password});
-
-  @override
-  Widget build(BuildContext context) {
-    if (password.isEmpty) return const SizedBox.shrink();
-
-    final t = Translations.of(context);
-    final r = context.responsive;
-
-    final checks = [
-      password.length >= 8,
-      RegExp(r'[A-Z]').hasMatch(password),
-      RegExp(r'[0-9]').hasMatch(password),
-    ];
-    final score = checks.where((c) => c).length;
-    final colors = [AppColors.red, AppColors.orangeSecondary, AppColors.green];
-    final labels = [
-      t.registration.passwordWeak,
-      t.registration.passwordFair,
-      t.registration.passwordStrong,
-    ];
-
-    return Column(
-      children: [
-        SizedBox(height: r.space(AppSpacing.xs)),
-        Row(
-          children: List.generate(3, (i) {
-            return Expanded(
-              child: Container(
-                height: 3,
-                margin: EdgeInsets.only(right: i == 2 ? 0 : r.space(6)),
-                decoration: BoxDecoration(
-                  color: i < score ? colors[score - 1] : AppColors.borderLight,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            );
-          }),
-        ),
-        SizedBox(height: r.space(AppSpacing.xs)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Row(
-                children: [
-                  _buildCheckItem(context, checks[0], t.registration.passwordCheck8Chars),
-                  SizedBox(width: r.space(AppSpacing.s)),
-                  _buildCheckItem(context, checks[1], t.registration.passwordCheckUppercase),
-                  SizedBox(width: r.space(AppSpacing.s)),
-                  _buildCheckItem(context, checks[2], t.registration.passwordCheckNumber),
-                ],
-              ),
-            ),
-            if (score > 0)
-              Text(
-                labels[score - 1],
-                style: AppTextStyles.caption(context).copyWith(
-                  color: colors[score - 1],
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCheckItem(BuildContext context, bool ok, String label) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          Icons.check_circle,
-          size: AppIconSizes.xxs(context),
-          color: ok ? AppColors.green : AppColors.textDim,
-        ),
-        SizedBox(width: context.responsive.space(4)),
-        Flexible(
-          child: Text(
-            label,
-            style: AppTextStyles.label(context).copyWith(
-              color: ok ? AppColors.green : AppColors.textDim,
-              fontWeight: FontWeight.w400,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
     );
   }
 }

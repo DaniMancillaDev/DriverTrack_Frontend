@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 class ProfileVehicleItem extends StatelessWidget {
   final String name;
@@ -28,9 +29,7 @@ class ProfileVehicleItem extends StatelessWidget {
           horizontal: r.space(AppSpacing.md),
           vertical: r.space(AppSpacing.s),
         ),
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-        ),
+        decoration: BoxDecoration(color: context.colors.background),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -44,7 +43,11 @@ class ProfileVehicleItem extends StatelessWidget {
                       color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
                     ),
-                    child: Icon(Icons.directions_car, color: color, size: AppIconSizes.sm(context)),
+                    child: Icon(
+                      Icons.directions_car,
+                      color: color,
+                      size: AppIconSizes.sm(context),
+                    ),
                   ),
                   SizedBox(width: r.space(AppSpacing.s)),
                   Expanded(
@@ -54,16 +57,16 @@ class ProfileVehicleItem extends StatelessWidget {
                         Text(
                           name,
                           style: AppTextStyles.bodySmall(context).copyWith(
-                            color: Colors.white,
+                            color: context.colors.textMain,
                             fontWeight: FontWeight.w600,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           details,
-                          style: AppTextStyles.label(context).copyWith(
-                          color: AppColors.textMuted,
-                          ),
+                          style: AppTextStyles.label(
+                            context,
+                          ).copyWith(color: context.colors.textMuted),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
@@ -84,7 +87,7 @@ class ProfileVehicleItem extends StatelessWidget {
                 Icon(
                   Icons.chevron_right,
                   size: AppIconSizes.sm(context),
-                  color: AppColors.surfaceLight2,
+                  color: context.colors.surfaceLight2,
                 ),
               ],
             ),
@@ -109,7 +112,7 @@ class ProfileAddAction extends StatelessWidget {
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: r.space(AppSpacing.s)),
-        color: AppColors.background,
+        color: context.colors.background,
         child: Center(
           child: Text(
             label,

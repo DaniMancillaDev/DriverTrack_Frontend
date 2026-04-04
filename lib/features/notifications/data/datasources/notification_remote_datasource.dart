@@ -48,10 +48,7 @@ class NotificationRemoteDataSource {
   /// Marca todas las notificaciones de un usuario como leídas.
   Future<void> markAllAsRead(int userId) async {
     return _withRetry(() async {
-      await _apiClient.patch(
-        '/notifications/read-all?user_id=$userId',
-        {},
-      );
+      await _apiClient.patch('/notifications/read-all?user_id=$userId', {});
     });
   }
 

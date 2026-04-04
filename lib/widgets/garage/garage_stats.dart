@@ -18,12 +18,18 @@ class GarageStats extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Translations.of(context);
     final isMetric = ref.watch(unitSystemProvider) == UnitSystem.metric;
-    final totalDistanceLabel = isMetric ? t.garage.totalDistanceKm : t.garage.totalDistanceMiles;
+    final totalDistanceLabel = isMetric
+        ? t.garage.totalDistanceKm
+        : t.garage.totalDistanceMiles;
 
     if (vehicles.isEmpty) {
       return SummaryStats(
         stats: [
-          StatItem(label: t.garage.avgHealth, value: '100%', accent: AppColors.green),
+          StatItem(
+            label: t.garage.avgHealth,
+            value: '100%',
+            accent: AppColors.green,
+          ),
           StatItem(
             label: t.garage.vehicles,
             value: '0',

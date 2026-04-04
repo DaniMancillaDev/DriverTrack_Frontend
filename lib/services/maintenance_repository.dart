@@ -13,17 +13,14 @@ class MaintenanceRepository {
     int limit = 50,
   }) async {
     final queryParams = {'skip': skip.toString(), 'limit': limit.toString()};
-    
+
     // If vehicleId is provided, use the vehicle-specific endpoint.
     // Otherwise, use the global maintenance endpoint (optimizing N+1).
-    final path = vehicleId != null 
-        ? '/vehicles/$vehicleId/maintenance' 
+    final path = vehicleId != null
+        ? '/vehicles/$vehicleId/maintenance'
         : '/maintenance';
 
-    final uri = Uri(
-      path: path,
-      queryParameters: queryParams,
-    );
+    final uri = Uri(path: path, queryParameters: queryParams);
 
     final response = await _apiClient.get(uri.toString());
 

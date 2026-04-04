@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_color_scheme.dart';
 
 class CustomDropdown<T> extends StatelessWidget {
   final T? value;
@@ -26,7 +27,7 @@ class CustomDropdown<T> extends StatelessWidget {
     Widget dropdown = Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surface, // Background handles contrast (Tip 1)
+        color: context.colors.surface, // Background handles contrast (Tip 1)
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: DropdownButtonHideUnderline(
@@ -35,34 +36,37 @@ class CustomDropdown<T> extends StatelessWidget {
           hint: Row(
             children: [
               if (icon != null) ...[
-                Icon(icon, color: AppColors.textDark, size: 16),
+                Icon(icon, color: context.colors.textDark, size: 16),
                 const SizedBox(width: AppSpacing.md),
               ],
               Text(
                 hint,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textDim,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: context.colors.textDim),
               ),
             ],
           ),
           isExpanded: true,
-          dropdownColor: AppColors.surfaceLight,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textDark),
+          dropdownColor: context.colors.surfaceLight,
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: context.colors.textDark,
+          ),
           items: items.map((T item) {
             return DropdownMenuItem<T>(
               value: item,
               child: Row(
                 children: [
                   if (icon != null) ...[
-                    Icon(icon, color: AppColors.textDark, size: 16),
+                    Icon(icon, color: context.colors.textDark, size: 16),
                     const SizedBox(width: AppSpacing.md),
                   ],
                   Text(
                     itemLabelBuilder(item),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: context.colors.textMain),
                   ),
                 ],
               ),
@@ -84,10 +88,10 @@ class CustomDropdown<T> extends StatelessWidget {
           child: Text(
             label!.toUpperCase(),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.6,
-                ),
+              color: context.colors.textSecondary,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.6,
+            ),
           ),
         ),
         dropdown,

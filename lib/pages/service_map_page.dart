@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
@@ -15,6 +17,7 @@ import '../features/map/presentation/widgets/map_controls.dart';
 import '../features/map/presentation/widgets/map_header.dart';
 import '../widgets/map/place_detail_sheet.dart';
 import '../widgets/map/places_list_sheet.dart';
+import '../theme/app_color_scheme.dart';
 
 class ServiceMapPage extends ConsumerStatefulWidget {
   const ServiceMapPage({super.key});
@@ -23,7 +26,8 @@ class ServiceMapPage extends ConsumerStatefulWidget {
   ConsumerState<ServiceMapPage> createState() => _ServiceMapPageState();
 }
 
-class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProviderStateMixin {
+class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
+    with TickerProviderStateMixin {
   final MapController _mapController = MapController();
   late final AnimationController _animationController;
   late Tween<double> _latTween;
@@ -33,7 +37,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
   bool _mapMovedSinceSearch = false;
   bool _hasSearched = false;
   LatLng? _lastSearchCenter;
-  
+
   // Default center if no user location (e.g. Mexico City for the mock data)
   final LatLng _defaultCenter = const LatLng(19.4326, -99.1332);
 
@@ -41,17 +45,20 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      vsync: this, 
-      duration: const Duration(milliseconds: 600)
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
     );
-    final curve = CurvedAnimation(parent: _animationController, curve: Curves.fastOutSlowIn);
+    final curve = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.fastOutSlowIn,
+    );
     _animationController.addListener(() {
       _mapController.move(
         LatLng(_latTween.evaluate(curve), _lngTween.evaluate(curve)),
-        _zoomTween.evaluate(curve)
+        _zoomTween.evaluate(curve),
       );
     });
-    
+
     // GPS will now only activate upon user request via the "My Location" button
     // which calls _centerOnUser -> fetchCurrentLocation.
   }
@@ -66,9 +73,18 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
     if (_animationController.isAnimating) {
       _animationController.stop();
     }
-    _latTween = Tween<double>(begin: _mapController.camera.center.latitude, end: destLocation.latitude);
-    _lngTween = Tween<double>(begin: _mapController.camera.center.longitude, end: destLocation.longitude);
-    _zoomTween = Tween<double>(begin: _mapController.camera.zoom, end: destZoom);
+    _latTween = Tween<double>(
+      begin: _mapController.camera.center.latitude,
+      end: destLocation.latitude,
+    );
+    _lngTween = Tween<double>(
+      begin: _mapController.camera.center.longitude,
+      end: destLocation.longitude,
+    );
+    _zoomTween = Tween<double>(
+      begin: _mapController.camera.zoom,
+      end: destZoom,
+    );
 
     _animationController.reset();
     _animationController.forward();
@@ -77,7 +93,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
   void _onLocationSelected(MapLocation loc) {
     ref.read(selectedLocationProvider.notifier).setLocation(loc);
     setState(() => _sheetExpanded = false);
-    
+
     // Animate map to location
     _animatedMapMove(LatLng(loc.latitude, loc.longitude), 15.0);
   }
@@ -94,7 +110,11 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
         _animatedMapMove(loc, 15.0);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-           const SnackBar(content: Text('Buscando ubicación GPS... Asegúrate de tener la ubicación activada en tu dispositivo.')),
+          const SnackBar(
+            content: Text(
+              'Buscando ubicación GPS... Asegúrate de tener la ubicación activada en tu dispositivo.',
+            ),
+          ),
         );
         ref.read(userLocationProvider.notifier).fetchCurrentLocation();
       }
@@ -134,7 +154,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
     // The user will now stay where they panned.
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Stack(
         children: [
           // 1. Interactive Map
@@ -147,8 +167,10 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
               maxZoom: 18.0,
               onTap: (_, __) => _unselectLocation(),
               onPositionChanged: (camera, hasGesture) {
-                ref.read(mapBoundsProvider.notifier).setBounds(camera.visibleBounds);
-                
+                ref
+                    .read(mapBoundsProvider.notifier)
+                    .setBounds(camera.visibleBounds);
+
                 // If the user moved the map manually, show the "Search here" button
                 if (hasGesture) {
                   setState(() => _mapMovedSinceSearch = true);
@@ -160,14 +182,17 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate:
+                    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+                subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.example.drivetrack',
                 tileProvider: CancellableNetworkTileProvider(),
               ),
-              
+
               // Map locations from provider
               locationsAsync.when(
-                skipLoadingOnReload: true, // Crucial: Don't hide markers while dragging/loading new ones
+                skipLoadingOnReload:
+                    true, // Crucial: Don't hide markers while dragging/loading new ones
                 data: (locations) => MapMarkerLayer(
                   locations: locations,
                   selectedId: selectedLocation?.id,
@@ -175,7 +200,12 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
                 ),
                 loading: () => const SizedBox.shrink(),
                 error: (err, stack) {
-                  print('DEBUG: Error loading markers: $err');
+                  if (kDebugMode) {
+                    dev.log(
+                      'Error loading markers: $err',
+                      name: 'ServiceMapPage',
+                    );
+                  }
                   return const SizedBox.shrink();
                 },
               ),
@@ -191,17 +221,18 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
                         width: r.dim(40),
                         height: r.dim(40),
                         child: _buildUserLocationMarker(context, r),
-                      )
+                      ),
                     ],
                   );
                 },
                 loading: () => const SizedBox.shrink(),
                 error: (_, __) => const SizedBox.shrink(),
               ),
-              
+
               const RichAttributionWidget(
                 attributions: [
-                  TextSourceAttribution('OpenStreetMap contributors'),
+                  TextSourceAttribution('© CartoDB'),
+                  TextSourceAttribution('© OpenStreetMap contributors'),
                 ],
               ),
             ],
@@ -244,7 +275,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
                       vertical: r.space(AppSpacing.s),
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: context.colors.surface,
                       borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
                       boxShadow: [
                         BoxShadow(
@@ -257,7 +288,11 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.search_rounded, size: AppIconSizes.xs(context), color: AppColors.cyan),
+                        Icon(
+                          Icons.search_rounded,
+                          size: AppIconSizes.xs(context),
+                          color: AppColors.cyan,
+                        ),
                         SizedBox(width: r.space(AppSpacing.xs)),
                         Text(
                           Translations.of(context).map.searchThisArea,
@@ -293,11 +328,14 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
               child: PlaceDetailSheet(
                 location: selectedLocation,
                 isExpanded: _sheetExpanded,
-                onToggle: () => setState(() => _sheetExpanded = !_sheetExpanded),
+                onToggle: () =>
+                    setState(() => _sheetExpanded = !_sheetExpanded),
                 onClose: _unselectLocation,
               ),
             )
-          else if (_hasSearched && locationsAsync.hasValue && locationsAsync.value!.isNotEmpty)
+          else if (_hasSearched &&
+              locationsAsync.hasValue &&
+              locationsAsync.value!.isNotEmpty)
             Positioned(
               left: 0,
               right: 0,
@@ -305,16 +343,19 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
               child: PlacesListSheet(
                 locations: locationsAsync.value!,
                 isExpanded: _sheetExpanded,
-                onToggle: () => setState(() => _sheetExpanded = !_sheetExpanded),
+                onToggle: () =>
+                    setState(() => _sheetExpanded = !_sheetExpanded),
                 onLocationSelected: _onLocationSelected,
               ),
             ),
-            
+
           // Loading Overlay if fetching first time
           if (locationsAsync.isLoading && !locationsAsync.hasValue)
             Container(
               color: Colors.black.withValues(alpha: 0.5),
-              child: const Center(child: CircularProgressIndicator(color: AppColors.cyan)),
+              child: const Center(
+                child: CircularProgressIndicator(color: AppColors.cyan),
+              ),
             ),
         ],
       ),
@@ -331,9 +372,15 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage> with TickerProv
           decoration: BoxDecoration(
             color: AppColors.cyan.withValues(alpha: 0.15),
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.cyan.withValues(alpha: 0.4), width: 2),
+            border: Border.all(
+              color: AppColors.cyan.withValues(alpha: 0.4),
+              width: 2,
+            ),
             boxShadow: [
-              BoxShadow(color: AppColors.cyan.withValues(alpha: 0.5), blurRadius: 12),
+              BoxShadow(
+                color: AppColors.cyan.withValues(alpha: 0.5),
+                blurRadius: 12,
+              ),
             ],
           ),
           child: Center(

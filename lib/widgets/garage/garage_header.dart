@@ -5,6 +5,7 @@ import '../../theme/app_theme.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../core/responsive/responsive.dart';
 import '../../features/notifications/presentation/providers/notifications_provider.dart';
+import '../../theme/app_color_scheme.dart';
 
 class GarageHeader extends ConsumerWidget {
   final VoidCallback onNotificationTap;
@@ -27,7 +28,9 @@ class GarageHeader extends ConsumerWidget {
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: r.value(mobile: 600, tablet: 700)),
+              constraints: BoxConstraints(
+                maxWidth: r.value(mobile: 600, tablet: 700),
+              ),
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
                   r.space(AppSpacing.lg),
@@ -45,7 +48,7 @@ class GarageHeader extends ConsumerWidget {
                           Text(
                             Translations.of(context).garage.goodMorning,
                             style: textTheme.bodySmall?.copyWith(
-                              color: AppColors.textDim,
+                              color: context.colors.textDim,
                             ),
                           ),
                           Text(
@@ -57,7 +60,10 @@ class GarageHeader extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    _NotificationIconButton(count: unreadCount, onTap: onNotificationTap),
+                    _NotificationIconButton(
+                      count: unreadCount,
+                      onTap: onNotificationTap,
+                    ),
                   ],
                 ),
               ),
@@ -87,12 +93,16 @@ class _NotificationIconButton extends StatelessWidget {
             width: r.dim(42),
             height: r.dim(42),
             decoration: BoxDecoration(
-              color: AppColors.surfaceLight,
+              color: context.colors.surfaceLight,
               borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
             ),
             child: Icon(
-              count > 0 ? Icons.notifications_rounded : Icons.notifications_none_rounded,
-              color: count > 0 ? Colors.white : AppColors.textSecondary,
+              count > 0
+                  ? Icons.notifications_rounded
+                  : Icons.notifications_none_rounded,
+              color: count > 0
+                  ? (context.colors.isDark ? Colors.white : AppColors.orangePrimary)
+                  : context.colors.textSecondary,
               size: AppIconSizes.lg(context),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 class StatItem {
   final String label;
@@ -9,10 +10,10 @@ class StatItem {
   final Color accent;
 
   StatItem({
-    required this.label, 
-    this.value, 
-    this.customValue, 
-    required this.accent
+    required this.label,
+    this.value,
+    this.customValue,
+    required this.accent,
   }) : assert(value != null || customValue != null);
 }
 
@@ -28,7 +29,8 @@ class SummaryStats extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surfaceLight,
+        border: Border.all(color: context.colors.borderLight, width: 1.0),
         borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
       ),
       child: Row(
@@ -54,11 +56,12 @@ class SummaryStats extends StatelessWidget {
                           fit: BoxFit.scaleDown,
                           child: Text(
                             stat.value!,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: stat.accent,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: -0.5,
-                            ),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
+                                  color: stat.accent,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -0.5,
+                                ),
                           ),
                         ),
                       SizedBox(height: r.space(4)),
@@ -68,7 +71,7 @@ class SummaryStats extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.tiny(context).copyWith(
-                          color: AppColors.textMuted,
+                          color: context.colors.textMuted,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.8,
                         ),
@@ -83,8 +86,10 @@ class SummaryStats extends StatelessWidget {
                 Container(
                   width: 1,
                   height: 36,
-                  margin: EdgeInsets.symmetric(vertical: r.space(AppSpacing.md)),
-                  color: Colors.white.withValues(alpha: 0.07),
+                  margin: EdgeInsets.symmetric(
+                    vertical: r.space(AppSpacing.md),
+                  ),
+                  color: context.colors.border,
                 ),
               );
             }

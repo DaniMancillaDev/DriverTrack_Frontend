@@ -24,7 +24,9 @@ class MapMarkerLayer extends StatelessWidget {
       markers: locations.map((loc) {
         final bool isSelected = selectedId == loc.id;
         final bool isWorkshop = loc.type == 'workshop';
-        final Color accent = isWorkshop ? AppColors.orangePrimary : AppColors.cyan;
+        final Color accent = isWorkshop
+            ? AppColors.orangePrimary
+            : AppColors.cyan;
         final r = context.responsive;
 
         // Size changes animated via AnimatedContainer inside the marker builder
@@ -48,7 +50,9 @@ class MapMarkerLayer extends StatelessWidget {
                     width: r.dim(isSelected ? 44 : 36),
                     height: r.dim(isSelected ? 44 : 36),
                     decoration: BoxDecoration(
-                      color: isSelected ? accent : accent.withValues(alpha: 0.2),
+                      color: isSelected
+                          ? accent
+                          : accent.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(
                         r.r(isSelected ? AppRadius.xl : AppRadius.md),
                       ),
@@ -65,7 +69,9 @@ class MapMarkerLayer extends StatelessWidget {
                     child: Icon(
                       isWorkshop ? Icons.build : Icons.local_gas_station,
                       color: isSelected ? Colors.white : accent,
-                      size: isSelected ? AppIconSizes.lg(context) : AppIconSizes.sm(context),
+                      size: isSelected
+                          ? AppIconSizes.lg(context)
+                          : AppIconSizes.sm(context),
                     ),
                   ),
                   Container(

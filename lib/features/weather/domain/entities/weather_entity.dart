@@ -25,8 +25,13 @@ enum WeatherCondition {
       'drizzle' => WeatherCondition.drizzle,
       'thunderstorm' => WeatherCondition.thunderstorm,
       'snow' => WeatherCondition.snow,
-      'mist' || 'fog' || 'haze' || 'smoke' || 'dust' || 'sand' || 'ash' =>
-        WeatherCondition.fog,
+      'mist' ||
+      'fog' ||
+      'haze' ||
+      'smoke' ||
+      'dust' ||
+      'sand' ||
+      'ash' => WeatherCondition.fog,
       'squall' || 'tornado' => WeatherCondition.extreme,
       _ => WeatherCondition.unknown,
     };

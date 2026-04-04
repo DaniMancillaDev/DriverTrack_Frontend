@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import 'package:intl/intl.dart';
+import '../../theme/app_color_scheme.dart';
 
 class InlineDatePicker extends StatefulWidget {
   final DateTime initialDate;
@@ -56,7 +57,7 @@ class _InlineDatePickerState extends State<InlineDatePicker> {
             horizontal: AppSpacing.xs,
           ),
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: context.colors.background,
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: Column(
@@ -64,18 +65,18 @@ class _InlineDatePickerState extends State<InlineDatePicker> {
               Text(
                 label.toUpperCase(),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.textMuted,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  color: context.colors.textMuted,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 value,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -85,11 +86,15 @@ class _InlineDatePickerState extends State<InlineDatePicker> {
   }
 
   Future<void> _showSelector(
-      String title, List<int> items, int current, ValueChanged<int> onSelected) async {
+    String title,
+    List<int> items,
+    int current,
+    ValueChanged<int> onSelected,
+  ) async {
     final theme = Theme.of(context);
     await showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
       ),
@@ -99,9 +104,12 @@ class _InlineDatePickerState extends State<InlineDatePicker> {
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             children: [
-              Text(title,
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(color: Colors.white)),
+              Text(
+                title,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                ),
+              ),
               const SizedBox(height: AppSpacing.md),
               Expanded(
                 child: ListView.builder(
@@ -117,8 +125,10 @@ class _InlineDatePickerState extends State<InlineDatePicker> {
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: isSelected
                                 ? AppColors.orangePrimary
-                                : AppColors.textMain,
-                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                                : context.colors.textMain,
+                            fontWeight: isSelected
+                                ? FontWeight.w800
+                                : FontWeight.w500,
                           ),
                         ),
                       ),

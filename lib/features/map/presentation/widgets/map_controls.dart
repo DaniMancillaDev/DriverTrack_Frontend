@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../../core/responsive/responsive.dart';
+import '../../../../theme/app_color_scheme.dart';
 
 class MapControls extends StatelessWidget {
   final VoidCallback onZoomIn;
@@ -26,7 +27,7 @@ class MapControls extends StatelessWidget {
         FloatingActionButton.small(
           heroTag: 'map_my_location',
           onPressed: onMyLocation,
-          backgroundColor: AppColors.surface,
+          backgroundColor: context.colors.surface,
           foregroundColor: AppColors.cyan,
           elevation: 0,
           shape: RoundedRectangleBorder(
@@ -39,7 +40,7 @@ class MapControls extends StatelessWidget {
         // Zoom Controls
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
             boxShadow: [
               BoxShadow(
@@ -54,7 +55,11 @@ class MapControls extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: onZoomIn,
-                icon: Icon(Icons.add, color: AppColors.textMain, size: AppIconSizes.md(context)),
+                icon: Icon(
+                  Icons.add,
+                  color: context.colors.textMain,
+                  size: AppIconSizes.md(context),
+                ),
                 padding: EdgeInsets.all(r.space(AppSpacing.s)),
                 constraints: const BoxConstraints(),
               ),
@@ -65,7 +70,11 @@ class MapControls extends StatelessWidget {
               ),
               IconButton(
                 onPressed: onZoomOut,
-                icon: Icon(Icons.remove, color: AppColors.textMain, size: AppIconSizes.md(context)),
+                icon: Icon(
+                  Icons.remove,
+                  color: context.colors.textMain,
+                  size: AppIconSizes.md(context),
+                ),
                 padding: EdgeInsets.all(r.space(AppSpacing.s)),
                 constraints: const BoxConstraints(),
               ),

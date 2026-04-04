@@ -13,6 +13,7 @@ import '../viewmodels/vehicle_view_model.dart';
 import '../widgets/ui/confirmation_dialog.dart';
 import '../core/i18n/translations.g.dart';
 import '../core/responsive/responsive.dart';
+import '../theme/app_color_scheme.dart';
 
 // Modular Widgets
 import '../widgets/maintenance/maintenance_header.dart';
@@ -65,9 +66,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
         orElse: () => vehicles.first,
       );
 
-      final desc = data['notes'] != null && data['notes'].toString().isNotEmpty
-          ? '${data['description']} | ${data['notes']}'
-          : data['description'];
+      final desc = _buildDescriptionWithNotes(data);
 
       final newRecord = {
         'vehicle_id': match.id,
@@ -78,10 +77,10 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
         'category': data['category'],
       };
 
-      await repository.addMaintenanceRecord(newRecord);
+      final savedRecord = await repository.addMaintenanceRecord(newRecord);
       final params = MaintenanceParams(vehicleId: match.id);
-      ref.invalidate(maintenanceDocsProvider(params));
-      ref.invalidate(maintenanceDocsProvider(const MaintenanceParams()));
+      ref.read(maintenanceDocsProvider(params).notifier).updateLocal(savedRecord);
+      ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(savedRecord);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -96,14 +95,16 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${Translations.of(context).maintenance.errorAddingService.replaceAll('{error}', '$e')}'),
+            content: Text(
+              '${Translations.of(context).maintenance.errorAddingService.replaceAll('{error}', '$e')}',
+            ),
             backgroundColor: AppColors.red,
             behavior: SnackBarBehavior.floating,
           ),
         );
       }
     }
-    }
+  }
 
   void _showAddServiceSheet(List<Vehicle> vehicles) {
     showModalBottomSheet(
@@ -122,35 +123,43 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         final vehicles = ref.read(vehiclesProvider).value ?? [];
-        final vehicle = vehicles.firstWhere((v) => v.id == maintenance.vehicleId, orElse: () => vehicles.first);
-        
+        final vehicle = vehicles.firstWhere(
+          (v) => v.id == maintenance.vehicleId,
+          orElse: () => vehicles.first,
+        );
+
         return AddServiceSheet(
           vehicles: [vehicle],
           initialMaintenance: maintenance,
           onSave: (data) async {
             try {
               final repository = ref.read(maintenanceRepositoryProvider);
-              final params = MaintenanceParams(vehicleId: maintenance.vehicleId);
+              final params = MaintenanceParams(
+                vehicleId: maintenance.vehicleId,
+              );
 
               final recordData = {
                 'vehicle_id': maintenance.vehicleId,
                 'date': data['date'] as String,
-                'description': data['notes'] != null && data['notes'].toString().isNotEmpty
-                    ? '${data['description']} | ${data['notes']}'
-                    : data['description'],
+                'description': _buildDescriptionWithNotes(data),
                 'cost': data['cost'].toString(),
                 'mileage': data['mileage'],
                 'category': data['category'],
               };
 
-              await repository.updateMaintenanceRecord(maintenance.id, recordData);
-              ref.invalidate(maintenanceDocsProvider(params));
-              ref.invalidate(maintenanceDocsProvider(const MaintenanceParams()));
-              
+              final updatedRec = await repository.updateMaintenanceRecord(
+                maintenance.id,
+                recordData,
+              );
+              ref.read(maintenanceDocsProvider(params).notifier).updateLocal(updatedRec);
+              ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(updatedRec);
+
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(Translations.of(context).maintenance.serviceUpdated),
+                    content: Text(
+                      Translations.of(context).maintenance.serviceUpdated,
+                    ),
                     backgroundColor: AppColors.green,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -160,7 +169,9 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('${Translations.of(context).maintenance.errorUpdatingService.replaceAll('{error}', '$e')}'),
+                    content: Text(
+                      '${Translations.of(context).maintenance.errorUpdatingService.replaceAll('{error}', '$e')}',
+                    ),
                     backgroundColor: AppColors.red,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -177,25 +188,29 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
     ConfirmationDialog.show(
       context,
       title: Translations.of(context).maintenance.removeEntryTitle,
-      message: Translations.of(context).maintenance.removeEntryMessage.replaceAll('{title}', vm.title),
+      message: Translations.of(
+        context,
+      ).maintenance.removeEntryMessage.replaceAll('{title}', vm.title),
       onConfirm: () async {
         try {
           final repository = ref.read(maintenanceRepositoryProvider);
           await repository.deleteMaintenanceRecord(entryId);
-          
+
           final params = MaintenanceParams(vehicleId: vm.vehicleId);
-          ref.invalidate(maintenanceDocsProvider(params));
-          ref.invalidate(maintenanceDocsProvider(const MaintenanceParams()));
+          ref.read(maintenanceDocsProvider(params).notifier).deleteLocal(entryId);
+          ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).deleteLocal(entryId);
 
           setState(() {
             _selectedServiceId = null;
             _sheetExpanded = false;
           });
-          
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(Translations.of(context).maintenance.serviceRemoved),
+                content: Text(
+                  Translations.of(context).maintenance.serviceRemoved,
+                ),
                 backgroundColor: AppColors.red,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -205,7 +220,9 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('${Translations.of(context).maintenance.errorRemovingService.replaceAll('{error}', '$e')}'),
+                content: Text(
+                  '${Translations.of(context).maintenance.errorRemovingService.replaceAll('{error}', '$e')}',
+                ),
                 backgroundColor: AppColors.red,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -225,7 +242,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
     final r = context.responsive;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: vehiclesAsync.when(
         data: (vehicles) => maintenanceAsync.when(
           data: (maintenances) {
@@ -246,7 +263,10 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
                   : 'Unknown Vehicle';
             }
 
-            final filtered = _activeFilter == '' || _activeFilter == Translations.of(context).maintenance.allVehicles
+            final filtered =
+                _activeFilter == '' ||
+                    _activeFilter ==
+                        Translations.of(context).maintenance.allVehicles
                 ? viewModels
                 : viewModels
                       .where(
@@ -256,63 +276,82 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
 
             return Stack(
               children: [
-                SafeArea(
-                  child: RefreshIndicator(
-                    onRefresh: () async {
-                      ref.invalidate(maintenanceDocsProvider(const MaintenanceParams()));
-                    },
-                    color: AppColors.orangePrimary,
-                    child: CustomScrollView(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              r.space(AppSpacing.lg),
-                              r.space(AppSpacing.lg),
-                              r.space(AppSpacing.lg),
-                              0,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MaintenanceHeader(),
-                                SizedBox(height: r.space(AppSpacing.lg)),
-                                MaintenanceStats(maintenances: viewModels),
-                                SizedBox(height: r.space(AppSpacing.xl)),
-                                FilterPills(
-                                  filters: dynamicFilters,
-                                  activeFilter: _activeFilter,
-                                  onFilterChanged: (filter) =>
-                                      setState(() => _activeFilter = filter),
-                                ),
-                                SizedBox(height: r.space(AppSpacing.md)),
-                                if (filtered.isEmpty)
-                                  MaintenanceEmptyState(
-                                    isFiltering:
-                                        _activeFilter != 'All Vehicles',
-                                  )
-                                else
-                                  ...filtered.map(
-                                    (vm) => MaintenanceCard(
-                                      vm: vm,
-                                      vehicleName: getVehicleName(vm.vehicleId),
-                                      onTap: () => setState(() {
-                                        _selectedServiceId = vm.id;
-                                        _sheetExpanded = false;
-                                      }),
+                // Scroll content — padding top deja espacio al sticky header
+                RefreshIndicator(
+                  onRefresh: () async {
+                    ref.invalidate(
+                      maintenanceDocsProvider(const MaintenanceParams()),
+                    );
+                  },
+                  color: AppColors.orangePrimary,
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            r.space(AppSpacing.lg),
+                            // Espacio para el sticky header (~110px) + SafeArea top
+                            MediaQuery.of(context).padding.top + r.dim(120),
+                            r.space(AppSpacing.lg),
+                            0,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              MaintenanceStats(maintenances: viewModels),
+                              SizedBox(height: r.space(AppSpacing.xl)),
+                              FilterPills(
+                                filters: dynamicFilters,
+                                activeFilter: _activeFilter,
+                                onFilterChanged: (filter) =>
+                                    setState(() => _activeFilter = filter),
+                              ),
+                              SizedBox(height: r.space(AppSpacing.md)),
+                              if (filtered.isEmpty)
+                                MaintenanceEmptyState(
+                                  isFiltering:
+                                      _activeFilter != 'All Vehicles',
+                                )
+                              else
+                                ...List.generate(
+                                  filtered.length,
+                                  (i) => MaintenanceCard(
+                                    vm: filtered[i],
+                                    vehicleName: getVehicleName(
+                                      filtered[i].vehicleId,
                                     ),
+                                    onTap: () => setState(() {
+                                      _selectedServiceId = filtered[i].id;
+                                      _sheetExpanded = false;
+                                    }),
                                   ),
-                                SizedBox(height: r.dim(100)),
-                              ],
-                            ),
+                                ),
+                              SizedBox(height: r.dim(100)),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Sticky header — glassmorphism, igual que GarageHeader
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: r.value(mobile: 600, tablet: 700),
+                      ),
+                      child: MaintenanceHeader(),
                     ),
                   ),
                 ),
+
                 if (_selectedServiceId != null)
                   _buildDetailOverlay(filtered, getVehicleName),
               ],
@@ -329,7 +368,9 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
           : vehiclesAsync.maybeWhen(
               data: (vehicles) => Center(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: r.value(mobile: 600, tablet: 700)),
+                  constraints: BoxConstraints(
+                    maxWidth: r.value(mobile: 600, tablet: 700),
+                  ),
                   child: Align(
                     alignment: Alignment.bottomRight,
                     child: PremiumFAB(
@@ -412,7 +453,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
         margin: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.lg)),
         padding: EdgeInsets.all(r.space(AppSpacing.xl)),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(r.r(AppRadius.xxl)),
         ),
         child: Column(
@@ -433,23 +474,27 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
             SizedBox(height: r.space(AppSpacing.lg)),
             Text(
               Translations.of(context).maintenance.errorTitle,
-              style: AppTextStyles.title(context).copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
+              style: AppTextStyles.title(
+                context,
+              ).copyWith(color: context.colors.textMain, fontWeight: FontWeight.w800),
             ),
             SizedBox(height: r.space(AppSpacing.s)),
             Text(
               Translations.of(context).maintenance.errorMessage,
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium(context).copyWith(
-                color: AppColors.textMuted,
-                height: 1.5,
-              ),
+              style: AppTextStyles.bodyMedium(
+                context,
+              ).copyWith(color: context.colors.textMuted, height: 1.5),
             ),
           ],
         ),
       ),
     );
+  }
+
+  String _buildDescriptionWithNotes(Map<String, dynamic> data) {
+    return data['notes'] != null && data['notes'].toString().trim().isNotEmpty
+        ? '${data['description']} | ${data['notes']}'
+        : data['description'];
   }
 }

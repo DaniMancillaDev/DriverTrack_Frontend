@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_color_scheme.dart';
 
 class CustomListCard extends StatelessWidget {
   final Widget? leading;
@@ -38,11 +39,11 @@ class CustomListCard extends StatelessWidget {
         child: Ink(
           padding: padding ?? const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: isSelected 
+            color: isSelected
                 ? AppColors.orangePrimary.withValues(alpha: 0.08)
-                : AppColors.surface,
+                : context.colors.surface,
             borderRadius: BorderRadius.circular(AppRadius.xl),
-            border: isSelected 
+            border: isSelected
                 ? Border.all(
                     color: AppColors.orangePrimary.withValues(alpha: 0.4),
                     width: 1.5,
@@ -54,49 +55,49 @@ class CustomListCard extends StatelessWidget {
                       color: AppColors.orangePrimary.withValues(alpha: 0.1),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
-                    )
+                    ),
                   ]
                 : [],
           ),
-          child: hasChild 
-            ? child! 
-            : Row(
-              children: [
-                if (leading != null) ...[
-                  leading!,
-                  const SizedBox(width: AppSpacing.md),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                        if (title != null)
-                          Text(
-                            title!,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                          ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: AppSpacing.xxs),
-                        Text(
-                          subtitle!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textMuted,
-                              ),
-                        ),
-                      ],
+          child: hasChild
+              ? child!
+              : Row(
+                  children: [
+                    if (leading != null) ...[
+                      leading!,
+                      const SizedBox(width: AppSpacing.md),
                     ],
-                  ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (title != null)
+                            Text(
+                              title!,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    color: context.colors.textMain,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                          if (subtitle != null) ...[
+                            const SizedBox(height: AppSpacing.xxs),
+                            Text(
+                              subtitle!,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: context.colors.textMuted),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (trailing != null) ...[
+                      const SizedBox(width: AppSpacing.md),
+                      trailing!,
+                    ],
+                  ],
                 ),
-                if (trailing != null) ...[
-                  const SizedBox(width: AppSpacing.md),
-                  trailing!,
-                ],
-              ],
-            ),
         ),
       ),
     );

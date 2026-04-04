@@ -5,11 +5,14 @@ import '../widgets/ui/custom_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../providers/app_providers.dart';
+import '../providers/profile_preferences_provider.dart';
+import '../providers/theme_provider.dart';
 import '../core/i18n/translations.g.dart';
 import '../core/i18n/locale_provider.dart';
 import '../features/currency/presentation/widgets/currency_converter_widget.dart';
 
 import '../core/responsive/responsive.dart';
+import '../theme/app_color_scheme.dart';
 
 // Modular Widgets
 import '../core/units/presentation/unit_system_provider.dart';
@@ -28,17 +31,8 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
-  // Toggles
-  bool _serviceReminders = true;
-  bool _criticalAlerts = true;
-  bool _pushNotifs = true;
-  bool _twoFA = false;
-
-  // Settings
-  String _theme = 'dark';
-  String _language = 'EN';
-
-  // Expandable sections
+  // Solo el estado de UI puro (expansión de secciones) se queda en setState.
+  // Los toggles y el tema se delegan a sus respectivos Riverpod providers.
   String? _openSection;
 
   void _toggleSection(String key) {
@@ -53,15 +47,22 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final r = context.responsive;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SingleChildScrollView(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: r.value(mobile: 600, tablet: 700)),
-            child: Column(
-              children: [
-                const ProfileHero(),
-                const ProfileStatsDashboard(),
+      backgroundColor: context.colors.background,
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          const SliverToBoxAdapter(
+            child: ProfileHero(),
+          ),
+          SliverToBoxAdapter(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: r.value(mobile: 600, tablet: 700),
+                ),
+                child: Column(
+                  children: [
+                    const ProfileStatsDashboard(),
                 Padding(
                   padding: EdgeInsets.all(r.space(AppSpacing.lg)),
                   child: Column(
@@ -76,7 +77,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       _buildSectionLabel(t.profile.privacySecurity),
                       _buildSecuritySection(t),
                       SizedBox(height: r.space(AppSpacing.lg)),
-                      
+
                       _buildSectionLabel(t.currency.converterLabel),
                       const CurrencyConverterWidget(),
                       SizedBox(height: r.space(AppSpacing.lg)),
@@ -99,20 +100,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
         ),
       ),
-    );
-  }
+    ],
+  ),
+);
+}
 
   Widget _buildSectionLabel(String label) {
     final r = context.responsive;
     return Padding(
-      padding: EdgeInsets.only(left: r.space(4), bottom: r.space(AppSpacing.xs)),
+      padding: EdgeInsets.only(
+        left: r.space(4),
+        bottom: r.space(AppSpacing.xs),
+      ),
       child: Text(
         label.toUpperCase(),
         style: AppTextStyles.label(context).copyWith(
-              color: AppColors.textMuted,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.8,
-            ),
+          color: context.colors.textMuted,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.8,
+        ),
       ),
     );
   }
@@ -139,7 +145,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         trailing: Icon(
           isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
           size: AppIconSizes.sm(context),
-          color: isOpen ? AppColors.orangePrimary : AppColors.surfaceLight2,
+          color: isOpen ? AppColors.orangePrimary : context.colors.surfaceLight2,
         ),
         showBottomBorder: isOpen,
       ),
@@ -154,9 +160,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   child: Center(
                     child: Text(
                       t.profile.noFavorites,
-                      style: AppTextStyles.bodySmall(context).copyWith(
-                            color: AppColors.textMuted,
-                          ),
+                      style: AppTextStyles.bodySmall(
+                        context,
+                      ).copyWith(color: context.colors.textMuted),
                     ),
                   ),
                 ),
@@ -174,8 +180,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 brandColor = AppColors.red;
               }
 
-              final tType = typeSlug.contains('moto') ? t.garage.vehicleTypes.motorcycle : (typeSlug.contains('car') ? t.garage.vehicleTypes.car : vehicle.vehicleType.label);
-              final formattedType = tType.isNotEmpty ? '${tType[0].toUpperCase()}${tType.substring(1).toLowerCase()}' : tType;
+              final tType = typeSlug.contains('moto')
+                  ? t.garage.vehicleTypes.motorcycle
+                  : (typeSlug.contains('car')
+                        ? t.garage.vehicleTypes.car
+                        : vehicle.vehicleType.label);
+              final formattedType = tType.isNotEmpty
+                  ? '${tType[0].toUpperCase()}${tType.substring(1).toLowerCase()}'
+                  : tType;
 
               return ProfileVehicleItem(
                 name: vehicle.displayName,
@@ -188,7 +200,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           orElse: () => [
             Padding(
               padding: EdgeInsets.all(r.space(AppSpacing.md)),
-              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              child: const Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
             ),
           ],
         ),
@@ -198,6 +212,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   Widget _buildNotificationSection(Translations t) {
     final bool isOpen = _openSection == 'notifs';
+    // Lee las preferencias del provider persistido.
+    final prefsAsync = ref.watch(profilePreferencesProvider);
+    final prefs = prefsAsync.value ?? const ProfilePreferences();
+    final notifier = ref.read(profilePreferencesProvider.notifier);
+
     return ProfileExpandableContainer(
       isOpen: isOpen,
       header: ProfileMenuRow(
@@ -209,27 +228,27 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         trailing: Icon(
           isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
           size: AppIconSizes.sm(context),
-          color: isOpen ? AppColors.cyan : AppColors.surfaceLight2,
+          color: isOpen ? AppColors.cyan : context.colors.surfaceLight2,
         ),
         showBottomBorder: isOpen,
       ),
       children: [
         ProfileToggleRow(
           label: t.profile.pushNotifications,
-          value: _pushNotifs,
-          onChanged: (val) => setState(() => _pushNotifs = val),
+          value: prefs.pushNotifications,
+          onChanged: notifier.setPushNotifications,
           accent: AppColors.cyan,
         ),
         ProfileToggleRow(
           label: t.profile.serviceReminders,
-          value: _serviceReminders,
-          onChanged: (val) => setState(() => _serviceReminders = val),
+          value: prefs.serviceReminders,
+          onChanged: notifier.setServiceReminders,
           accent: AppColors.cyan,
         ),
         ProfileToggleRow(
           label: t.profile.criticalAlerts,
-          value: _criticalAlerts,
-          onChanged: (val) => setState(() => _criticalAlerts = val),
+          value: prefs.criticalAlerts,
+          onChanged: notifier.setCriticalAlerts,
           accent: AppColors.red,
           showBottomBorder: false,
         ),
@@ -239,18 +258,26 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   Widget _buildSecuritySection(Translations t) {
     final bool isOpen = _openSection == 'security';
+    final prefs =
+        ref.watch(profilePreferencesProvider).value ??
+        const ProfilePreferences();
+    final notifier = ref.read(profilePreferencesProvider.notifier);
+    final twoFA = prefs.twoFactorAuth;
+
     return ProfileExpandableContainer(
       isOpen: isOpen,
       header: ProfileMenuRow(
         icon: Icons.shield_outlined,
         accent: AppColors.green,
         label: t.profile.privacySecurity,
-        subtitle: _twoFA ? t.profile.securitySubtitleActive : t.profile.securitySubtitleDefault,
+        subtitle: twoFA
+            ? t.profile.securitySubtitleActive
+            : t.profile.securitySubtitleDefault,
         onTap: () => _toggleSection('security'),
         trailing: Icon(
           isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
           size: AppIconSizes.sm(context),
-          color: isOpen ? AppColors.green : AppColors.surfaceLight2,
+          color: isOpen ? AppColors.green : context.colors.surfaceLight2,
         ),
         showBottomBorder: isOpen,
       ),
@@ -263,10 +290,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         ),
         ProfileToggleRow(
           label: t.profile.twoFactor,
-          value: _twoFA,
-          onChanged: (val) => setState(() => _twoFA = val),
+          value: twoFA,
+          onChanged: notifier.setTwoFactorAuth,
           accent: AppColors.green,
-          subtitle: _twoFA ? t.profile.twoFactorEnabled : t.profile.twoFactorDisabled,
+          subtitle: twoFA
+              ? t.profile.twoFactorEnabled
+              : t.profile.twoFactorDisabled,
           showBottomBorder: false,
         ),
       ],
@@ -275,7 +304,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   Widget _buildAppSettingsSection(Translations t) {
     final bool isOpen = _openSection == 'settings';
-    final currentLangTag = LocaleProvider.instance.currentAppLocale.languageTag.toUpperCase();
+    final currentLangTag = LocaleProvider.instance.currentAppLocale.languageTag
+        .toUpperCase();
+
+    // Leer tema actual desde el provider — se actualiza en tiempo real
+    final currentTheme = ref.watch(themeProvider).value ?? ThemeMode.dark;
+    final currentThemeSlug = currentTheme == ThemeMode.dark ? 'dark' : 'light';
+
     return ProfileExpandableContainer(
       isOpen: isOpen,
       header: ProfileMenuRow(
@@ -283,13 +318,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         accent: AppColors.accent,
         label: t.profile.appSettings,
         subtitle: t.profile.appSettingsSubtitle
-            .replaceAll('{theme}', _theme == 'dark' ? t.profile.themeDark : t.profile.themeLight)
+            .replaceAll(
+              '{theme}',
+              currentThemeSlug == 'dark'
+                  ? t.profile.themeDark
+                  : t.profile.themeLight,
+            )
             .replaceAll('{language}', currentLangTag),
         onTap: () => _toggleSection('settings'),
         trailing: Icon(
           isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
           size: AppIconSizes.sm(context),
-          color: isOpen ? AppColors.accent : AppColors.surfaceLight2,
+          color: isOpen ? AppColors.accent : context.colors.surfaceLight2,
         ),
         showBottomBorder: isOpen,
       ),
@@ -297,8 +337,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         ProfileSelectionRow(
           label: t.profile.theme,
           options: const ['dark', 'light'],
-          onChanged: (val) => setState(() => _theme = val),
-          currentValue: _theme,
+          displayLabels: [t.profile.themeDark, t.profile.themeLight],
+          onChanged: (val) {
+            if (val == 'light') {
+              ref.read(themeProvider.notifier).setLight();
+            } else {
+              ref.read(themeProvider.notifier).setDark();
+            }
+          },
+          currentValue: currentThemeSlug,
           accent: AppColors.accent,
         ),
         ProfileSelectionRow(
@@ -310,7 +357,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             if (locale != null) {
               LocaleProvider.instance.setLocale(locale);
             }
-            setState(() => _language = val.toUpperCase());
           },
           currentValue: LocaleProvider.instance.currentAppLocale.languageTag,
           accent: AppColors.accent,
@@ -325,9 +371,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               options: const ['metric', 'imperial'],
               displayLabels: [t.profile.metric, t.profile.imperial],
               onChanged: (val) {
-                ref.read(unitSystemProvider.notifier).setSystem(
-                  val == 'metric' ? UnitSystem.metric : UnitSystem.imperial
-                );
+                ref
+                    .read(unitSystemProvider.notifier)
+                    .setSystem(
+                      val == 'metric' ? UnitSystem.metric : UnitSystem.imperial,
+                    );
               },
               currentValue: activeSystem.name,
               accent: AppColors.accent,
@@ -353,24 +401,44 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.star, size: AppIconSizes.xs(context), color: AppColors.orangeSecondary),
-                Icon(Icons.star, size: AppIconSizes.xs(context), color: AppColors.orangeSecondary),
-                Icon(Icons.star, size: AppIconSizes.xs(context), color: AppColors.orangeSecondary),
-                Icon(Icons.star, size: AppIconSizes.xs(context), color: AppColors.orangeSecondary),
-                Icon(Icons.star, size: AppIconSizes.xs(context), color: AppColors.orangeSecondary),
+                Icon(
+                  Icons.star,
+                  size: AppIconSizes.xs(context),
+                  color: AppColors.orangeSecondary,
+                ),
+                Icon(
+                  Icons.star,
+                  size: AppIconSizes.xs(context),
+                  color: AppColors.orangeSecondary,
+                ),
+                Icon(
+                  Icons.star,
+                  size: AppIconSizes.xs(context),
+                  color: AppColors.orangeSecondary,
+                ),
+                Icon(
+                  Icons.star,
+                  size: AppIconSizes.xs(context),
+                  color: AppColors.orangeSecondary,
+                ),
+                Icon(
+                  Icons.star,
+                  size: AppIconSizes.xs(context),
+                  color: AppColors.orangeSecondary,
+                ),
               ],
             ),
           ),
           ProfileMenuRow(
             icon: Icons.help_outline,
-            accent: AppColors.textMuted,
+            accent: context.colors.textMuted,
             label: t.profile.helpSupport,
             subtitle: t.profile.faqsContact,
             onTap: () => _toggleSection('support'),
             trailing: Icon(
               isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
               size: AppIconSizes.sm(context),
-              color: isOpen ? AppColors.textMuted : AppColors.surfaceLight2,
+              color: isOpen ? context.colors.textMuted : context.colors.surfaceLight2,
             ),
             showBottomBorder: isOpen,
             borderBottom: false,
@@ -400,14 +468,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.logout, size: AppIconSizes.md(context), color: AppColors.red),
+          Icon(
+            Icons.logout,
+            size: AppIconSizes.md(context),
+            color: AppColors.red,
+          ),
           SizedBox(width: r.space(AppSpacing.s)),
           Text(
             t.profile.signOut,
-            style: AppTextStyles.bodyMedium(context).copyWith(
-              color: AppColors.red,
-              fontWeight: FontWeight.w700,
-            ),
+            style: AppTextStyles.bodyMedium(
+              context,
+            ).copyWith(color: AppColors.red, fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -422,17 +493,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         children: [
           Text(
             t.common.appName,
-            style: AppTextStyles.label(context).copyWith(
-              color: AppColors.textMuted,
-            ),
+            style: AppTextStyles.label(
+              context,
+            ).copyWith(color: context.colors.textMuted),
           ),
           SizedBox(height: r.space(AppSpacing.xxs)),
           Text(
             t.profile.footerTagline,
             textAlign: TextAlign.center,
-            style: AppTextStyles.micro(context).copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: AppTextStyles.micro(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
         ],
       ),

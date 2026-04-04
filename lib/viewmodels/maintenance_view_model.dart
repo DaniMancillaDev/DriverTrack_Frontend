@@ -30,7 +30,8 @@ class MaintenanceViewModel {
     final difference = now.difference(date);
 
     if (difference.inDays == 0) return t.time.today;
-    if (difference.inDays < 30) return t.time.daysAgo.replaceAll('{n}', '${difference.inDays}');
+    if (difference.inDays < 30)
+      return t.time.daysAgo.replaceAll('{n}', '${difference.inDays}');
     if (difference.inDays < 365) {
       final months = (difference.inDays / 30).floor();
       return t.time.monthsAgo.replaceAll('{n}', '$months');

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
 import 'custom_button.dart';
+import '../../theme/app_color_scheme.dart';
 
 class SheetActionButton extends StatelessWidget {
   final String label;
@@ -36,7 +37,7 @@ class SheetActionButton extends StatelessWidget {
       isLoading: isLoading,
       gradientColors: isSuccess
           ? [AppColors.green, AppColors.green.withValues(alpha: 0.8)]
-          : (isEnabled ? null : [AppColors.surface, AppColors.surface]),
+          : (isEnabled ? null : [context.colors.surface, context.colors.surface]),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: Row(
@@ -45,15 +46,15 @@ class SheetActionButton extends StatelessWidget {
           children: [
             Icon(
               displayIcon,
-              color: isEnabled ? Colors.white : AppColors.textDark,
+              color: isEnabled ? Colors.white : context.colors.textDark,
               size: AppIconSizes.lg(context),
             ),
             SizedBox(width: context.responsive.space(AppSpacing.xs)),
             Text(
               displayLabel,
-              style: AppTextStyles.button(context).copyWith(
-                color: isEnabled ? Colors.white : AppColors.textDark,
-              ),
+              style: AppTextStyles.button(
+                context,
+              ).copyWith(color: isEnabled ? Colors.white : context.colors.textDark),
             ),
           ],
         ),

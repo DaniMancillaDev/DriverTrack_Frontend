@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_color_scheme.dart';
 
 class SkeletonLoader extends StatefulWidget {
   final double width;
@@ -58,9 +59,9 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppColors.surfaceLight,
-                AppColors.surfaceLight2,
-                AppColors.surfaceLight,
+                context.colors.surfaceLight,
+                context.colors.surfaceLight2,
+                context.colors.surfaceLight,
               ],
               stops: [
                 0.0,

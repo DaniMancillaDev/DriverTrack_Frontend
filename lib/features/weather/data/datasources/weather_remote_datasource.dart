@@ -14,10 +14,8 @@ class WeatherRemoteDataSource {
   /// URL base de la API de OpenWeatherMap.
   static const _baseUrl = 'https://api.openweathermap.org/data/2.5';
 
-  WeatherRemoteDataSource({
-    required this.apiKey,
-    http.Client? client,
-  }) : _client = client ?? http.Client();
+  WeatherRemoteDataSource({required this.apiKey, http.Client? client})
+    : _client = client ?? http.Client();
 
   /// Obtiene el clima actual para las coordenadas dadas.
   ///
@@ -32,9 +30,9 @@ class WeatherRemoteDataSource {
     );
 
     try {
-      final response = await _client.get(uri).timeout(
-        const Duration(seconds: 10),
-      );
+      final response = await _client
+          .get(uri)
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -66,15 +64,18 @@ class WeatherRemoteDataSource {
     );
 
     try {
-      final response = await _client.get(uri).timeout(
-        const Duration(seconds: 10),
-      );
+      final response = await _client
+          .get(uri)
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         return WeatherModel.fromOwmJson(json);
       } else if (response.statusCode == 404) {
-        throw WeatherApiException('Ciudad no encontrada: $cityName', statusCode: 404);
+        throw WeatherApiException(
+          'Ciudad no encontrada: $cityName',
+          statusCode: 404,
+        );
       } else {
         throw WeatherApiException(
           'Error del servidor OWM: ${response.statusCode}',

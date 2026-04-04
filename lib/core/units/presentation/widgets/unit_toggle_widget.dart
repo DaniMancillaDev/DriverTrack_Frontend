@@ -14,15 +14,15 @@ class UnitToggleWidget extends ConsumerWidget {
     return SwitchListTile(
       title: const Text('Sistema de unidades'),
       subtitle: Text(
-        currentSystem == UnitSystem.metric 
-            ? 'Métrico (km, °C)' 
+        currentSystem == UnitSystem.metric
+            ? 'Métrico (km, °C)'
             : 'Imperial (mi, °F)',
       ),
       value: currentSystem == UnitSystem.imperial,
       onChanged: (bool isImperial) {
-        ref.read(unitSystemProvider.notifier).setSystem(
-              isImperial ? UnitSystem.imperial : UnitSystem.metric,
-            );
+        ref
+            .read(unitSystemProvider.notifier)
+            .setSystem(isImperial ? UnitSystem.imperial : UnitSystem.metric);
       },
     );
   }

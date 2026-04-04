@@ -42,8 +42,8 @@ class NotificationWebSocketDataSource {
   NotificationWebSocketDataSource({
     required String baseUrl,
     required int userId,
-  })  : _baseUrl = baseUrl,
-        _userId = userId;
+  }) : _baseUrl = baseUrl,
+       _userId = userId;
 
   /// Stream de nuevas notificaciones recibidas en tiempo real.
   Stream<NotificationModel> get notificationStream =>
@@ -157,9 +157,7 @@ class NotificationWebSocketDataSource {
     if (_isDisposed || _reconnectAttempts >= _maxReconnectAttempts) return;
 
     _reconnectTimer?.cancel();
-    final delay = Duration(
-      seconds: (1 << _reconnectAttempts).clamp(1, 60),
-    );
+    final delay = Duration(seconds: (1 << _reconnectAttempts).clamp(1, 60));
     _reconnectAttempts++;
 
     _reconnectTimer = Timer(delay, () {

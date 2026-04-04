@@ -9,20 +9,24 @@ class ExchangeRateModel extends ExchangeRate {
     required super.lastUpdated,
   });
 
-  factory ExchangeRateModel.fromJson(Map<String, dynamic> json, Currency target) {
+  factory ExchangeRateModel.fromJson(
+    Map<String, dynamic> json,
+    Currency target,
+  ) {
     // ExchangeRate-API returns:
     // {
     //   "base_code": "USD",
     //   "time_last_update_unix": 1729017600,
     //   "rates": { "MXN": 19.5, ... }
     // }
-    
+
     final baseCode = json['base_code'] as String;
     // La v4 devuelve 'rates', la v6 devuelve 'conversion_rates'
-    final rates = (json['rates'] ?? json['conversion_rates']) as Map<String, dynamic>;
+    final rates =
+        (json['rates'] ?? json['conversion_rates']) as Map<String, dynamic>;
     final rate = (rates[target.code] as num).toDouble();
     final timeUnix = json['time_last_update_unix'] as int;
-    
+
     return ExchangeRateModel(
       baseCurrency: Currency.fromString(baseCode),
       targetCurrency: target,

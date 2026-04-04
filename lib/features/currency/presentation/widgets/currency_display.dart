@@ -6,15 +6,15 @@ import '../../domain/currency_formatter.dart';
 import '../providers/currency_provider.dart';
 
 /// Un widget que muestra un monto garantizado formatado en la divisa preferida.
-/// Se actualiza de manera reactiva cada vez que el usuario alterna divisas 
+/// Se actualiza de manera reactiva cada vez que el usuario alterna divisas
 /// o el tipo de cambio se renueva.
 class CurrencyDisplay extends ConsumerWidget {
   /// El monto guardado en base de datos.
   final double amount;
-  
+
   /// La divisa del monto como está almacenado. Se asume USD por defecto.
   final Currency baseCurrency;
-  
+
   /// El estilo de texto para el número mostrado.
   final TextStyle? style;
 
@@ -42,14 +42,14 @@ class CurrencyDisplay extends ConsumerWidget {
       data: (state) {
         // La ExchangeRate en el provider siempre guarda baseCurrency=USD como convención
         final rateValue = state.exchangeRate.rate;
-        
+
         final formattedValue = CurrencyFormatter.format(
           amount,
           baseCurrency: baseCurrency,
           targetCurrency: state.activeCurrency,
           exchangeRate: rateValue,
         );
-        
+
         return FittedBox(
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
@@ -59,7 +59,11 @@ class CurrencyDisplay extends ConsumerWidget {
       loading: () => FittedBox(
         fit: BoxFit.scaleDown,
         alignment: Alignment.centerLeft,
-        child: Text(fallbackText, style: style?.copyWith(color: Colors.grey), maxLines: 1),
+        child: Text(
+          fallbackText,
+          style: style?.copyWith(color: Colors.grey),
+          maxLines: 1,
+        ),
       ),
       error: (_, __) => FittedBox(
         fit: BoxFit.scaleDown,

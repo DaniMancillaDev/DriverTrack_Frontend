@@ -30,8 +30,11 @@ class CustomCheckbox extends StatelessWidget {
         color: colorScheme.outlineVariant, // border nativo
         width: 1,
       ),
-      checkColor: colorScheme.onPrimary, // text-primary-foreground (icono palomita)
-      fillColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+      checkColor:
+          colorScheme.onPrimary, // text-primary-foreground (icono palomita)
+      fillColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
         if (!enabled) {
           return colorScheme.onSurface.withValues(alpha: 0.12);
         }
@@ -40,10 +43,10 @@ class CustomCheckbox extends StatelessWidget {
         }
         return colorScheme.surface; // bg-input-background por defecto
       }),
-      // Para asimilar el tamaño size-4 (16x16 px) podemos envolverlo en un SizedBox/Transform si vemos 
-      // la versión nativa de Material muy grande, pero la recomendación actual es usar el tamaño 
+      // Para asimilar el tamaño size-4 (16x16 px) podemos envolverlo en un SizedBox/Transform si vemos
+      // la versión nativa de Material muy grande, pero la recomendación actual es usar el tamaño
       // mínimo clicable de Material (48x48 área de tap).
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, 
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
 
     // Si no hay etiqueta, devuelve solo el Checkbox
@@ -74,10 +77,10 @@ class CustomCheckbox extends StatelessWidget {
             Text(
               label!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: enabled
-                        ? colorScheme.onSurface
-                        : colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
+                color: enabled
+                    ? colorScheme.onSurface
+                    : colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
             ),
           ],
         ),

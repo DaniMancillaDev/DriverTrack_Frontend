@@ -9,6 +9,7 @@ import '../services/auth_repository.dart';
 import '../config/app_config.dart';
 import '../features/map/domain/repositories/map_repository.dart';
 import '../features/map/data/repositories/map_repository_impl.dart';
+import '../providers/auth_provider.dart';
 
 // --- Core Providers ---
 
@@ -19,9 +20,16 @@ final appConfigProvider = Provider<AppConfig>((ref) {
 });
 
 /// Global ApiClient provider
+/// Inyecta el token de autenticación actual via un TokenProvider lazy callback,
+/// evitando dependencias circulares con AuthNotifier.
 final apiClientProvider = Provider<ApiClient>((ref) {
   final config = ref.watch(appConfigProvider);
-  return ApiClient(config);
+  return ApiClient(
+    config,
+    // TokenProvider: Se llama en cada request, siempre devuelve el token vigente.
+    // Si el backend usa cookies, user.token será null y el header no se agrega.
+    getToken: () => ref.read(authProvider)?.token,
+  );
 });
 
 /// Global repositories providers
@@ -201,24 +209,56 @@ class MaintenanceParams {
   int get hashCode => vehicleId.hashCode ^ skip.hashCode ^ limit.hashCode;
 }
 
-final maintenanceDocsProvider = FutureProvider.family<List<Maintenance>, MaintenanceParams>((ref, arg) async {
-  final repository = ref.watch(maintenanceRepositoryProvider);
-  
-  if (arg.vehicleId != null) {
-    return await repository.getMaintenanceRecords(
-      vehicleId: arg.vehicleId,
-      skip: arg.skip,
-      limit: arg.limit,
-    );
-  } else {
-    final allRecords = await repository.getMaintenanceRecords(
-      skip: arg.skip,
-      limit: arg.limit,
-    );
-    allRecords.sort((a, b) => b.date.compareTo(a.date));
-    return allRecords;
+class MaintenanceDocsNotifier extends AsyncNotifier<List<Maintenance>> {
+  final MaintenanceParams arg;
+
+  MaintenanceDocsNotifier(this.arg);
+
+  @override
+  Future<List<Maintenance>> build() async {
+    final repository = ref.watch(maintenanceRepositoryProvider);
+    List<Maintenance> docs;
+    if (arg.vehicleId != null) {
+      docs = await repository.getMaintenanceRecords(
+        vehicleId: arg.vehicleId,
+        skip: arg.skip,
+        limit: arg.limit,
+      );
+    } else {
+      docs = await repository.getMaintenanceRecords(
+        skip: arg.skip,
+        limit: arg.limit,
+      );
+      docs.sort((a, b) => b.date.compareTo(a.date));
+    }
+    return docs;
   }
-});
+
+  void updateLocal(Maintenance record) {
+    if (state.hasValue && state.value != null) {
+      final list = [...state.value!];
+      final idx = list.indexWhere((m) => m.id == record.id);
+      if (idx != -1) {
+        list[idx] = record;
+        state = AsyncData(list);
+      } else {
+        list.insert(0, record);
+        state = AsyncData(list);
+      }
+    }
+  }
+
+  void deleteLocal(int id) {
+    if (state.hasValue && state.value != null) {
+      state = AsyncData(state.value!.where((m) => m.id != id).toList());
+    }
+  }
+}
+
+final maintenanceDocsProvider =
+    AsyncNotifierProvider.family<MaintenanceDocsNotifier, List<Maintenance>, MaintenanceParams>(
+  (arg) => MaintenanceDocsNotifier(arg),
+);
 
 class ActiveFilterNotifier extends Notifier<String> {
   @override

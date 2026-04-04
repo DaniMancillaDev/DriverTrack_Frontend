@@ -8,7 +8,8 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../config/app_config.dart';
-import '../../../../core/units/presentation/unit_system_provider.dart' show sharedPreferencesProvider;
+import '../../../../core/units/presentation/unit_system_provider.dart'
+    show sharedPreferencesProvider;
 import '../../../../providers/app_providers.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../data/datasources/notification_local_datasource.dart';
@@ -22,15 +23,15 @@ import '../../domain/repositories/notification_repository.dart';
 
 final notificationRemoteDataSourceProvider =
     Provider<NotificationRemoteDataSource>((ref) {
-  final apiClient = ref.watch(apiClientProvider);
-  return NotificationRemoteDataSource(apiClient);
-});
+      final apiClient = ref.watch(apiClientProvider);
+      return NotificationRemoteDataSource(apiClient);
+    });
 
 final notificationLocalDataSourceProvider =
     Provider<NotificationLocalDataSource>((ref) {
-  final prefs = ref.watch(sharedPreferencesProvider);
-  return NotificationLocalDataSource(prefs);
-});
+      final prefs = ref.watch(sharedPreferencesProvider);
+      return NotificationLocalDataSource(prefs);
+    });
 
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   return NotificationRepositoryImpl(
@@ -40,7 +41,9 @@ final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
 });
 
 /// WebSocket provider — se recrea automáticamente cuando cambia authProvider.
-final notificationWsProvider = Provider<NotificationWebSocketDataSource?>((ref) {
+final notificationWsProvider = Provider<NotificationWebSocketDataSource?>((
+  ref,
+) {
   final user = ref.watch(authProvider);
   if (user == null) return null;
 
@@ -165,11 +168,13 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
       if (currentState == null) return;
 
       // Agregar la notificación al inicio de la lista
-      state = AsyncData(currentState.copyWith(
-        notifications: [notification, ...currentState.notifications],
-        unreadCount: currentState.unreadCount + 1,
-        totalCount: currentState.totalCount + 1,
-      ));
+      state = AsyncData(
+        currentState.copyWith(
+          notifications: [notification, ...currentState.notifications],
+          unreadCount: currentState.unreadCount + 1,
+          totalCount: currentState.totalCount + 1,
+        ),
+      );
     });
   }
 
@@ -195,7 +200,9 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
   /// Carga más notificaciones (infinite scroll).
   Future<void> fetchMore() async {
     final currentState = state.value;
-    if (currentState == null || !currentState.hasMore || currentState.isLoadingMore) {
+    if (currentState == null ||
+        !currentState.hasMore ||
+        currentState.isLoadingMore) {
       return;
     }
 
@@ -213,11 +220,13 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
         limit: _pageSize,
       );
 
-      state = AsyncData(currentState.copyWith(
-        notifications: [...currentState.notifications, ...result.items],
-        hasMore: result.hasMore,
-        isLoadingMore: false,
-      ));
+      state = AsyncData(
+        currentState.copyWith(
+          notifications: [...currentState.notifications, ...result.items],
+          hasMore: result.hasMore,
+          isLoadingMore: false,
+        ),
+      );
     } catch (e) {
       state = AsyncData(currentState.copyWith(isLoadingMore: false));
     }
@@ -236,15 +245,18 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
       return n;
     }).toList();
 
-    final wasUnread = currentState.notifications
-        .any((n) => n.id == notificationId && !n.isRead);
+    final wasUnread = currentState.notifications.any(
+      (n) => n.id == notificationId && !n.isRead,
+    );
 
-    state = AsyncData(currentState.copyWith(
-      notifications: updatedList,
-      unreadCount: wasUnread
-          ? (currentState.unreadCount - 1).clamp(0, currentState.totalCount)
-          : currentState.unreadCount,
-    ));
+    state = AsyncData(
+      currentState.copyWith(
+        notifications: updatedList,
+        unreadCount: wasUnread
+            ? (currentState.unreadCount - 1).clamp(0, currentState.totalCount)
+            : currentState.unreadCount,
+      ),
+    );
 
     try {
       final repo = ref.read(notificationRepositoryProvider);
@@ -267,10 +279,9 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
         .map((n) => n.copyWith(isRead: true))
         .toList();
 
-    state = AsyncData(currentState.copyWith(
-      notifications: updatedList,
-      unreadCount: 0,
-    ));
+    state = AsyncData(
+      currentState.copyWith(notifications: updatedList, unreadCount: 0),
+    );
 
     try {
       final repo = ref.read(notificationRepositoryProvider);
@@ -299,15 +310,18 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
         .firstOrNull;
 
     // Optimistic update
-    state = AsyncData(currentState.copyWith(
-      notifications: currentState.notifications
-          .where((n) => n.id != notificationId)
-          .toList(),
-      totalCount: currentState.totalCount - 1,
-      unreadCount: (removedNotification != null && !removedNotification.isRead)
-          ? (currentState.unreadCount - 1).clamp(0, currentState.totalCount)
-          : currentState.unreadCount,
-    ));
+    state = AsyncData(
+      currentState.copyWith(
+        notifications: currentState.notifications
+            .where((n) => n.id != notificationId)
+            .toList(),
+        totalCount: currentState.totalCount - 1,
+        unreadCount:
+            (removedNotification != null && !removedNotification.isRead)
+            ? (currentState.unreadCount - 1).clamp(0, currentState.totalCount)
+            : currentState.unreadCount,
+      ),
+    );
 
     try {
       final repo = ref.read(notificationRepositoryProvider);
@@ -322,8 +336,8 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
 
 final notificationsProvider =
     AsyncNotifierProvider<NotificationsNotifier, NotificationsState>(
-  () => NotificationsNotifier(),
-);
+      () => NotificationsNotifier(),
+    );
 
 /// Provider derivado para el badge de no leídas.
 final unreadCountProvider = Provider<int>((ref) {

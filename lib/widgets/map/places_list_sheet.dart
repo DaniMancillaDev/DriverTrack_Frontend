@@ -4,6 +4,7 @@ import '../../features/map/domain/entities/map_location.dart';
 import '../ui/custom_list_card.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 class PlacesListSheet extends StatelessWidget {
   final List<MapLocation> locations;
@@ -33,7 +34,7 @@ class PlacesListSheet extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(r.r(AppRadius.xl)),
             ),
@@ -60,7 +61,7 @@ class PlacesListSheet extends StatelessWidget {
                 onTap: onToggle,
                 child: _buildHandleStrip(context),
               ),
-              
+
               if (isExpanded)
                 Flexible(
                   child: ListView.builder(
@@ -76,10 +77,14 @@ class PlacesListSheet extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final loc = locations[index];
                       final bool isWorkshop = loc.type == 'workshop';
-                      final Color accent = isWorkshop ? AppColors.orangePrimary : AppColors.cyan;
-                      
+                      final Color accent = isWorkshop
+                          ? AppColors.orangePrimary
+                          : AppColors.cyan;
+
                       return Padding(
-                        padding: EdgeInsets.only(bottom: r.space(AppSpacing.md)),
+                        padding: EdgeInsets.only(
+                          bottom: r.space(AppSpacing.md),
+                        ),
                         child: CustomListCard(
                           onTap: () => onLocationSelected(loc),
                           leading: Container(
@@ -87,10 +92,14 @@ class PlacesListSheet extends StatelessWidget {
                             height: r.dim(44),
                             decoration: BoxDecoration(
                               color: accent.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(r.r(AppRadius.xs)),
+                              borderRadius: BorderRadius.circular(
+                                r.r(AppRadius.xs),
+                              ),
                             ),
                             child: Icon(
-                              isWorkshop ? Icons.build_rounded : Icons.local_gas_station_rounded,
+                              isWorkshop
+                                  ? Icons.build_rounded
+                                  : Icons.local_gas_station_rounded,
                               color: accent,
                               size: AppIconSizes.lg(context),
                             ),
@@ -103,22 +112,28 @@ class PlacesListSheet extends StatelessWidget {
                             children: [
                               Text(
                                 loc.distance,
-                                style: AppTextStyles.bodySmall(context).copyWith(
-                                  color: AppColors.cyan,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                                style: AppTextStyles.bodySmall(context)
+                                    .copyWith(
+                                      color: AppColors.cyan,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                               ),
                               SizedBox(height: r.space(4)),
                               Row(
                                 children: [
-                                  Icon(Icons.star_rounded, size: AppIconSizes.xs(context), color: AppColors.orangeSecondary),
+                                  Icon(
+                                    Icons.star_rounded,
+                                    size: AppIconSizes.xs(context),
+                                    color: AppColors.orangeSecondary,
+                                  ),
                                   SizedBox(width: r.space(2)),
                                   Text(
                                     loc.rating.toString(),
-                                    style: AppTextStyles.caption(context).copyWith(
-                                      color: AppColors.textMain,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: AppTextStyles.caption(context)
+                                        .copyWith(
+                                          color: context.colors.textMain,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -154,7 +169,7 @@ class PlacesListSheet extends StatelessWidget {
             width: r.dim(36),
             height: r.dim(4),
             decoration: BoxDecoration(
-              color: AppColors.borderLight,
+              color: context.colors.borderLight,
               borderRadius: BorderRadius.circular(r.r(AppRadius.xs)),
             ),
           ),
@@ -168,16 +183,19 @@ class PlacesListSheet extends StatelessWidget {
                   children: [
                     Text(
                       Translations.of(context).map.nearbyResults,
-                      style: AppTextStyles.caption(context).copyWith(
-                        color: AppColors.textMuted,
-                      ),
+                      style: AppTextStyles.caption(
+                        context,
+                      ).copyWith(color: context.colors.textMuted),
                     ),
                     SizedBox(height: r.space(4)),
                     Text(
-                      Translations.of(context).map.locationsFound.replaceAll('{count}', locations.length.toString()),
-                      style: AppTextStyles.button(context).copyWith(
-                        color: Colors.white,
+                      Translations.of(context).map.locationsFound.replaceAll(
+                        '{count}',
+                        locations.length.toString(),
                       ),
+                      style: AppTextStyles.button(
+                        context,
+                      ).copyWith(color: context.colors.textMain),
                     ),
                   ],
                 ),
@@ -188,14 +206,20 @@ class PlacesListSheet extends StatelessWidget {
                     context,
                     Icons.build_rounded,
                     AppColors.orangePrimary,
-                    locations.where((l) => l.type == 'workshop').length.toString(),
+                    locations
+                        .where((l) => l.type == 'workshop')
+                        .length
+                        .toString(),
                   ),
                   SizedBox(width: r.space(AppSpacing.xs)),
                   _buildCountBadge(
                     context,
                     Icons.local_gas_station_rounded,
                     AppColors.cyan,
-                    locations.where((l) => l.type == 'gasstation').length.toString(),
+                    locations
+                        .where((l) => l.type == 'gasstation')
+                        .length
+                        .toString(),
                   ),
                 ],
               ),
@@ -207,9 +231,9 @@ class PlacesListSheet extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 Translations.of(context).map.swipeUp,
-                style: AppTextStyles.caption(context).copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                style: AppTextStyles.caption(
+                  context,
+                ).copyWith(color: context.colors.textSecondary),
               ),
             ),
           ],
@@ -218,7 +242,12 @@ class PlacesListSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildCountBadge(BuildContext context, IconData icon, Color color, String count) {
+  Widget _buildCountBadge(
+    BuildContext context,
+    IconData icon,
+    Color color,
+    String count,
+  ) {
     final r = context.responsive;
     return Container(
       padding: EdgeInsets.symmetric(
@@ -235,10 +264,9 @@ class PlacesListSheet extends StatelessWidget {
           SizedBox(width: r.space(6)),
           Text(
             count,
-            style: AppTextStyles.caption(context).copyWith(
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTextStyles.caption(
+              context,
+            ).copyWith(color: color, fontWeight: FontWeight.w600),
           ),
         ],
       ),

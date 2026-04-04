@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_color_scheme.dart';
 
 enum ButtonVariant {
   defaultVariant,
@@ -36,7 +37,7 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     EdgeInsetsGeometry padding;
     double minWidth = 0;
     double minHeight = 0;
@@ -81,7 +82,7 @@ class CustomButton extends StatelessWidget {
         width: width ?? (size == ButtonSize.icon ? minWidth : double.infinity),
         height: minHeight,
         decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
+          color: context.colors.surfaceLight,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
         child: ClipRRect(
@@ -109,8 +110,7 @@ class CustomButton extends StatelessWidget {
 
     if (variant == ButtonVariant.gradient) {
       final List<Color> colors =
-          gradientColors ??
-          [colorScheme.primary, colorScheme.secondary];
+          gradientColors ?? [colorScheme.primary, colorScheme.secondary];
       return Container(
         width: width ?? (size == ButtonSize.icon ? minWidth : double.infinity),
         height: minHeight,
@@ -167,7 +167,7 @@ class CustomButton extends StatelessWidget {
           onPressed: isLoading ? null : onPressed,
           style: OutlinedButton.styleFrom(
             foregroundColor: colorScheme.onSurface,
-            side: BorderSide(color: AppColors.border),
+            side: BorderSide(color: context.colors.border),
             padding: padding,
             minimumSize: Size(width ?? minWidth, minHeight),
             shape: RoundedRectangleBorder(
@@ -181,7 +181,7 @@ class CustomButton extends StatelessWidget {
         return ElevatedButton(
           onPressed: isLoading ? null : onPressed,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.surfaceLight,
+            backgroundColor: context.colors.surfaceLight,
             foregroundColor: colorScheme.onSurface,
             padding: padding,
             minimumSize: Size(width ?? minWidth, minHeight),
@@ -196,7 +196,7 @@ class CustomButton extends StatelessWidget {
         return TextButton(
           onPressed: isLoading ? null : onPressed,
           style: TextButton.styleFrom(
-            foregroundColor: AppColors.textSecondary,
+            foregroundColor: context.colors.textSecondary,
             padding: padding,
             minimumSize: Size(width ?? minWidth, minHeight),
             shape: RoundedRectangleBorder(
@@ -278,9 +278,9 @@ class _ButtonShimmerState extends State<_ButtonShimmer>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppColors.surfaceLight,
-                AppColors.surfaceLight2,
-                AppColors.surfaceLight,
+                context.colors.surfaceLight,
+                context.colors.surfaceLight2,
+                context.colors.surfaceLight,
               ],
               stops: [0.0, (_animation.value + 1) / 2, 1.0],
             ),

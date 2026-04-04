@@ -1,31 +1,41 @@
 import 'package:flutter/material.dart';
+import 'app_color_scheme.dart';
 
 class AppColors {
   // Backgrounds
   static const Color background = Color(0xFF000000);
-  static const Color surface = Color(0xFF1C1C1E);
-  static const Color surfaceLight = Color(0xFF2C2C2E);
+  static const Color surface = Color(0xFF1A1A1E);
+  static const Color surfaceLight = Color(0xFF25252A);
+  static const Color surfaceLight2 = Color(0xFF323238);
+  static const Color inputBackground = Color(0xFF1E1E24);
   
-  static const Color surfaceLight2 = Color(0xFF3A3A3C);
-  static const Color accent = Color(0xFFB8A0FF);
-  static const Color border = Color(0xFF222228);
-  static const Color borderLight = Color(0xFF2E2E38);
-  static const Color divider = Color(0xFF252530);
-
-  // Accents
+  // Accents & Brand
   static const Color orangePrimary = Color(0xFFFF6B1A);
   static const Color orangeSecondary = Color(0xFFFF9C1A);
+  static const Color accent = Color(0xFFFF6B1A); // Anteriormente Morado, ahora alineado a la marca.
+  
+  static const Color border = Color(0xFF2C2C35);
+  static const Color borderLight = Color(0xFF383844);
+  static const Color divider = Color(0xFF202028);
+
+  // Status Colors
+  static const Color info = Color(0xFF00D4E8); // Cyan
+  static const Color success = Color(0xFF4CAF82); // Green
+  static const Color error = Color(0xFFFF4D4D); // Red
+  static const Color warning = Color(0xFFFFBE3D); // Yellow
+
+  // Legacy variables (retained for fallback)
   static const Color cyan = Color(0xFF00D4E8);
   static const Color green = Color(0xFF4CAF82);
   static const Color red = Color(0xFFFF4D4D);
-  static const Color purple = Color(0xFFB8A0FF);
+  static const Color purple = Color(0xFFFF6B1A); // Deprecated purple logic -> orange
   static const Color yellow = Color(0xFFFFBE3D);
 
   // Text
   static const Color textMain = Colors.white;
-  static const Color textSecondary = Color(0xFF9E9EAE);
+  static const Color textSecondary = Color(0xFFA0A0B0);
   static const Color textMuted = Color(0xFF6B6B7A);
-  static const Color textDark = Color(0xFF5A5A6A);
+  static const Color textDark = Color(0xFF5A5A6A); // Used typically inside dark chips
   static const Color textDim = Color(0xFF4A4A5A);
   static const Color textGhost = Color(0xFF3A3A48);
 
@@ -36,10 +46,10 @@ class AppColors {
     colors: [orangePrimary, orangeSecondary],
   );
 
-  static LinearGradient surfaceGradient(Color accent) => LinearGradient(
+  static LinearGradient surfaceGradient(Color baseAccent) => LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [accent.withValues(alpha: 0.1), Colors.transparent],
+    colors: [baseAccent.withValues(alpha: 0.08), Colors.transparent],
   );
 }
 
@@ -96,13 +106,18 @@ class AppTheme {
           fontSize: 17,
           fontWeight: FontWeight.w700,
         ),
-        bodyLarge: TextStyle(
+        bodyLarge: TextStyle(color: AppColors.textMain, fontSize: 16),
+        bodyMedium: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+        labelLarge: TextStyle(
           color: AppColors.textMain,
-          fontSize: 15,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
         ),
-        bodyMedium: TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 13,
+        labelMedium: TextStyle(
+          color: AppColors.textMain,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
         ),
         labelSmall: TextStyle(
           color: AppColors.textMuted,
@@ -111,6 +126,63 @@ class AppTheme {
           letterSpacing: 0.5,
         ),
       ),
+      extensions: const [AppColorScheme.dark],
+    );
+  }
+
+  /// Tema claro — usa AppColorScheme.light para los tokens adaptativos.
+  static ThemeData get lightTheme {
+    return ThemeData(
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: AppColorScheme.light.background,
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.orangePrimary,
+        secondary: AppColors.orangeSecondary,
+        surface: Color(0xFFFFFFFF),
+        surfaceContainer: Color(0xFFF5F5F7),
+        error: AppColors.red,
+        onPrimary: Colors.white,
+        onSurface: Color(0xFF1C1C1E),
+      ),
+      fontFamily: 'Inter',
+      textTheme: const TextTheme(
+        headlineLarge: TextStyle(
+          color: Color(0xFF1C1C1E),
+          fontSize: 24,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.5,
+        ),
+        headlineMedium: TextStyle(
+          color: Color(0xFF1C1C1E),
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+        titleLarge: TextStyle(
+          color: Color(0xFF1C1C1E),
+          fontSize: 17,
+          fontWeight: FontWeight.w700,
+        ),
+        bodyLarge: TextStyle(color: Color(0xFF1C1C1E), fontSize: 16),
+        bodyMedium: TextStyle(color: Color(0xFF6C6C70), fontSize: 14),
+        labelLarge: TextStyle(
+          color: Color(0xFF1C1C1E),
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+        labelMedium: TextStyle(
+          color: Color(0xFF1C1C1E),
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        ),
+        labelSmall: TextStyle(
+          color: Color(0xFF6C6C70),
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        ),
+      ),
+      extensions: const [AppColorScheme.light],
     );
   }
 }

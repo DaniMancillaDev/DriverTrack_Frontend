@@ -14,6 +14,7 @@ import '../../core/units/domain/unit_formatter.dart';
 import '../../features/weather/presentation/providers/weather_provider.dart';
 import '../../features/weather/domain/entities/weather_entity.dart';
 import '../../features/weather/domain/entities/weather_recommendation.dart';
+import '../../theme/app_color_scheme.dart';
 
 class WeatherWidget extends ConsumerWidget {
   const WeatherWidget({super.key});
@@ -65,7 +66,7 @@ class WeatherWidget extends ConsumerWidget {
     return Container(
       padding: EdgeInsets.all(r.space(AppSpacing.lg)),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
       ),
       child: Column(
@@ -99,7 +100,7 @@ class WeatherWidget extends ConsumerWidget {
                               Text(
                                 t.weather.alert,
                                 style: textTheme.labelSmall?.copyWith(
-                                  color: AppColors.textMuted,
+                                  color: context.colors.textMuted,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0.5,
                                 ),
@@ -108,7 +109,7 @@ class WeatherWidget extends ConsumerWidget {
                                 SizedBox(width: r.space(AppSpacing.xxs)),
                                 Icon(
                                   Icons.location_off,
-                                  color: AppColors.textMuted,
+                                  color: context.colors.textMuted,
                                   size: AppIconSizes.xs(context),
                                 ),
                               ],
@@ -117,7 +118,7 @@ class WeatherWidget extends ConsumerWidget {
                           Text(
                             '$conditionText · $formattedTemp',
                             style: textTheme.titleMedium?.copyWith(
-                              color: AppColors.textMain,
+                              color: context.colors.textMain,
                               fontWeight: FontWeight.w700,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -172,7 +173,7 @@ class WeatherWidget extends ConsumerWidget {
                       Text(
                         adviceText,
                         style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.colors.textSecondary,
                           height: 1.4,
                         ),
                       ),
@@ -182,17 +183,26 @@ class WeatherWidget extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            Icon(
+                              Icons.location_on_rounded,
+                              size: r.dim(10),
+                              color: AppColors.orangeSecondary,
+                            ),
+                            SizedBox(width: 2),
                             Text(
                               weather.cityName,
                               style: textTheme.labelSmall?.copyWith(
-                                color: AppColors.textDark,
+                                color: AppColors.orangeSecondary,
                                 fontSize: 9,
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColors.textDark.withValues(alpha: 0.5),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            SizedBox(width: 4),
-                            Icon(Icons.edit, size: 10, color: AppColors.textDark),
+                            SizedBox(width: 2),
+                            Icon(
+                              Icons.edit_rounded,
+                              size: 9,
+                              color: AppColors.orangeSecondary.withValues(alpha: 0.6),
+                            ),
                           ],
                         ),
                       ),
@@ -213,19 +223,21 @@ class WeatherWidget extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.colors.surface,
         title: Text(
-          'Cambiar Ciudad',
-          style: AppTextStyles.title(context).copyWith(color: Colors.white),
+          'Change City',
+          style: AppTextStyles.title(context).copyWith(color: context.colors.textMain),
         ),
         content: TextField(
           controller: controller,
-          style: AppTextStyles.body(context).copyWith(color: Colors.white),
+          style: AppTextStyles.body(context).copyWith(color: context.colors.textMain),
           decoration: InputDecoration(
             hintText: 'Ej. Monterrey, MX',
-            hintStyle: AppTextStyles.body(context).copyWith(color: AppColors.textMuted),
+            hintStyle: AppTextStyles.body(
+              context,
+            ).copyWith(color: context.colors.textMuted),
             filled: true,
-            fillColor: AppColors.surfaceLight,
+            fillColor: context.colors.surfaceLight,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
               borderSide: BorderSide.none,
@@ -238,16 +250,24 @@ class WeatherWidget extends ConsumerWidget {
               ref.read(weatherProvider.notifier).setManualCity('');
               Navigator.pop(context);
             },
-            child: Text('Usar GPS / Auto', style: TextStyle(color: AppColors.textMuted)),
+            child: Text(
+              'Use GPS',
+              style: TextStyle(color: context.colors.textMuted),
+            ),
           ),
           TextButton(
             onPressed: () {
               if (controller.text.isNotEmpty) {
-                ref.read(weatherProvider.notifier).setManualCity(controller.text);
+                ref
+                    .read(weatherProvider.notifier)
+                    .setManualCity(controller.text);
               }
               Navigator.pop(context);
             },
-            child: Text('Buscar', style: TextStyle(color: AppColors.orangePrimary)),
+            child: Text(
+              'Search',
+              style: TextStyle(color: AppColors.orangePrimary),
+            ),
           ),
         ],
       ),
@@ -265,9 +285,9 @@ class WeatherWidget extends ConsumerWidget {
     return Container(
       padding: EdgeInsets.all(r.space(AppSpacing.lg)),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(r.r(AppRadius.xxl)),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -292,7 +312,7 @@ class WeatherWidget extends ConsumerWidget {
                 Text(
                   Translations.of(context).weather.alert,
                   style: textTheme.labelSmall?.copyWith(
-                    color: AppColors.textMuted,
+                    color: context.colors.textMuted,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
                   ),
@@ -301,7 +321,7 @@ class WeatherWidget extends ConsumerWidget {
                 SizedBox(
                   width: r.dim(120),
                   child: LinearProgressIndicator(
-                    backgroundColor: AppColors.surfaceLight,
+                    backgroundColor: context.colors.surfaceLight,
                     color: accent,
                     borderRadius: BorderRadius.circular(r.r(AppRadius.xs)),
                   ),
@@ -316,7 +336,11 @@ class WeatherWidget extends ConsumerWidget {
 
   // ─── Error State ─────────────────────────────────────────────
 
-  Widget _buildErrorState(BuildContext context, AppResponsive r, WidgetRef ref) {
+  Widget _buildErrorState(
+    BuildContext context,
+    AppResponsive r,
+    WidgetRef ref,
+  ) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     const accent = AppColors.red;
@@ -327,7 +351,7 @@ class WeatherWidget extends ConsumerWidget {
       child: Container(
         padding: EdgeInsets.all(r.space(AppSpacing.lg)),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
         ),
         child: Row(
@@ -353,14 +377,14 @@ class WeatherWidget extends ConsumerWidget {
                   Text(
                     Translations.of(context).weather.unavailable,
                     style: textTheme.titleMedium?.copyWith(
-                      color: AppColors.textMain,
+                      color: context.colors.textMain,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   Text(
                     Translations.of(context).weather.tapToRetry,
                     style: textTheme.bodySmall?.copyWith(
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                     ),
                   ),
                 ],
@@ -368,7 +392,7 @@ class WeatherWidget extends ConsumerWidget {
             ),
             Icon(
               Icons.refresh,
-              color: AppColors.textMuted,
+              color: context.colors.textMuted,
               size: AppIconSizes.md(context),
             ),
           ],
@@ -392,7 +416,9 @@ class WeatherWidget extends ConsumerWidget {
         SizedBox(width: r.space(4)),
         Text(
           value,
-          style: AppTextStyles.label(context).copyWith(color: AppColors.textMuted),
+          style: AppTextStyles.label(
+            context,
+          ).copyWith(color: context.colors.textMuted),
         ),
       ],
     );

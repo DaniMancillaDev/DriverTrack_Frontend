@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_color_scheme.dart';
 
 class StarRating extends StatelessWidget {
   final double rating;
@@ -20,7 +21,7 @@ class StarRating extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveActiveColor = activeColor ?? AppColors.orangeSecondary;
-    final effectiveInactiveColor = inactiveColor ?? AppColors.textGhost;
+    final effectiveInactiveColor = inactiveColor ?? context.colors.textGhost;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

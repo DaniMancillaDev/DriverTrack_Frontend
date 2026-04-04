@@ -31,7 +31,9 @@ class CurrencyLocalDataSourceImpl implements CurrencyLocalDataSource {
   Future<ExchangeRateModel> getLastExchangeRate(String cacheKey) {
     final jsonString = sharedPreferences.getString(cacheKey);
     if (jsonString != null) {
-      return Future.value(ExchangeRateModel.fromCacheJson(json.decode(jsonString)));
+      return Future.value(
+        ExchangeRateModel.fromCacheJson(json.decode(jsonString)),
+      );
     } else {
       throw CacheFailure('No locally cached exchange rate found');
     }
@@ -39,10 +41,7 @@ class CurrencyLocalDataSourceImpl implements CurrencyLocalDataSource {
 
   @override
   Future<void> cacheExchangeRate(ExchangeRateModel rate, String cacheKey) {
-    return sharedPreferences.setString(
-      cacheKey,
-      json.encode(rate.toJson()),
-    );
+    return sharedPreferences.setString(cacheKey, json.encode(rate.toJson()));
   }
 
   @override

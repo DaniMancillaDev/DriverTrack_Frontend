@@ -10,10 +10,7 @@ class Result<L, R> {
   factory Result.success(R success) => Result._(null, success, true);
   factory Result.failure(L failure) => Result._(failure, null, false);
 
-  T fold<T>(
-    T Function(L failure) onFailure,
-    T Function(R success) onSuccess,
-  ) {
+  T fold<T>(T Function(L failure) onFailure, T Function(R success) onSuccess) {
     if (isSuccess) {
       return onSuccess(_success as R);
     }

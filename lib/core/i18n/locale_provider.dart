@@ -44,7 +44,9 @@ class LocaleProvider extends ChangeNotifier {
     // en el mismo frame, sin esperar un Future.
     LocaleSettings.setLocaleSync(locale);
 
-    debugPrint('[i18n] LocaleSettings updated, current: ${LocaleSettings.currentLocale.languageTag}');
+    debugPrint(
+      '[i18n] LocaleSettings updated, current: ${LocaleSettings.currentLocale.languageTag}',
+    );
 
     // Persistir preferencia (fire-and-forget)
     SharedPreferences.getInstance().then((prefs) {

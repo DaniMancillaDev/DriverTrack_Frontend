@@ -100,12 +100,7 @@ class AppResponsive {
 
   /// Pick a value based on current device type.
   /// Falls back to the smallest provided value.
-  T value<T>({
-    required T mobile,
-    T? mobileSmall,
-    T? tablet,
-    T? desktop,
-  }) {
+  T value<T>({required T mobile, T? mobileSmall, T? tablet, T? desktop}) {
     return switch (deviceType) {
       DeviceType.mobileSmall => mobileSmall ?? mobile,
       DeviceType.mobile => mobile,
@@ -172,8 +167,10 @@ class AppIconSizes {
   static double lg(BuildContext context) => context.responsive.iconSize(_lg);
   static double xl(BuildContext context) => context.responsive.iconSize(_xl);
   static double xxl(BuildContext context) => context.responsive.iconSize(_xxl);
-  static double huge(BuildContext context) => context.responsive.iconSize(_huge);
-  static double massive(BuildContext context) => context.responsive.iconSize(_massive);
+  static double huge(BuildContext context) =>
+      context.responsive.iconSize(_huge);
+  static double massive(BuildContext context) =>
+      context.responsive.iconSize(_massive);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -196,10 +193,7 @@ class AppTextStyles {
   /// 20sp — Section headings
   static TextStyle headlineMedium(BuildContext context) {
     final r = context.responsive;
-    return TextStyle(
-      fontSize: r.sp(20),
-      fontWeight: FontWeight.w700,
-    );
+    return TextStyle(fontSize: r.sp(20), fontWeight: FontWeight.w700);
   }
 
   /// 22sp — Large display numbers / titles in sheets
@@ -215,42 +209,31 @@ class AppTextStyles {
   /// 17sp — Titles (cards, sections)
   static TextStyle title(BuildContext context) {
     final r = context.responsive;
-    return TextStyle(
-      fontSize: r.sp(17),
-      fontWeight: FontWeight.w700,
-    );
+    return TextStyle(fontSize: r.sp(17), fontWeight: FontWeight.w700);
   }
 
   /// 15sp — Primary body text
   static TextStyle body(BuildContext context) {
     final r = context.responsive;
-    return TextStyle(
-      fontSize: r.sp(15),
-    );
+    return TextStyle(fontSize: r.sp(15));
   }
 
   /// 14sp — Secondary body text
   static TextStyle bodyMedium(BuildContext context) {
     final r = context.responsive;
-    return TextStyle(
-      fontSize: r.sp(14),
-    );
+    return TextStyle(fontSize: r.sp(14));
   }
 
   /// 13sp — Small body / subtitles
   static TextStyle bodySmall(BuildContext context) {
     final r = context.responsive;
-    return TextStyle(
-      fontSize: r.sp(13),
-    );
+    return TextStyle(fontSize: r.sp(13));
   }
 
   /// 12sp — Captions / supplementary text
   static TextStyle caption(BuildContext context) {
     final r = context.responsive;
-    return TextStyle(
-      fontSize: r.sp(12),
-    );
+    return TextStyle(fontSize: r.sp(12));
   }
 
   /// 11sp — Labels / tags
@@ -266,35 +249,25 @@ class AppTextStyles {
   /// 10sp — Micro labels / badges
   static TextStyle micro(BuildContext context) {
     final r = context.responsive;
-    return TextStyle(
-      fontSize: r.sp(10),
-    );
+    return TextStyle(fontSize: r.sp(10));
   }
 
   /// 9sp — Tiny text (minimal UI labels)
   static TextStyle tiny(BuildContext context) {
     final r = context.responsive;
-    return TextStyle(
-      fontSize: r.sp(9),
-    );
+    return TextStyle(fontSize: r.sp(9));
   }
 
   /// 16sp — Button text
   static TextStyle button(BuildContext context) {
     final r = context.responsive;
-    return TextStyle(
-      fontSize: r.sp(16),
-      fontWeight: FontWeight.w700,
-    );
+    return TextStyle(fontSize: r.sp(16), fontWeight: FontWeight.w700);
   }
 
   /// 18sp — Sheet / dialog titles
   static TextStyle sheetTitle(BuildContext context) {
     final r = context.responsive;
-    return TextStyle(
-      fontSize: r.sp(18),
-      fontWeight: FontWeight.w800,
-    );
+    return TextStyle(fontSize: r.sp(18), fontWeight: FontWeight.w800);
   }
 }
 

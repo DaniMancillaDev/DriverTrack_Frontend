@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
 import '../ui/skeleton_loader.dart';
+import '../../theme/app_color_scheme.dart';
 
 class MaintenanceCardSkeleton extends StatelessWidget {
   const MaintenanceCardSkeleton({super.key});
@@ -14,7 +15,7 @@ class MaintenanceCardSkeleton extends StatelessWidget {
       margin: EdgeInsets.only(bottom: r.space(AppSpacing.md)),
       padding: EdgeInsets.all(r.space(AppSpacing.lg)),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
       ),
       child: Row(

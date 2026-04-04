@@ -59,8 +59,11 @@ class GeoLocationService {
       // Obtener posición actual
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high, // Alta precisión para dispositivos físicos
-          timeLimit: Duration(seconds: 20), // Mayor tiempo de espera para el GPS
+          accuracy:
+              LocationAccuracy.high, // Alta precisión para dispositivos físicos
+          timeLimit: Duration(
+            seconds: 20,
+          ), // Mayor tiempo de espera para el GPS
         ),
       );
 

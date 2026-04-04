@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -21,10 +22,22 @@ class CustomBottomNav extends StatelessWidget {
     final r = context.responsive;
 
     final List<Map<String, dynamic>> tabs = [
-      {'icon': Icons.directions_car_outlined, 'activeIcon': Icons.directions_car, 'label': t.nav.garage},
-      {'icon': Icons.history_rounded, 'activeIcon': Icons.history_rounded, 'label': t.nav.history},
+      {
+        'icon': Icons.directions_car_outlined,
+        'activeIcon': Icons.directions_car,
+        'label': t.nav.garage,
+      },
+      {
+        'icon': Icons.history_rounded,
+        'activeIcon': Icons.history_rounded,
+        'label': t.nav.history,
+      },
       {'icon': Icons.map_outlined, 'activeIcon': Icons.map, 'label': t.nav.map},
-      {'icon': Icons.person_outline_rounded, 'activeIcon': Icons.person_rounded, 'label': t.nav.profile},
+      {
+        'icon': Icons.person_outline_rounded,
+        'activeIcon': Icons.person_rounded,
+        'label': t.nav.profile,
+      },
     ];
 
     return Container(
@@ -36,9 +49,7 @@ class CustomBottomNav extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
-        border: Border(
-          top: BorderSide(color: AppColors.border, width: 1),
-        ),
+        border: Border(top: BorderSide(color: context.colors.border, width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -63,7 +74,9 @@ class CustomBottomNav extends StatelessWidget {
                           height: r.dim(32),
                           decoration: BoxDecoration(
                             color: colorScheme.primary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+                            borderRadius: BorderRadius.circular(
+                              r.r(AppRadius.md),
+                            ),
                             border: Border.all(
                               color: colorScheme.primary.withValues(alpha: 0.2),
                             ),
@@ -74,16 +87,24 @@ class CustomBottomNav extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          isSelected ? (tab['activeIcon'] as IconData) : (tab['icon'] as IconData),
+                          isSelected
+                              ? (tab['activeIcon'] as IconData)
+                              : (tab['icon'] as IconData),
                           size: AppIconSizes.lg(context),
-                          color: isSelected ? colorScheme.primary : AppColors.textDim,
+                          color: isSelected
+                              ? colorScheme.primary
+                              : context.colors.textDim,
                         ),
                         SizedBox(height: r.space(2)),
                         Text(
                           tab['label'] as String,
                           style: AppTextStyles.micro(context).copyWith(
-                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-                            color: isSelected ? colorScheme.primary : AppColors.textDim,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                            color: isSelected
+                                ? colorScheme.primary
+                                : context.colors.textDim,
                           ),
                         ),
                       ],
@@ -99,7 +120,9 @@ class CustomBottomNav extends StatelessWidget {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: colorScheme.primary.withValues(alpha: 0.6),
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.6,
+                                ),
                                 blurRadius: 6,
                               ),
                             ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/vehicle_model.dart';
 import '../theme/app_theme.dart';
+import '../core/i18n/translations.g.dart';
 
 class VehicleViewModel {
   final Vehicle vehicle;
@@ -86,18 +87,18 @@ class VehicleViewModel {
   }
 
   /// A human-readable label for the vehicle's health status.
-  String get statusLabel {
+  String getStatusLabel(Translations t) {
     switch (status.toLowerCase()) {
       case 'good':
       case 'healthy':
-        return 'Healthy';
+        return t.garage.statusHealthy;
       case 'warning':
-        return 'Due Soon';
+        return t.garage.statusNeedsService;
       case 'critical':
       case 'overdue':
-        return 'Overdue';
+        return t.garage.statusCritical;
       default:
-        return 'Unknown';
+        return t.common.unknownVehicle;
     }
   }
 

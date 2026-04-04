@@ -72,7 +72,8 @@ class NotificationEntity {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'NotificationEntity(id: $id, title: $title, isRead: $isRead)';
+  String toString() =>
+      'NotificationEntity(id: $id, title: $title, isRead: $isRead)';
 }
 
 /// Respuesta paginada de notificaciones.

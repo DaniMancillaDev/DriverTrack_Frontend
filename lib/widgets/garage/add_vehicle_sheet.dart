@@ -14,6 +14,7 @@ import 'vehicle_preview_card.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/form_validators.dart';
 import '../../core/i18n/translations.g.dart';
+import '../../theme/app_color_scheme.dart';
 
 class AddVehicleSheet extends ConsumerStatefulWidget {
   final Function(Map<String, dynamic>) onSave;
@@ -97,7 +98,11 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
   void _validate() {
     setState(() {
       final t = Translations.of(context);
-      _modelError = FormValidators.notEmpty(_modelController.text, t.garage.addVehicleForm.modelLabel, context);
+      _modelError = FormValidators.notEmpty(
+        _modelController.text,
+        t.garage.addVehicleForm.modelLabel,
+        context,
+      );
       _plateError = FormValidators.licensePlate(_plateController.text, context);
       _mileageError = FormValidators.mileage(_mileageController.text, context);
     });
@@ -140,7 +145,7 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
 
     try {
       await widget.onSave(vehicle);
-      
+
       if (!mounted) return;
 
       setState(() {
@@ -207,7 +212,9 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SheetHeader(
-              title: widget.initialVehicle != null ? Translations.of(context).garage.addVehicleForm.titleUpdate : Translations.of(context).garage.addVehicleForm.titleAdd,
+              title: widget.initialVehicle != null
+                  ? Translations.of(context).garage.addVehicleForm.titleUpdate
+                  : Translations.of(context).garage.addVehicleForm.titleAdd,
               subtitle: Translations.of(context).garage.addVehicleForm.subtitle,
               onClose: () => Navigator.pop(context),
             ),
@@ -237,8 +244,12 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
                 1,
                 CustomDropdown<String>(
                   value: _brand,
-                  label: Translations.of(context).garage.addVehicleForm.brandLabel,
-                  hint: Translations.of(context).garage.addVehicleForm.brandHint,
+                  label: Translations.of(
+                    context,
+                  ).garage.addVehicleForm.brandLabel,
+                  hint: Translations.of(
+                    context,
+                  ).garage.addVehicleForm.brandHint,
                   icon: Icons.bookmark_outline_rounded,
                   items: _type?.slug == 'car' ? _carBrands : _motoBrands,
                   itemLabelBuilder: (v) => v,
@@ -255,17 +266,23 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
               2,
               CustomInput(
                 controller: _modelController,
-                label: Translations.of(context).garage.addVehicleForm.modelLabel,
+                label: Translations.of(
+                  context,
+                ).garage.addVehicleForm.modelLabel,
                 placeholder: _type?.slug == 'car'
-                    ? Translations.of(context).garage.addVehicleForm.modelHintCar
-                    : Translations.of(context).garage.addVehicleForm.modelHintMoto,
+                    ? Translations.of(
+                        context,
+                      ).garage.addVehicleForm.modelHintCar
+                    : Translations.of(
+                        context,
+                      ).garage.addVehicleForm.modelHintMoto,
                 errorText: (_dirtyFields.contains('model'))
                     ? _modelError
                     : null,
-                prefixIcon: const Icon(
+                prefixIcon: Icon(
                   Icons.tag_rounded,
                   size: 16,
-                  color: AppColors.textDark,
+                  color: context.colors.textDark,
                 ),
                 onChanged: (_) {
                   _markDirty('model');
@@ -296,8 +313,12 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
               4,
               CustomInput(
                 controller: _plateController,
-                label: Translations.of(context).garage.addVehicleForm.plateLabel,
-                placeholder: Translations.of(context).garage.addVehicleForm.plateHint,
+                label: Translations.of(
+                  context,
+                ).garage.addVehicleForm.plateLabel,
+                placeholder: Translations.of(
+                  context,
+                ).garage.addVehicleForm.plateHint,
                 errorText: (_dirtyFields.contains('plate'))
                     ? _plateError
                     : null,
@@ -305,12 +326,14 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9-]')),
                   _UpperCaseTextFormatter(),
                 ],
-                prefixIcon: const Icon(
+                prefixIcon: Icon(
                   Icons.tag_rounded,
                   size: 16,
-                  color: AppColors.textDark,
+                  color: context.colors.textDark,
                 ),
-                subHint: Translations.of(context).garage.addVehicleForm.plateSubHint,
+                subHint: Translations.of(
+                  context,
+                ).garage.addVehicleForm.plateSubHint,
                 onChanged: (v) {
                   _markDirty('plate');
                   _validate();
@@ -323,18 +346,24 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
               5,
               CustomInput(
                 controller: _mileageController,
-                label: Translations.of(context).garage.addVehicleForm.mileageLabel,
-                placeholder: Translations.of(context).garage.addVehicleForm.mileageHint,
+                label: Translations.of(
+                  context,
+                ).garage.addVehicleForm.mileageLabel,
+                placeholder: Translations.of(
+                  context,
+                ).garage.addVehicleForm.mileageHint,
                 errorText: (_dirtyFields.contains('mileage'))
                     ? _mileageError
                     : null,
-                prefixIcon: const Icon(
+                prefixIcon: Icon(
                   Icons.speed_rounded,
                   size: 16,
-                  color: AppColors.textDark,
+                  color: context.colors.textDark,
                 ),
                 keyboardType: TextInputType.number,
-                subHint: Translations.of(context).garage.addVehicleForm.mileageSubHint,
+                subHint: Translations.of(
+                  context,
+                ).garage.addVehicleForm.mileageSubHint,
                 onChanged: (_) {
                   _markDirty('mileage');
                   _validate();
@@ -349,7 +378,7 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
                 child: Text(
                   'PREVIEW',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.textMuted,
+                    color: context.colors.textMuted,
                     letterSpacing: 1.2,
                     fontWeight: FontWeight.w700,
                   ),
@@ -372,19 +401,33 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
             _buildAnimatedItem(
               7,
               SheetActionButton(
-                label: widget.initialVehicle != null 
-                  ? Translations.of(context).garage.addVehicleForm.btnUpdate 
-                  : (_type?.icon == 'motorcycle_rounded' ? Translations.of(context).garage.addVehicleForm.btnSaveMoto : Translations.of(context).garage.addVehicleForm.btnSaveCar),
-                successLabel: widget.initialVehicle != null 
-                  ? Translations.of(context).garage.addVehicleForm.btnUpdated 
-                  : (_type?.icon == 'motorcycle_rounded' ? Translations.of(context).garage.addVehicleForm.btnSavedMoto : Translations.of(context).garage.addVehicleForm.btnSavedCar),
+                label: widget.initialVehicle != null
+                    ? Translations.of(context).garage.addVehicleForm.btnUpdate
+                    : (_type?.icon == 'motorcycle_rounded'
+                          ? Translations.of(
+                              context,
+                            ).garage.addVehicleForm.btnSaveMoto
+                          : Translations.of(
+                              context,
+                            ).garage.addVehicleForm.btnSaveCar),
+                successLabel: widget.initialVehicle != null
+                    ? Translations.of(context).garage.addVehicleForm.btnUpdated
+                    : (_type?.icon == 'motorcycle_rounded'
+                          ? Translations.of(
+                              context,
+                            ).garage.addVehicleForm.btnSavedMoto
+                          : Translations.of(
+                              context,
+                            ).garage.addVehicleForm.btnSavedCar),
                 onPressed: _handleSave,
                 isEnabled: _isValid,
                 isLoading: _isSaving,
                 isSuccess: _isSaved,
-                icon: widget.initialVehicle != null 
-                  ? Icons.save_rounded 
-                  : (_type?.icon == 'motorcycle_rounded' ? Icons.motorcycle_rounded : Icons.directions_car_filled_rounded),
+                icon: widget.initialVehicle != null
+                    ? Icons.save_rounded
+                    : (_type?.icon == 'motorcycle_rounded'
+                          ? Icons.motorcycle_rounded
+                          : Icons.directions_car_filled_rounded),
                 successIcon: Icons.check_circle_rounded,
               ),
             ),
@@ -397,7 +440,7 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
                   child: Text(
                     Translations.of(context).garage.addVehicleForm.btnCancel,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

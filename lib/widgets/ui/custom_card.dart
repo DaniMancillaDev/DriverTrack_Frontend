@@ -28,10 +28,7 @@ class CustomCard extends StatelessWidget {
         ),
       ),
       elevation: 0, // En la web suele ser sin elevación (flat)
-      child: Padding(
-        padding: padding ?? EdgeInsets.zero,
-        child: child,
-      ),
+      child: Padding(padding: padding ?? EdgeInsets.zero, child: child),
     );
   }
 }
@@ -95,10 +92,10 @@ class CustomCardTitle extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            height: 1,
-            letterSpacing: -0.5,
-          ),
+        fontWeight: FontWeight.w600,
+        height: 1,
+        letterSpacing: -0.5,
+      ),
     );
   }
 }
@@ -113,8 +110,8 @@ class CustomCardDescription extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
     );
   }
 }
@@ -134,10 +131,7 @@ class CustomCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: padding,
-      child: child,
-    );
+    return Padding(padding: padding, child: child);
   }
 }
 
@@ -158,9 +152,6 @@ class CustomCardFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: padding,
-      child: child,
-    );
+    return Padding(padding: padding, child: child);
   }
 }

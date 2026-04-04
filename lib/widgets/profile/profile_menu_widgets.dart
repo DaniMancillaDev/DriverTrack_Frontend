@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
 import '../ui/custom_list_card.dart';
+import '../../theme/app_color_scheme.dart';
 
 class ProfileExpandableContainer extends StatelessWidget {
   final bool isOpen;
@@ -20,7 +21,7 @@ class ProfileExpandableContainer extends StatelessWidget {
     final r = context.responsive;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
         boxShadow: [
           BoxShadow(
@@ -83,16 +84,16 @@ class ProfileMenuRow extends StatelessWidget {
                   Text(
                     label,
                     style: AppTextStyles.body(context).copyWith(
-                      color: Colors.white,
+                      color: context.colors.textMain,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   if (subtitle != null)
                     Text(
                       subtitle!,
-                      style: AppTextStyles.caption(context).copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                      style: AppTextStyles.caption(
+                        context,
+                      ).copyWith(color: context.colors.textSecondary),
                       overflow: TextOverflow.ellipsis,
                     ),
                 ],
@@ -104,7 +105,7 @@ class ProfileMenuRow extends StatelessWidget {
               Icon(
                 Icons.chevron_right,
                 size: AppIconSizes.sm(context),
-                color: AppColors.surfaceLight2,
+                color: context.colors.surfaceLight2,
               ),
           ],
         ),
@@ -144,10 +145,9 @@ class ProfileBadge extends StatelessWidget {
           SizedBox(width: r.space(6)),
           Text(
             label,
-            style: AppTextStyles.caption(context).copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
+            style: AppTextStyles.caption(
+              context,
+            ).copyWith(color: color, fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -179,21 +179,26 @@ class ProfileSimpleRow extends StatelessWidget {
           horizontal: r.space(AppSpacing.md),
           vertical: r.space(AppSpacing.s),
         ),
-        color: Colors.transparent, // Removed heavy bottom borders and solid background for cleaner whitespace (Tip 1)
+        color: Colors
+            .transparent, // Removed heavy bottom borders and solid background for cleaner whitespace (Tip 1)
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: Row(
                 children: [
-                  Icon(icon, size: AppIconSizes.sm(context), color: AppColors.textSecondary),
+                  Icon(
+                    icon,
+                    size: AppIconSizes.sm(context),
+                    color: context.colors.textSecondary,
+                  ),
                   SizedBox(width: r.space(AppSpacing.s)),
                   Expanded(
                     child: Text(
                       label,
-                      style: AppTextStyles.bodyMedium(context).copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                      style: AppTextStyles.bodyMedium(
+                        context,
+                      ).copyWith(color: context.colors.textSecondary),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -203,7 +208,7 @@ class ProfileSimpleRow extends StatelessWidget {
             Icon(
               Icons.chevron_right,
               size: AppIconSizes.sm(context),
-              color: AppColors.surfaceLight2,
+              color: context.colors.surfaceLight2,
             ),
           ],
         ),

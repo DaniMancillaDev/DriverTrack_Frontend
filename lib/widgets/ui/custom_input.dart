@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 class CustomInput extends StatelessWidget {
   final TextEditingController? controller;
@@ -61,62 +62,57 @@ class CustomInput extends StatelessWidget {
         hintText: placeholder,
         prefixIcon: prefixIcon != null
             ? Padding(
-                padding: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.s)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: r.space(AppSpacing.s),
+                ),
                 child: prefixIcon,
               )
             : null,
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         suffixIcon: suffixIcon != null
             ? Padding(
-                padding: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.s)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: r.space(AppSpacing.s),
+                ),
                 child: suffixIcon,
               )
             : null,
         suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        hintStyle: AppTextStyles.body(context).copyWith(
-          color: AppColors.textDim,
-        ),
+        hintStyle: AppTextStyles.body(
+          context,
+        ).copyWith(color: context.colors.textDim),
         errorText: errorText,
-        errorStyle: AppTextStyles.label(context).copyWith(
-          color: colorScheme.error,
-        ),
+        errorStyle: AppTextStyles.label(
+          context,
+        ).copyWith(color: colorScheme.error),
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: context.colors.inputBackground,
         contentPadding: EdgeInsets.symmetric(
           horizontal: r.space(AppSpacing.md),
           vertical: r.space(AppSpacing.s),
         ),
-        
+
         // Default border
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
-          borderSide: BorderSide.none, // Flattened form design (Tip 1)
+          borderSide: BorderSide(color: context.colors.border, width: 1.0),
         ),
 
         // Focus state
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
-          borderSide: BorderSide(
-            color: colorScheme.primary,
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
 
         // Error state
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
-          borderSide: BorderSide(
-            color: colorScheme.error,
-            width: 1,
-          ),
+          borderSide: BorderSide(color: colorScheme.error, width: 1),
         ),
 
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
-          borderSide: BorderSide(
-            color: colorScheme.error,
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: colorScheme.error, width: 1.5),
         ),
 
         disabledBorder: OutlineInputBorder(
@@ -140,10 +136,9 @@ class CustomInput extends StatelessWidget {
             ),
             child: Text(
               label!.toUpperCase(),
-              style: AppTextStyles.label(context).copyWith(
-                color: AppColors.textSecondary,
-                letterSpacing: 0.6,
-              ),
+              style: AppTextStyles.label(
+                context,
+              ).copyWith(color: context.colors.textMain, letterSpacing: 0.8),
             ),
           ),
         input,
@@ -156,7 +151,7 @@ class CustomInput extends StatelessWidget {
             child: Text(
               subHint!,
               style: AppTextStyles.label(context).copyWith(
-                color: AppColors.textDark,
+                color: context.colors.textDark,
                 fontWeight: FontWeight.normal,
               ),
             ),

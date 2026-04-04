@@ -18,15 +18,13 @@ class DemoSettingsPage extends ConsumerWidget {
     const double tempCelsius = 25.0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Configuración y Unidades'),
-      ),
+      appBar: AppBar(title: const Text('Configuración y Unidades')),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           // 1. Componente Reutilizable que maneja el cambio de estado
           const UnitToggleWidget(),
-          
+
           const Divider(height: 32),
 
           Text(
@@ -41,12 +39,19 @@ class DemoSettingsPage extends ConsumerWidget {
               leading: const Icon(Icons.route),
               title: const Text('Distancia total'),
               trailing: Text(
-                UnitFormatter.formatDistance(distanceKm, unitSystem, fractionDigits: 1),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                UnitFormatter.formatDistance(
+                  distanceKm,
+                  unitSystem,
+                  fractionDigits: 1,
+                ),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
-          
+
           const SizedBox(height: 8),
 
           // 3. Uso de UnitFormatter para formatear la temperatura
@@ -55,12 +60,19 @@ class DemoSettingsPage extends ConsumerWidget {
               leading: const Icon(Icons.thermostat),
               title: const Text('Temperatura de operación'),
               trailing: Text(
-                UnitFormatter.formatTemperature(tempCelsius, unitSystem, fractionDigits: 1),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                UnitFormatter.formatTemperature(
+                  tempCelsius,
+                  unitSystem,
+                  fractionDigits: 1,
+                ),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
-          
+
           const SizedBox(height: 16),
 
           // 4. Widget Real-Time de Conversión de Moneda (USD <-> MXN)

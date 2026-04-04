@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
-import '../ui/custom_avatar.dart';
+
 import 'profile_menu_widgets.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 class ProfileHero extends ConsumerWidget {
   const ProfileHero({super.key});
@@ -56,17 +57,43 @@ class ProfileHero extends ConsumerWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.orangePrimary.withValues(alpha: 0.15),
-                      blurRadius: 32,
-                      offset: const Offset(0, 10),
+                      color: AppColors.orangePrimary.withValues(alpha: 0.25),
+                      blurRadius: 28,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
-                child: CustomAvatar(
-                  radius: r.dim(48),
-                  fallbackText: _getInitials(fallbackName),
-                  backgroundColor: AppColors.orangePrimary,
-                  foregroundColor: Colors.white,
+                child: Container(
+                  width: r.dim(96),
+                  height: r.dim(96),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      center: Alignment.topLeft,
+                      radius: 1.4,
+                      colors: [
+                        context.colors.surfaceLight,
+                        AppColors.orangePrimary.withValues(alpha: 0.85),
+                      ],
+                      stops: const [0.3, 1.0],
+                    ),
+                    border: Border.all(
+                      color: AppColors.orangePrimary.withValues(alpha: 0.4),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      _getInitials(fallbackName),
+                      style: TextStyle(
+                        color: context.colors.textMain,
+                        fontSize: r.sp(22),
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               Positioned(
@@ -76,14 +103,14 @@ class ProfileHero extends ConsumerWidget {
                   width: r.dim(30),
                   height: r.dim(30),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
+                    color: context.colors.surfaceLight,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.background, width: 2),
+                    border: Border.all(color: context.colors.background, width: 2),
                   ),
                   child: Icon(
                     Icons.camera_alt_outlined,
                     size: AppIconSizes.xs(context),
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ),
@@ -97,7 +124,7 @@ class ProfileHero extends ConsumerWidget {
                 child: Text(
                   fallbackName,
                   style: AppTextStyles.headline(context).copyWith(
-                    color: Colors.white,
+                    color: context.colors.textMain,
                     fontSize: r.sp(23),
                     letterSpacing: -0.3,
                   ),
@@ -109,13 +136,13 @@ class ProfileHero extends ConsumerWidget {
                 width: r.dim(28),
                 height: r.dim(28),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceLight,
+                  color: context.colors.surfaceLight,
                   borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
                 ),
                 child: Icon(
                   Icons.edit_outlined,
                   size: AppIconSizes.xs(context),
-                  color: AppColors.textMuted,
+                  color: context.colors.textMuted,
                 ),
               ),
             ],
@@ -123,9 +150,9 @@ class ProfileHero extends ConsumerWidget {
           SizedBox(height: r.space(AppSpacing.xxs)),
           Text(
             fallbackEmail,
-            style: AppTextStyles.bodySmall(context).copyWith(
-              color: AppColors.textMuted,
-            ),
+            style: AppTextStyles.bodySmall(
+              context,
+            ).copyWith(color: context.colors.textMuted),
           ),
           SizedBox(height: r.space(AppSpacing.md)),
           Row(
@@ -135,12 +162,16 @@ class ProfileHero extends ConsumerWidget {
                 ProfileBadge(
                   icon: Icons.verified_user_outlined,
                   label: t.profile.activeStatus,
-                  color: AppColors.cyan,
+                  color: AppColors.green,
                 ),
-              if (user?.isActive == true) SizedBox(width: r.space(AppSpacing.xs)),
+              if (user?.isActive == true)
+                SizedBox(width: r.space(AppSpacing.xs)),
               ProfileBadge(
                 icon: Icons.check_circle_outline,
-                label: t.profile.memberSince.replaceAll('{year}', '$memberYear'),
+                label: t.profile.memberSince.replaceAll(
+                  '{year}',
+                  '$memberYear',
+                ),
                 color: AppColors.green,
               ),
             ],

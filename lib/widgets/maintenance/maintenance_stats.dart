@@ -30,17 +30,17 @@ class MaintenanceStats extends StatelessWidget {
         customValue: CurrencyDisplay(
           amount: totalSpent,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: AppColors.green,
+            color: AppColors.orangePrimary,
             fontWeight: FontWeight.w900,
             letterSpacing: -0.5,
           ),
         ),
-        accent: AppColors.green,
+        accent: AppColors.orangePrimary,
       ),
       StatItem(
         label: t.maintenance.servicesLabel,
         value: '$recordsCount',
-        accent: AppColors.orangePrimary,
+        accent: AppColors.cyan,
       ),
       StatItem(
         label: t.maintenance.vehiclesLabel,

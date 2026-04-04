@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +14,7 @@ import '../models/maintenance_model.dart';
 import '../widgets/ui/confirmation_dialog.dart';
 import '../core/i18n/translations.g.dart';
 import '../core/responsive/responsive.dart';
+import '../theme/app_color_scheme.dart';
 
 // Modular Widgets
 import '../widgets/garage/garage_header.dart';
@@ -85,7 +87,9 @@ class _GaragePageState extends ConsumerState<GaragePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${Translations.of(context).garage.errorAddingVehicle.replaceAll('{error}', '$e')}'),
+            content: Text(
+              '${Translations.of(context).garage.errorAddingVehicle.replaceAll('{error}', '$e')}',
+            ),
             backgroundColor: AppColors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -128,7 +132,9 @@ class _GaragePageState extends ConsumerState<GaragePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${Translations.of(context).garage.errorUpdatingVehicle.replaceAll('{error}', '$e')}'),
+            content: Text(
+              '${Translations.of(context).garage.errorUpdatingVehicle.replaceAll('{error}', '$e')}',
+            ),
             backgroundColor: AppColors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -148,11 +154,12 @@ class _GaragePageState extends ConsumerState<GaragePage> {
         onSave: (data) async {
           final repository = ref.read(maintenanceRepositoryProvider);
           final params = MaintenanceParams(vehicleId: vehicle.id);
-          
+
           final recordData = {
             'vehicle_id': vehicle.id,
             'date': data['date'] as String,
-            'description': data['notes'] != null && data['notes'].toString().isNotEmpty
+            'description':
+                data['notes'] != null && data['notes'].toString().isNotEmpty
                 ? '${data['description']} | ${data['notes']}'
                 : data['description'],
             'cost': data['cost'].toString(),
@@ -160,14 +167,19 @@ class _GaragePageState extends ConsumerState<GaragePage> {
             'category': data['category'],
           };
 
-          await repository.addMaintenanceRecord(recordData);
-          ref.invalidate(maintenanceDocsProvider(params));
-          ref.invalidate(maintenanceDocsProvider(const MaintenanceParams()));
-          
+          final newRecord = await repository.addMaintenanceRecord(recordData);
+          ref.read(maintenanceDocsProvider(params).notifier).updateLocal(newRecord);
+          ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(newRecord);
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(Translations.of(context).garage.serviceLogged.replaceAll('{vehicleName}', vehicle.displayName)),
+                content: Text(
+                  Translations.of(context).garage.serviceLogged.replaceAll(
+                    '{vehicleName}',
+                    vehicle.displayName,
+                  ),
+                ),
                 backgroundColor: AppColors.green,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -189,11 +201,12 @@ class _GaragePageState extends ConsumerState<GaragePage> {
         onSave: (data) async {
           final repository = ref.read(maintenanceRepositoryProvider);
           final params = MaintenanceParams(vehicleId: vehicle.id);
-          
+
           final recordData = {
             'vehicle_id': vehicle.id,
             'date': data['date'] as String,
-            'description': data['notes'] != null && data['notes'].toString().isNotEmpty
+            'description':
+                data['notes'] != null && data['notes'].toString().isNotEmpty
                 ? '${data['description']} | ${data['notes']}'
                 : data['description'],
             'cost': data['cost'].toString(),
@@ -201,14 +214,16 @@ class _GaragePageState extends ConsumerState<GaragePage> {
             'category': data['category'],
           };
 
-          await repository.updateMaintenanceRecord(maintenance.id, recordData);
-          ref.invalidate(maintenanceDocsProvider(params));
-          ref.invalidate(maintenanceDocsProvider(const MaintenanceParams()));
-          
+          final updatedRecord = await repository.updateMaintenanceRecord(maintenance.id, recordData);
+          ref.read(maintenanceDocsProvider(params).notifier).updateLocal(updatedRecord);
+          ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(updatedRecord);
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(Translations.of(context).garage.serviceRecordUpdated),
+                content: Text(
+                  Translations.of(context).garage.serviceRecordUpdated,
+                ),
                 backgroundColor: AppColors.green,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -223,7 +238,9 @@ class _GaragePageState extends ConsumerState<GaragePage> {
     ConfirmationDialog.show(
       context,
       title: Translations.of(context).garage.removeVehicleTitle,
-      message: Translations.of(context).garage.removeVehicleMessage.replaceAll('{vehicleName}', vehicleName),
+      message: Translations.of(
+        context,
+      ).garage.removeVehicleMessage.replaceAll('{vehicleName}', vehicleName),
       onConfirm: () async {
         try {
           await ref.read(vehiclesProvider.notifier).deleteVehicle(vehicleId);
@@ -246,7 +263,9 @@ class _GaragePageState extends ConsumerState<GaragePage> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('${Translations.of(context).garage.errorRemovingVehicle.replaceAll('{error}', '$e')}'),
+                content: Text(
+                  '${Translations.of(context).garage.errorRemovingVehicle.replaceAll('{error}', '$e')}',
+                ),
                 backgroundColor: AppColors.red,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -263,7 +282,7 @@ class _GaragePageState extends ConsumerState<GaragePage> {
     final r = context.responsive;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Stack(
         children: [
           vehiclesAsyncValue.when(
@@ -295,7 +314,9 @@ class _GaragePageState extends ConsumerState<GaragePage> {
                                     GarageStats(vehicles: vehiclesList),
                                     SizedBox(height: r.space(AppSpacing.xxl)),
                                     _buildVehiclesSection(vehiclesList, r),
-                                    SizedBox(height: r.space(AppSpacing.massive)),
+                                    SizedBox(
+                                      height: r.space(AppSpacing.massive),
+                                    ),
                                     const WeatherWidget(),
                                   ],
                                 ),
@@ -313,7 +334,7 @@ class _GaragePageState extends ConsumerState<GaragePage> {
                   right: 0,
                   child: GarageHeader(
                     onNotificationTap: () =>
-                        Navigator.of(context).pushNamed('/notifications'),
+                        context.push('/notifications'),
                   ),
                 ),
               ],
@@ -338,7 +359,9 @@ class _GaragePageState extends ConsumerState<GaragePage> {
           ? null
           : Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: r.value(mobile: 600, tablet: 700)),
+                constraints: BoxConstraints(
+                  maxWidth: r.value(mobile: 600, tablet: 700),
+                ),
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: PremiumFAB(
@@ -361,11 +384,11 @@ class _GaragePageState extends ConsumerState<GaragePage> {
           children: [
             Flexible(
               child: Text(
-              Translations.of(context).garage.yourVehicles,
+                Translations.of(context).garage.yourVehicles,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  color: context.colors.textMain,
+                  fontWeight: FontWeight.w700,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -376,11 +399,14 @@ class _GaragePageState extends ConsumerState<GaragePage> {
         if (vehiclesList.isEmpty)
           const GarageEmptyState()
         else
-          ...vehiclesList.map(
-            (v) => VehicleCard(
-              vehicleData: v,
+          // U1 fix: list generated without spread operator.
+          // For potential large lists, consider migrating to SliverList.builder.
+          ...List.generate(
+            vehiclesList.length,
+            (i) => VehicleCard(
+              vehicleData: vehiclesList[i],
               onTap: () => setState(() {
-                _selectedVehicleId = v.id;
+                _selectedVehicleId = vehiclesList[i].id;
                 _sheetExpanded = false;
               }),
             ),
@@ -400,10 +426,9 @@ class _GaragePageState extends ConsumerState<GaragePage> {
       child: Center(
         child: Text(
           '$count',
-          style: AppTextStyles.caption(context).copyWith(
-            color: AppColors.cyan,
-            fontWeight: FontWeight.w800,
-          ),
+          style: AppTextStyles.caption(
+            context,
+          ).copyWith(color: AppColors.cyan, fontWeight: FontWeight.w800),
         ),
       ),
     );
@@ -415,7 +440,7 @@ class _GaragePageState extends ConsumerState<GaragePage> {
         margin: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.lg)),
         padding: EdgeInsets.all(r.space(AppSpacing.xl)),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(r.r(AppRadius.xxl)),
         ),
         child: Column(
@@ -435,19 +460,18 @@ class _GaragePageState extends ConsumerState<GaragePage> {
             ),
             SizedBox(height: r.space(AppSpacing.lg)),
             Text(
-            Translations.of(context).garage.errorSyncFailed,
-            style: AppTextStyles.sheetTitle(context).copyWith(
-                  color: Colors.white,
-                ),
-          ),
-          SizedBox(height: r.space(AppSpacing.s)),
-          Text(
-            Translations.of(context).garage.errorSyncMessage,
+              Translations.of(context).garage.errorSyncFailed,
+              style: AppTextStyles.sheetTitle(
+                context,
+              ).copyWith(color: Colors.white),
+            ),
+            SizedBox(height: r.space(AppSpacing.s)),
+            Text(
+              Translations.of(context).garage.errorSyncMessage,
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium(context).copyWith(
-                color: AppColors.textMuted,
-                height: 1.5,
-              ),
+              style: AppTextStyles.bodyMedium(
+                context,
+              ).copyWith(color: context.colors.textMuted, height: 1.5),
             ),
           ],
         ),
@@ -475,7 +499,9 @@ class _GaragePageState extends ConsumerState<GaragePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${Translations.of(context).maintenance.errorRemovingService.replaceAll('{error}', '$e')}'),
+            content: Text(
+              '${Translations.of(context).maintenance.errorRemovingService.replaceAll('{error}', '$e')}',
+            ),
             backgroundColor: AppColors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -521,7 +547,8 @@ class _GaragePageState extends ConsumerState<GaragePage> {
                 onEdit: () => _showAddVehicleSheet(initialVehicle: vData),
                 onRemove: () => _handleRemoveVehicle(vId, vData.displayName),
                 onRemoveService: (id) => _handleRemoveService(vData, id),
-                onEditService: (maintenance) => _showEditServiceSheet(vData, maintenance),
+                onEditService: (maintenance) =>
+                    _showEditServiceSheet(vData, maintenance),
               );
             },
             orElse: () => const SizedBox.shrink(),

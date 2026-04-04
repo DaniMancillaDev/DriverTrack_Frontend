@@ -6,10 +6,15 @@ import '../models/map_location_model.dart';
 import '../../domain/entities/map_location.dart';
 
 class GeocodingService {
-  Future<List<MapLocation>> searchAddress(String query, {LatLngBounds? bounds, LatLng? userLocation, String? type}) async {
+  Future<List<MapLocation>> searchAddress(
+    String query, {
+    LatLngBounds? bounds,
+    LatLng? userLocation,
+    String? type,
+  }) async {
     // Determine the boundary box prioritizing Map Bounds, falling back to an approximate 15km bounding box around user location
     String s = '', n = '', w = '', e = '';
-    
+
     if (bounds != null) {
       s = bounds.south.toString();
       n = bounds.north.toString();
@@ -22,11 +27,11 @@ class GeocodingService {
       e = (userLocation.longitude + 0.05).toString();
     } else {
       // Very strict fallback if neither are ready, won't search the whole planet.
-      return []; 
+      return [];
     }
 
     String bBoxStr = '$s,$w,$n,$e'; // Overpass bBox is south,west,north,east
-    
+
     // Determine the Overpass query
     String oqlQuery = '';
     if (type == 'gasstation') {
@@ -48,10 +53,11 @@ class GeocodingService {
       oqlQuery += 'nwr["shop"~"$query",i]($bBoxStr);';
     } else {
       // Nothing selected and no query? Avoid server load.
-      return []; 
+      return [];
     }
 
-    String overpassPayload = '''
+    String overpassPayload =
+        '''
     [out:json][timeout:15];
     (
       $oqlQuery
@@ -63,30 +69,36 @@ class GeocodingService {
 
     try {
       // Switching to lz4 mirror which is typically faster/higher quota than the main .de one
-      final response = await http.post(
-        Uri.parse('https://lz4.overpass-api.de/api/interpreter'), 
-        body: {'data': overpassPayload},
-      ).timeout(const Duration(seconds: 12)); 
-      
+      final response = await http
+          .post(
+            Uri.parse('https://lz4.overpass-api.de/api/interpreter'),
+            body: {'data': overpassPayload},
+          )
+          .timeout(const Duration(seconds: 12));
+
       print('DEBUG: Overpass Status Code: ${response.statusCode}');
-      
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final List elements = data['elements'] ?? [];
-        
+
         print('DEBUG: Overpass returned ${elements.length} elements.');
-        
+
         return elements.take(25).map((json) {
           final tags = json['tags'] ?? {};
-          
+
           // Map correctly back to app filters
           String mappedType = type ?? 'all';
-          if (tags['amenity'] == 'fuel') mappedType = 'gasstation';
-          else if (tags['shop'] == 'car_repair' || tags['shop'] == 'motorcycle_repair') mappedType = 'workshop';
+          if (tags['amenity'] == 'fuel')
+            mappedType = 'gasstation';
+          else if (tags['shop'] == 'car_repair' ||
+              tags['shop'] == 'motorcycle_repair')
+            mappedType = 'workshop';
 
           final nameRaw = tags['name']?.toString() ?? '';
-          final displayNameRaw = tags['brand']?.toString() ?? 'Punto de Interés';
-          
+          final displayNameRaw =
+              tags['brand']?.toString() ?? 'Punto de Interés';
+
           // For node types, coordinates are flat. For ways/relations, they are in 'center'
           double lat = (json['lat'] ?? json['center']?['lat'] ?? 0.0) * 1.0;
           double lon = (json['lon'] ?? json['center']?['lon'] ?? 0.0) * 1.0;
@@ -95,12 +107,16 @@ class GeocodingService {
             id: json['id'].toString(),
             name: nameRaw.isNotEmpty ? nameRaw : displayNameRaw,
             type: mappedType,
-            address: tags['addr:street']?.toString() ?? 'Sin dirección exacta registrada',
-            rating: 4.0, // Default mock rating since OSM doesn't hold Google Ratings naturally
-            reviews: 1, 
+            address:
+                tags['addr:street']?.toString() ??
+                'Sin dirección exacta registrada',
+            rating:
+                4.0, // Default mock rating since OSM doesn't hold Google Ratings naturally
+            reviews: 1,
             distance: '',
             open: true,
-            hours: tags['opening_hours']?.toString() ?? 'Horario no especificado',
+            hours:
+                tags['opening_hours']?.toString() ?? 'Horario no especificado',
             phone: tags['phone']?.toString() ?? '',
             latitude: lat,
             longitude: lon,

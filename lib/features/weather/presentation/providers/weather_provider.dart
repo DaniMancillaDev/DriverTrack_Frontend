@@ -6,7 +6,8 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/units/presentation/unit_system_provider.dart' show sharedPreferencesProvider;
+import '../../../../core/units/presentation/unit_system_provider.dart'
+    show sharedPreferencesProvider;
 import '../../../../providers/app_providers.dart';
 import '../../data/datasources/weather_local_datasource.dart';
 import '../../data/datasources/weather_remote_datasource.dart';
@@ -23,7 +24,9 @@ final geoLocationServiceProvider = Provider<GeoLocationService>((ref) {
   return const GeoLocationService();
 });
 
-final weatherRemoteDataSourceProvider = Provider<WeatherRemoteDataSource>((ref) {
+final weatherRemoteDataSourceProvider = Provider<WeatherRemoteDataSource>((
+  ref,
+) {
   final config = ref.watch(appConfigProvider);
   return WeatherRemoteDataSource(apiKey: config.openWeatherApiKey);
 });
@@ -61,9 +64,10 @@ class WeatherState {
     if (recommendations.isEmpty) return null;
 
     // Priorizar: critical > warning > info
-    final sorted = [...recommendations]..sort((a, b) {
-      return b.severity.index.compareTo(a.severity.index);
-    });
+    final sorted = [...recommendations]
+      ..sort((a, b) {
+        return b.severity.index.compareTo(a.severity.index);
+      });
     return sorted.first;
   }
 }
@@ -144,11 +148,11 @@ class WeatherNotifier extends AsyncNotifier<WeatherState> {
   }
 
   /// Cambia a una ciudad manual, guardándola en caché si es válida.
-  /// Para volver al GPS, pasar un string vacío. 
+  /// Para volver al GPS, pasar un string vacío.
   Future<void> setManualCity(String city) async {
     final prefs = ref.read(sharedPreferencesProvider);
     state = const AsyncLoading();
-    
+
     if (city.trim().isEmpty) {
       await prefs.remove('manual_weather_city');
       state = await AsyncValue.guard(() => _fetchWeather());
@@ -165,13 +169,14 @@ class WeatherNotifier extends AsyncNotifier<WeatherState> {
 
 // ─── Provider Declarations ──────────────────────────────────
 
-final weatherProvider =
-    AsyncNotifierProvider<WeatherNotifier, WeatherState>(
+final weatherProvider = AsyncNotifierProvider<WeatherNotifier, WeatherState>(
   () => WeatherNotifier(),
 );
 
 /// Provider derivado para las recomendaciones (conveniencia para la UI).
-final weatherRecommendationsProvider = Provider<List<WeatherRecommendation>>((ref) {
+final weatherRecommendationsProvider = Provider<List<WeatherRecommendation>>((
+  ref,
+) {
   final weatherState = ref.watch(weatherProvider);
   return weatherState.value?.recommendations ?? [];
 });

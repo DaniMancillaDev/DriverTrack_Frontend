@@ -5,6 +5,7 @@ import '../ui/star_rating.dart';
 import '../ui/custom_button.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 class PlaceDetailSheet extends StatelessWidget {
   final MapLocation location;
@@ -37,7 +38,7 @@ class PlaceDetailSheet extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(r.r(AppRadius.xl)),
             ),
@@ -66,23 +67,27 @@ class PlaceDetailSheet extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   color: Colors.transparent,
-                  padding: EdgeInsets.symmetric(vertical: r.space(AppSpacing.s)),
+                  padding: EdgeInsets.symmetric(
+                    vertical: r.space(AppSpacing.s),
+                  ),
                   child: Center(
                     child: Container(
                       width: r.dim(36),
                       height: r.dim(4),
                       decoration: BoxDecoration(
-                        color: AppColors.borderLight,
+                        color: context.colors.borderLight,
                         borderRadius: BorderRadius.circular(r.r(AppRadius.xs)),
                       ),
                     ),
                   ),
                 ),
               ),
-              
+
               Flexible(
                 child: SingleChildScrollView(
-                  physics: isExpanded ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
+                  physics: isExpanded
+                      ? const BouncingScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       r.space(AppSpacing.lg),
@@ -141,21 +146,25 @@ class PlaceDetailSheet extends StatelessWidget {
             children: [
               Text(
                 location.name,
-                style: AppTextStyles.sheetTitle(context).copyWith(
-                  color: Colors.white,
-                ),
+                style: AppTextStyles.sheetTitle(
+                  context,
+                ).copyWith(color: Colors.white),
               ),
               SizedBox(height: r.space(4)),
               Row(
                 children: [
-                  Icon(Icons.location_on_rounded, size: AppIconSizes.xs(context), color: AppColors.textMuted),
+                  Icon(
+                    Icons.location_on_rounded,
+                    size: AppIconSizes.xs(context),
+                    color: context.colors.textMuted,
+                  ),
                   SizedBox(width: r.space(4)),
                   Expanded(
                     child: Text(
                       location.address,
-                      style: AppTextStyles.bodySmall(context).copyWith(
-                        color: AppColors.textMuted,
-                      ),
+                      style: AppTextStyles.bodySmall(
+                        context,
+                      ).copyWith(color: context.colors.textMuted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -167,10 +176,17 @@ class PlaceDetailSheet extends StatelessWidget {
         ),
         IconButton(
           onPressed: onClose,
-          icon: Icon(Icons.close_rounded, color: AppColors.textMuted, size: AppIconSizes.md(context)),
-          constraints: BoxConstraints(minWidth: r.dim(32), minHeight: r.dim(32)),
+          icon: Icon(
+            Icons.close_rounded,
+            color: context.colors.textMuted,
+            size: AppIconSizes.md(context),
+          ),
+          constraints: BoxConstraints(
+            minWidth: r.dim(32),
+            minHeight: r.dim(32),
+          ),
           style: IconButton.styleFrom(
-            backgroundColor: AppColors.border,
+            backgroundColor: context.colors.border,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
             ),
@@ -199,22 +215,29 @@ class PlaceDetailSheet extends StatelessWidget {
           SizedBox(width: r.space(4)),
           Text(
             '(${location.reviews})',
-            style: AppTextStyles.caption(context).copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: AppTextStyles.caption(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
           SizedBox(width: r.space(AppSpacing.s)),
-          Container(width: 1, height: r.dim(14), color: Colors.white.withValues(alpha: 0.08)),
+          Container(
+            width: 1,
+            height: r.dim(14),
+            color: Colors.white.withValues(alpha: 0.08),
+          ),
           SizedBox(width: r.space(AppSpacing.s)),
           Text(
             location.distance,
-            style: AppTextStyles.bodySmall(context).copyWith(
-              color: AppColors.cyan,
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTextStyles.bodySmall(
+              context,
+            ).copyWith(color: AppColors.cyan, fontWeight: FontWeight.w600),
           ),
           SizedBox(width: r.space(AppSpacing.s)),
-          Container(width: 1, height: r.dim(14), color: Colors.white.withValues(alpha: 0.08)),
+          Container(
+            width: 1,
+            height: r.dim(14),
+            color: Colors.white.withValues(alpha: 0.08),
+          ),
           SizedBox(width: r.space(AppSpacing.s)),
           Container(
             width: r.dim(6),
@@ -226,7 +249,9 @@ class PlaceDetailSheet extends StatelessWidget {
           ),
           SizedBox(width: r.space(6)),
           Text(
-            location.open ? Translations.of(context).map.openNow : Translations.of(context).map.closed,
+            location.open
+                ? Translations.of(context).map.openNow
+                : Translations.of(context).map.closed,
             style: AppTextStyles.caption(context).copyWith(
               color: location.open ? AppColors.green : AppColors.red,
               fontWeight: FontWeight.w600,
@@ -235,9 +260,9 @@ class PlaceDetailSheet extends StatelessWidget {
           SizedBox(width: r.space(AppSpacing.s)),
           Text(
             location.priceLevel,
-            style: AppTextStyles.bodySmall(context).copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: AppTextStyles.bodySmall(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
         ],
       ),
@@ -249,7 +274,11 @@ class PlaceDetailSheet extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _buildInfoTag(context, Icons.access_time_filled_rounded, location.hours),
+          child: _buildInfoTag(
+            context,
+            Icons.access_time_filled_rounded,
+            location.hours,
+          ),
         ),
         SizedBox(width: r.space(AppSpacing.xs)),
         Expanded(
@@ -264,19 +293,23 @@ class PlaceDetailSheet extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(r.space(AppSpacing.s)),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: context.colors.surfaceLight,
         borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
       ),
       child: Row(
         children: [
-          Icon(icon, size: AppIconSizes.sm(context), color: AppColors.textMuted),
+          Icon(
+            icon,
+            size: AppIconSizes.sm(context),
+            color: context.colors.textMuted,
+          ),
           SizedBox(width: r.space(AppSpacing.xs)),
           Expanded(
             child: Text(
               text,
-              style: AppTextStyles.caption(context).copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: AppTextStyles.caption(
+                context,
+              ).copyWith(color: context.colors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -292,32 +325,35 @@ class PlaceDetailSheet extends StatelessWidget {
       children: [
         Text(
           Translations.of(context).map.specialties,
-          style: AppTextStyles.label(context).copyWith(
-            color: AppColors.textMuted,
-            letterSpacing: 0.8,
-          ),
+          style: AppTextStyles.label(
+            context,
+          ).copyWith(color: context.colors.textMuted, letterSpacing: 0.8),
         ),
         SizedBox(height: r.space(10)),
         Wrap(
           spacing: r.space(AppSpacing.xs),
           runSpacing: r.space(AppSpacing.xs),
-          children: location.specialties!.map((s) => Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: r.space(AppSpacing.s),
-              vertical: r.space(AppSpacing.xxs),
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.orangePrimary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
-            ),
-            child: Text(
-              s,
-              style: AppTextStyles.caption(context).copyWith(
-                color: AppColors.orangeSecondary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          )).toList(),
+          children: location.specialties!
+              .map(
+                (s) => Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: r.space(AppSpacing.s),
+                    vertical: r.space(AppSpacing.xxs),
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.orangePrimary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+                  ),
+                  child: Text(
+                    s,
+                    style: AppTextStyles.caption(context).copyWith(
+                      color: AppColors.orangeSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
         ),
       ],
     );
@@ -332,9 +368,13 @@ class PlaceDetailSheet extends StatelessWidget {
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(Translations.of(context).map.navigatingTo.replaceAll('{name}', location.name)),
+                  content: Text(
+                    Translations.of(
+                      context,
+                    ).map.navigatingTo.replaceAll('{name}', location.name),
+                  ),
                   behavior: SnackBarBehavior.floating,
-                  backgroundColor: AppColors.surface,
+                  backgroundColor: context.colors.surface,
                 ),
               );
             },
@@ -343,13 +383,17 @@ class PlaceDetailSheet extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.directions_rounded, color: Colors.white, size: AppIconSizes.lg(context)),
+                Icon(
+                  Icons.directions_rounded,
+                  color: context.colors.textMain,
+                  size: AppIconSizes.lg(context),
+                ),
                 SizedBox(width: r.space(10)),
                 Flexible(
                   child: Text(
                     Translations.of(context).map.navigate,
                     style: AppTextStyles.body(context).copyWith(
-                      color: Colors.white,
+                      color: context.colors.textMain,
                       fontWeight: FontWeight.w800,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -363,7 +407,11 @@ class PlaceDetailSheet extends StatelessWidget {
         _buildCircularAction(context, Icons.call_rounded, () {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(Translations.of(context).map.calling.replaceAll('{phone}', location.phone)),
+              content: Text(
+                Translations.of(
+                  context,
+                ).map.calling.replaceAll('{phone}', location.phone),
+              ),
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -372,7 +420,11 @@ class PlaceDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildCircularAction(BuildContext context, IconData icon, VoidCallback onTap) {
+  Widget _buildCircularAction(
+    BuildContext context,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
     final r = context.responsive;
     return GestureDetector(
       onTap: onTap,
@@ -380,7 +432,7 @@ class PlaceDetailSheet extends StatelessWidget {
         height: r.dim(52),
         width: r.dim(52),
         decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
+          color: context.colors.surfaceLight,
           borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
           boxShadow: [
             BoxShadow(
@@ -390,7 +442,11 @@ class PlaceDetailSheet extends StatelessWidget {
             ),
           ],
         ),
-        child: Icon(icon, color: AppColors.cyan, size: AppIconSizes.lg(context)),
+        child: Icon(
+          icon,
+          color: AppColors.cyan,
+          size: AppIconSizes.lg(context),
+        ),
       ),
     );
   }

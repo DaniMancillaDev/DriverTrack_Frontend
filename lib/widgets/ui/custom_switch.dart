@@ -25,7 +25,8 @@ class CustomSwitch extends StatelessWidget {
       activeThumbColor: colorScheme.onPrimary, // thumb color when active
       activeTrackColor: colorScheme.primary, // bg-primary when active
       inactiveThumbColor: colorScheme.surface, // bg-card thumb when inactive
-      inactiveTrackColor: colorScheme.surfaceContainerHighest, // bg-switch-background 
+      inactiveTrackColor:
+          colorScheme.surfaceContainerHighest, // bg-switch-background
       trackOutlineColor: WidgetStateProperty.resolveWith(
         (states) => Colors.transparent, // Tailwind usa border-transparent
       ),
@@ -56,10 +57,10 @@ class CustomSwitch extends StatelessWidget {
             Text(
               label!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: enabled
-                        ? colorScheme.onSurface
-                        : colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
+                color: enabled
+                    ? colorScheme.onSurface
+                    : colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
             ),
           ],
         ),

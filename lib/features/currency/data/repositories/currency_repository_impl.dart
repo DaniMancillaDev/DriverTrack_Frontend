@@ -26,12 +26,13 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
     // Both base -> target and target -> base can be cached.
     // It's cleaner to cache USD -> MXN simply and invert if MXN -> USD is requested in theory,
     // but the task asks to fetch dynamic. Let's just use "USD" as the base for the cache key or dynamic.
-    final cacheKey = '$cachedExchangeRateKeyPrefix${base.code}_TO_${target.code}';
+    final cacheKey =
+        '$cachedExchangeRateKeyPrefix${base.code}_TO_${target.code}';
 
     try {
       // First check local cache
       final cachedRate = await localDataSource.getLastExchangeRate(cacheKey);
-      
+
       final now = DateTime.now();
       // If cache is still valid
       if (now.difference(cachedRate.lastUpdated) <= cacheDuration) {
@@ -50,7 +51,9 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
     } on Failure catch (e) {
       // If remote fails, fallback to old cache if it exists, otherwise return error
       try {
-        final cachedFallback = await localDataSource.getLastExchangeRate(cacheKey);
+        final cachedFallback = await localDataSource.getLastExchangeRate(
+          cacheKey,
+        );
         return Result.success(cachedFallback);
       } catch (_) {
         return Result.failure(e);

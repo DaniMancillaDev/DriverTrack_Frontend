@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
 import '../ui/skeleton_loader.dart';
+import '../../theme/app_color_scheme.dart';
 
 class VehicleCardSkeleton extends StatelessWidget {
   const VehicleCardSkeleton({super.key});
@@ -14,7 +15,7 @@ class VehicleCardSkeleton extends StatelessWidget {
       margin: EdgeInsets.only(bottom: r.space(AppSpacing.md)),
       padding: EdgeInsets.all(r.space(20)),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.05),

@@ -53,9 +53,7 @@ class WeatherRepositoryImpl implements WeatherRepository {
   }
 
   @override
-  Future<WeatherEntity> getWeatherByCity({
-    required String cityName,
-  }) async {
+  Future<WeatherEntity> getWeatherByCity({required String cityName}) async {
     try {
       final weather = await remoteDataSource.fetchWeatherByCityName(
         cityName: cityName,

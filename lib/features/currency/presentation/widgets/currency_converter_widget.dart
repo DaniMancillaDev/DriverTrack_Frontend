@@ -7,6 +7,7 @@ import '../providers/currency_provider.dart';
 import '../../../../core/i18n/translations.g.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../../core/responsive/responsive.dart';
+import '../../../../theme/app_color_scheme.dart';
 
 class CurrencyConverterWidget extends ConsumerStatefulWidget {
   const CurrencyConverterWidget({super.key});
@@ -49,15 +50,17 @@ class _CurrencyConverterWidgetState
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
       ),
       child: currencyAsync.when(
         data: (state) {
-          final convertedAmount =
-              ref.read(currencyNotifierProvider.notifier).convert(_amount);
-          final targetCurrency =
-              state.activeCurrency == Currency.usd ? Currency.mxn : Currency.usd;
+          final convertedAmount = ref
+              .read(currencyNotifierProvider.notifier)
+              .convert(_amount);
+          final targetCurrency = state.activeCurrency == Currency.usd
+              ? Currency.mxn
+              : Currency.usd;
           final displayRate = state.activeCurrency == Currency.usd
               ? state.exchangeRate.rate
               : state.exchangeRate.invert().rate;
@@ -75,24 +78,25 @@ class _CurrencyConverterWidgetState
                     Text(
                       Translations.of(context).currency.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                          ),
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                     GestureDetector(
-                      onTap: () =>
-                          ref.read(currencyNotifierProvider.notifier).refreshRates(),
+                      onTap: () => ref
+                          .read(currencyNotifierProvider.notifier)
+                          .refreshRates(),
                       child: Container(
                         width: r.dim(34),
                         height: r.dim(34),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
+                          color: context.colors.surfaceLight,
                           borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
                         ),
                         child: Icon(
                           Icons.refresh_rounded,
                           size: AppIconSizes.sm(context),
-                          color: AppColors.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ),
@@ -107,15 +111,18 @@ class _CurrencyConverterWidgetState
                   isPrimary: true,
                   child: TextField(
                     controller: _amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
                     decoration: InputDecoration(
                       hintText: '0.00',
-                      hintStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textDim,
+                      hintStyle: Theme.of(context).textTheme.titleLarge
+                          ?.copyWith(
+                            color: context.colors.textDim,
                             fontWeight: FontWeight.w600,
                           ),
                       border: InputBorder.none,
@@ -128,20 +135,34 @@ class _CurrencyConverterWidgetState
 
                 // Swap button
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: r.space(AppSpacing.s)),
+                  padding: EdgeInsets.symmetric(
+                    vertical: r.space(AppSpacing.s),
+                  ),
                   child: Row(
                     children: [
-                      Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.06))),
-                      GestureDetector(
-                        onTap: () =>
-                            ref.read(currencyNotifierProvider.notifier).toggleCurrency(),
+                      Expanded(
                         child: Container(
-                          margin: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.md)),
+                          height: 1,
+                          color: Colors.white.withValues(alpha: 0.06),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => ref
+                            .read(currencyNotifierProvider.notifier)
+                            .toggleCurrency(),
+                        child: Container(
+                          margin: EdgeInsets.symmetric(
+                            horizontal: r.space(AppSpacing.md),
+                          ),
                           width: r.dim(34),
                           height: r.dim(34),
                           decoration: BoxDecoration(
-                            color: AppColors.orangePrimary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
+                            color: AppColors.orangePrimary.withValues(
+                              alpha: 0.12,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              r.r(AppRadius.s),
+                            ),
                           ),
                           child: Icon(
                             Icons.swap_vert_rounded,
@@ -150,7 +171,12 @@ class _CurrencyConverterWidgetState
                           ),
                         ),
                       ),
-                      Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.06))),
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          color: Colors.white.withValues(alpha: 0.06),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -165,25 +191,23 @@ class _CurrencyConverterWidgetState
                         ? _formatCurrency(convertedAmount, targetCurrency)
                         : '—',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppColors.green,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      color: AppColors.green,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
 
                 // Exchange rate footnote
                 SizedBox(height: r.space(AppSpacing.md)),
                 Text(
-                  Translations.of(context)
-                      .currency
-                      .rateDesc
+                  Translations.of(context).currency.rateDesc
                       .replaceAll('{from}', state.activeCurrency.code)
                       .replaceAll('{rate}', displayRate.toStringAsFixed(4))
                       .replaceAll('{to}', targetCurrency.code),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppColors.textMuted,
-                        letterSpacing: 0.2,
-                      ),
+                    color: context.colors.textMuted,
+                    letterSpacing: 0.2,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -220,8 +244,8 @@ class _CurrencyConverterWidgetState
               Text(
                 Translations.of(context).currency.errorLoadingRates,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                  color: context.colors.textSecondary,
+                ),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: r.space(AppSpacing.lg)),
@@ -273,7 +297,7 @@ class _CurrencyRow extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(r.space(AppSpacing.md)),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: context.colors.background,
         borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
       ),
       child: Row(
@@ -285,7 +309,7 @@ class _CurrencyRow extends StatelessWidget {
               vertical: r.space(AppSpacing.xxs),
             ),
             decoration: BoxDecoration(
-              color: AppColors.surfaceLight,
+              color: context.colors.surfaceLight,
               borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
             ),
             child: Text(

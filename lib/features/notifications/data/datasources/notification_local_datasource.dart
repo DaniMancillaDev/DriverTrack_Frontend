@@ -25,10 +25,7 @@ class NotificationLocalDataSource {
   Future<void> cacheNotifications(List<NotificationModel> notifications) async {
     final jsonList = notifications.map((n) => n.toJson()).toList();
     await _prefs.setString(_cacheKey, json.encode(jsonList));
-    await _prefs.setInt(
-      _timestampKey,
-      DateTime.now().millisecondsSinceEpoch,
-    );
+    await _prefs.setInt(_timestampKey, DateTime.now().millisecondsSinceEpoch);
   }
 
   /// Obtiene las notificaciones cacheadas, o null si no hay caché.

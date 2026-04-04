@@ -13,6 +13,7 @@ import '../ui/confirmation_dialog.dart';
 import '../../models/maintenance_model.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../features/currency/presentation/widgets/currency_display.dart';
+import '../../theme/app_color_scheme.dart';
 
 class VehicleDetailSheet extends ConsumerStatefulWidget {
   final VehicleViewModel vehicle;
@@ -49,9 +50,9 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
   @override
   Widget build(BuildContext context) {
     // Watch for maintenance records for this specific vehicle
-    final maintenanceAsync = ref.watch(maintenanceDocsProvider(
-      MaintenanceParams(vehicleId: widget.vehicle.id),
-    ));
+    final maintenanceAsync = ref.watch(
+      maintenanceDocsProvider(MaintenanceParams(vehicleId: widget.vehicle.id)),
+    );
 
     return maintenanceAsync.maybeWhen(
       data: (records) {
@@ -184,8 +185,9 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                 ConfirmationDialog.show(
                   context,
                   title: Translations.of(context).garage.deleteServiceTitle,
-                  message:
-                      Translations.of(context).garage.deleteServiceMessage.replaceAll('{title}', vm.title),
+                  message: Translations.of(
+                    context,
+                  ).garage.deleteServiceMessage.replaceAll('{title}', vm.title),
                   onConfirm: () {
                     final id = vm.id;
                     setState(() => _selectedServiceId = null);
@@ -218,7 +220,10 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
     );
   }
 
-  Widget _buildTrailingActions(VehicleViewModel vehicle, {bool isOverlay = false}) {
+  Widget _buildTrailingActions(
+    VehicleViewModel vehicle, {
+    bool isOverlay = false,
+  }) {
     return PopupMenuButton<String>(
       onSelected: (value) {
         if (value == 'edit') {
@@ -227,20 +232,20 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
           ConfirmationDialog.show(
             context,
             title: Translations.of(context).garage.removeVehicle,
-            message:
-                Translations.of(context).garage.removeVehicleMessage.replaceAll('{vehicleName}', vehicle.displayName),
+            message: Translations.of(context).garage.removeVehicleMessage
+                .replaceAll('{vehicleName}', vehicle.displayName),
             onConfirm: () => widget.onRemove?.call(),
           );
         }
       },
-      color: AppColors.surface,
+      color: context.colors.surface,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       icon: Icon(
-        Icons.more_vert_rounded, 
-        color: isOverlay ? Colors.white : AppColors.textMuted,
+        Icons.more_vert_rounded,
+        color: isOverlay ? Colors.white : context.colors.textMuted,
         size: isOverlay ? 20 : 24,
       ),
       itemBuilder: (context) => [
@@ -252,14 +257,14 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                 Icon(
                   Icons.edit_outlined,
                   size: 18,
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
                 SizedBox(width: AppSpacing.md),
                 Text(
                   Translations.of(context).garage.editVehicle,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.white),
                 ),
               ],
             ),
@@ -277,9 +282,9 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                 SizedBox(width: AppSpacing.md),
                 Text(
                   Translations.of(context).garage.removeVehicle,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.red,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: AppColors.red),
                 ),
               ],
             ),
@@ -294,7 +299,9 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
     Color accent,
   ) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.xl), // Updated to xl for consistency
+      borderRadius: BorderRadius.circular(
+        AppRadius.xl,
+      ), // Updated to xl for consistency
       child: Stack(
         children: [
           Image.network(
@@ -304,10 +311,13 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) => Container(
               height: 220,
-              color: AppColors.surfaceLight,
+              color: context.colors.surfaceLight,
               child: Icon(
-                vehicle.type.toLowerCase().contains('moto') ? Icons.motorcycle : Icons.directions_car,
-                size: 64, color: AppColors.borderLight,
+                vehicle.type.toLowerCase().contains('moto')
+                    ? Icons.motorcycle
+                    : Icons.directions_car,
+                size: 64,
+                color: context.colors.borderLight,
               ),
             ),
           ),
@@ -335,17 +345,24 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                 GestureDetector(
                   onTap: () async {
                     final notifier = ref.read(vehiclesProvider.notifier);
-                    await notifier.toggleFavorite(vehicle.id, !vehicle.isFavorite);
+                    await notifier.toggleFavorite(
+                      vehicle.id,
+                      !vehicle.isFavorite,
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.all(AppSpacing.xs),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.3), // Glassy feel
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
                     ),
                     child: Icon(
-                      vehicle.isFavorite ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                      vehicle.isFavorite
+                          ? Icons.favorite_rounded
+                          : Icons.favorite_outline_rounded,
                       color: vehicle.isFavorite ? AppColors.red : Colors.white,
                       size: 20,
                     ),
@@ -357,11 +374,13 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.3),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
                     ),
                     // Use a wrapper to prevent the native PopupMenu from breaking the circular shape visually
                     child: _buildTrailingActions(vehicle, isOverlay: true),
-                  )
+                  ),
                 ],
               ],
             ),
@@ -371,7 +390,10 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
             bottom: AppSpacing.md,
             left: AppSpacing.md,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s, vertical: 6),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.s,
+                vertical: 6,
+              ),
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(AppRadius.full),
@@ -385,9 +407,9 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                   Text(
                     '${healthPct.round()}%',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      color: context.colors.textMain,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ],
               ),
@@ -446,16 +468,16 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
             Text(
               Translations.of(context).garage.recentMaintenance,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.textMuted,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
-                  ),
+                color: context.colors.textMuted,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.2,
+              ),
             ),
             if (records.isNotEmpty)
               Text(
                 Translations.of(context).garage.recordsCount(n: records.length),
-                style: const TextStyle(
-                  color: AppColors.textMain,
+                style: TextStyle(
+                  color: context.colors.textMain,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -495,24 +517,24 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
           Icon(
             Icons.history_outlined,
             size: 40,
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
             Translations.of(context).garage.noRecordsFound,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
+              color: context.colors.textMain,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: AppSpacing.s),
           Text(
             Translations.of(context).garage.noRecordsMessage,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textMuted,
-                  height: 1.5,
-                ),
+              color: context.colors.textMuted,
+              height: 1.5,
+            ),
           ),
         ],
       ),
@@ -535,7 +557,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
           child: Row(
@@ -557,14 +579,14 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        color: context.colors.textMain,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     Text(
                       date,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textMuted,
+                        color: context.colors.textMuted,
                       ),
                     ),
                   ],
@@ -574,16 +596,16 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                   ? CurrencyDisplay(
                       amount: costValue,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: accent,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        color: accent,
+                        fontWeight: FontWeight.w700,
+                      ),
                     )
                   : Text(
                       Translations.of(context).common.free,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: accent,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        color: accent,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
             ],
           ),

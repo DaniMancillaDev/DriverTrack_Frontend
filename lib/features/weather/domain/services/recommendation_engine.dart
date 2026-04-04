@@ -9,7 +9,8 @@ import '../entities/weather_entity.dart';
 import '../entities/weather_recommendation.dart';
 
 /// Una regla individual que evalúa el clima y puede generar recomendaciones.
-typedef WeatherRule = List<WeatherRecommendation> Function(WeatherEntity weather);
+typedef WeatherRule =
+    List<WeatherRecommendation> Function(WeatherEntity weather);
 
 /// Motor principal de recomendaciones.
 class RecommendationEngine {

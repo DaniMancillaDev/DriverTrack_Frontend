@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_color_scheme.dart';
 
 class SheetContainer extends StatelessWidget {
   final Widget child;
@@ -28,7 +29,7 @@ class SheetContainer extends StatelessWidget {
           curve: Curves.fastOutSlowIn,
           height: height,
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: context.colors.background,
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(AppRadius.xxl),
             ),
@@ -54,7 +55,7 @@ class SheetContainer extends StatelessWidget {
                   width: 48,
                   height: 6, // Bigger thumb target (Tip 1)
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceLight2,
+                    color: context.colors.surfaceLight2,
                     borderRadius: BorderRadius.circular(AppRadius.xs),
                   ),
                 ),

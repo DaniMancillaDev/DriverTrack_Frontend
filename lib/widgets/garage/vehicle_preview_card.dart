@@ -6,6 +6,7 @@ import '../../core/i18n/translations.g.dart';
 import '../../core/responsive/responsive.dart';
 import '../../core/units/presentation/unit_system_provider.dart';
 import '../../core/units/domain/unit_system.dart';
+import '../../theme/app_color_scheme.dart';
 
 class VehiclePreviewCard extends ConsumerWidget {
   final VehicleType? type;
@@ -39,15 +40,17 @@ class VehiclePreviewCard extends ConsumerWidget {
       model,
       year,
     ].where((e) => e != null && e.isNotEmpty).toList();
-    
-    final title = titleParts.isEmpty ? t.garage.yourVehicle : titleParts.join(' ');
+
+    final title = titleParts.isEmpty
+        ? t.garage.yourVehicle
+        : titleParts.join(' ');
 
     return Container(
       padding: EdgeInsets.all(r.space(AppSpacing.md)),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
@@ -91,7 +94,7 @@ class VehiclePreviewCard extends ConsumerWidget {
                 Text(
                   title,
                   style: textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
+                    color: context.colors.textMain,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.3,
                   ),
@@ -109,14 +112,14 @@ class VehiclePreviewCard extends ConsumerWidget {
                           vertical: r.space(2),
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
+                          color: context.colors.surfaceLight,
                           borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
-                          border: Border.all(color: AppColors.borderLight),
+                          border: Border.all(color: context.colors.borderLight),
                         ),
                         child: Text(
                           plate.toUpperCase(),
                           style: textTheme.labelSmall?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: context.colors.textSecondary,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.5,
                           ),
@@ -129,13 +132,13 @@ class VehiclePreviewCard extends ConsumerWidget {
                       Icon(
                         Icons.speed,
                         size: r.dim(12),
-                        color: AppColors.textDim,
+                        color: context.colors.textDim,
                       ),
                       SizedBox(width: r.space(4)),
                       Text(
                         '$mileage $unitShort',
                         style: textTheme.labelSmall?.copyWith(
-                          color: AppColors.textMuted,
+                          color: context.colors.textMuted,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -144,7 +147,7 @@ class VehiclePreviewCard extends ConsumerWidget {
                       Text(
                         t.garage.plateNotSet,
                         style: textTheme.labelSmall?.copyWith(
-                          color: AppColors.textDim,
+                          color: context.colors.textDim,
                         ),
                       ),
                   ],

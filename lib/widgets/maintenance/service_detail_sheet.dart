@@ -11,6 +11,7 @@ import '../../core/units/domain/unit_formatter.dart';
 import '../../core/units/domain/unit_system.dart';
 import '../../features/currency/presentation/widgets/currency_display.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 class ServiceDetailSheet extends ConsumerWidget {
   final String serviceTitle;
@@ -50,7 +51,9 @@ class ServiceDetailSheet extends ConsumerWidget {
     final r = context.responsive;
 
     return SheetContainer(
-      height: isExpanded ? MediaQuery.of(context).size.height * 0.85 : r.dim(450),
+      height: isExpanded
+          ? MediaQuery.of(context).size.height * 0.85
+          : r.dim(450),
       showDragHandle: false,
       child: Column(
         children: [
@@ -88,14 +91,17 @@ class ServiceDetailSheet extends ConsumerWidget {
                   SizedBox(height: r.space(AppSpacing.xxs)),
                   Row(
                     children: [
-                      Icon(Icons.directions_car, size: AppIconSizes.sm(context), color: accentColor),
+                      Icon(
+                        Icons.directions_car,
+                        size: AppIconSizes.sm(context),
+                        color: accentColor,
+                      ),
                       SizedBox(width: r.space(AppSpacing.xs)),
                       Expanded(
                         child: Text(
                           vehicleName,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.textMuted,
-                              ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: context.colors.textMuted),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -145,12 +151,16 @@ class ServiceDetailSheet extends ConsumerWidget {
           onRemove?.call();
         }
       },
-      color: AppColors.surface,
+      color: context.colors.surface,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
       ),
-      icon: Icon(Icons.more_vert_rounded, color: AppColors.textMuted, size: AppIconSizes.lg(context)),
+      icon: Icon(
+        Icons.more_vert_rounded,
+        color: context.colors.textMuted,
+        size: AppIconSizes.lg(context),
+      ),
       itemBuilder: (context) => [
         if (onEdit != null)
           PopupMenuItem(
@@ -160,14 +170,14 @@ class ServiceDetailSheet extends ConsumerWidget {
                 Icon(
                   Icons.edit_outlined,
                   size: AppIconSizes.md(context),
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
                 SizedBox(width: r.space(AppSpacing.md)),
                 Text(
                   Translations.of(context).maintenance.editEntry,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: context.colors.textMain),
                 ),
               ],
             ),
@@ -185,9 +195,9 @@ class ServiceDetailSheet extends ConsumerWidget {
                 SizedBox(width: r.space(AppSpacing.md)),
                 Text(
                   Translations.of(context).maintenance.deleteEntry,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.red,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: AppColors.red),
                 ),
               ],
             ),
@@ -196,12 +206,16 @@ class ServiceDetailSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildCostSection(BuildContext context, double costValue, Color accent) {
+  Widget _buildCostSection(
+    BuildContext context,
+    double costValue,
+    Color accent,
+  ) {
     final r = context.responsive;
     return Container(
       padding: EdgeInsets.all(r.space(AppSpacing.lg)),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: context.colors.background,
         borderRadius: BorderRadius.circular(r.r(AppRadius.xxl)),
       ),
       child: Row(
@@ -214,7 +228,7 @@ class ServiceDetailSheet extends ConsumerWidget {
                 Text(
                   Translations.of(context).maintenance.totalInvestment,
                   style: AppTextStyles.label(context).copyWith(
-                    color: AppColors.textMuted,
+                    color: context.colors.textMuted,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
                   ),
@@ -222,10 +236,9 @@ class ServiceDetailSheet extends ConsumerWidget {
                 SizedBox(height: r.space(AppSpacing.xxs)),
                 Text(
                   Translations.of(context).maintenance.professionalService,
-                  style: AppTextStyles.bodyMedium(context).copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.bodyMedium(
+                    context,
+                  ).copyWith(color: context.colors.textMain, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -243,11 +256,19 @@ class ServiceDetailSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsSection(BuildContext context, Color accent, UnitSystem unitSystem) {
+  Widget _buildStatsSection(
+    BuildContext context,
+    Color accent,
+    UnitSystem unitSystem,
+  ) {
     final stats = [
       StatItem(
         label: Translations.of(context).maintenance.mileage,
-        value: UnitFormatter.formatDistance(mileage.toDouble(), unitSystem, fractionDigits: 0),
+        value: UnitFormatter.formatDistance(
+          mileage.toDouble(),
+          unitSystem,
+          fractionDigits: 0,
+        ),
         accent: accent,
       ),
       StatItem(
@@ -255,7 +276,11 @@ class ServiceDetailSheet extends ConsumerWidget {
         value: DateFormat('MMM d, y').format(date),
         accent: AppColors.cyan,
       ),
-      StatItem(label: Translations.of(context).maintenance.category, value: category, accent: AppColors.purple),
+      StatItem(
+        label: Translations.of(context).maintenance.category,
+        value: category,
+        accent: AppColors.purple,
+      ),
     ];
 
     return SummaryStats(stats: stats);
@@ -269,7 +294,7 @@ class ServiceDetailSheet extends ConsumerWidget {
         Text(
           'SERVICE NOTES',
           style: AppTextStyles.label(context).copyWith(
-            color: AppColors.textMuted,
+            color: context.colors.textMuted,
             fontWeight: FontWeight.w800,
             letterSpacing: 1.2,
           ),
@@ -279,15 +304,14 @@ class ServiceDetailSheet extends ConsumerWidget {
           width: double.infinity,
           padding: EdgeInsets.all(r.space(AppSpacing.lg)),
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: context.colors.background,
             borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
           ),
           child: Text(
             notes ?? Translations.of(context).maintenance.noNotes,
-            style: AppTextStyles.bodyMedium(context).copyWith(
-              color: AppColors.textSecondary,
-              height: 1.6,
-            ),
+            style: AppTextStyles.bodyMedium(
+              context,
+            ).copyWith(color: context.colors.textSecondary, height: 1.6),
           ),
         ),
       ],

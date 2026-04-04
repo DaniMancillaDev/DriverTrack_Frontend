@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 class SheetHeader extends StatelessWidget {
   final String title;
@@ -28,18 +29,17 @@ class SheetHeader extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: AppTextStyles.display(context).copyWith(
-                  color: Colors.white,
-                  letterSpacing: -0.3,
-                ),
+                style: AppTextStyles.display(
+                  context,
+                ).copyWith(color: context.colors.textMain, letterSpacing: -0.3),
               ),
               if (subtitle != null) ...[
                 SizedBox(height: r.space(AppSpacing.xxs)),
                 Text(
                   subtitle!,
-                  style: AppTextStyles.bodySmall(context).copyWith(
-                    color: AppColors.textDark,
-                  ),
+                  style: AppTextStyles.bodySmall(
+                    context,
+                  ).copyWith(color: context.colors.textDark),
                 ),
               ],
             ],
@@ -55,11 +55,11 @@ class SheetHeader extends StatelessWidget {
               onPressed: onClose,
               icon: Icon(
                 Icons.close,
-                color: AppColors.textMuted,
+                color: context.colors.textMuted,
                 size: AppIconSizes.md(context),
               ),
               style: IconButton.styleFrom(
-                backgroundColor: AppColors.surfaceLight,
+                backgroundColor: context.colors.surfaceLight,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
                 ),

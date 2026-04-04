@@ -3,6 +3,7 @@ import '../../models/vehicle_type_model.dart';
 import '../../theme/app_theme.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
 class VehicleTypeToggle extends StatelessWidget {
   final List<VehicleType> vehicleTypes;
@@ -29,16 +30,15 @@ class VehicleTypeToggle extends StatelessWidget {
           ),
           child: Text(
             Translations.of(context).garage.vehicleType.toUpperCase(),
-            style: AppTextStyles.label(context).copyWith(
-              color: AppColors.textSecondary,
-              letterSpacing: 0.6,
-            ),
+            style: AppTextStyles.label(
+              context,
+            ).copyWith(color: context.colors.textSecondary, letterSpacing: 0.6),
           ),
         ),
         Container(
           padding: EdgeInsets.all(r.space(AppSpacing.xxs)),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
             // Removed caging border for white-space fluidity (Tip 1)
           ),
@@ -89,19 +89,21 @@ class VehicleTypeToggle extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: isActive ? Colors.white : AppColors.textDark,
+              color: isActive ? Colors.white : context.colors.textDark,
               size: AppIconSizes.md(context),
             ),
             SizedBox(width: r.space(AppSpacing.xs)),
             Flexible(
               child: Text(
-                type.icon == 'motorcycle_rounded' || type.slug.toLowerCase().contains('moto')
+                type.icon == 'motorcycle_rounded' ||
+                        type.slug.toLowerCase().contains('moto')
                     ? Translations.of(context).garage.vehicleTypes.motorcycle
-                    : (type.icon == 'directions_car_filled_rounded' || type.slug.toLowerCase().contains('car')
-                        ? Translations.of(context).garage.vehicleTypes.car
-                        : type.label),
+                    : (type.icon == 'directions_car_filled_rounded' ||
+                              type.slug.toLowerCase().contains('car')
+                          ? Translations.of(context).garage.vehicleTypes.car
+                          : type.label),
                 style: AppTextStyles.bodyMedium(context).copyWith(
-                  color: isActive ? Colors.white : AppColors.textDark,
+                  color: isActive ? Colors.white : context.colors.textDark,
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                 ),
                 overflow: TextOverflow.ellipsis,

@@ -5,11 +5,7 @@
 import 'package:flutter/material.dart';
 
 /// Severidad de la recomendación.
-enum RecommendationSeverity {
-  info,
-  warning,
-  critical;
-}
+enum RecommendationSeverity { info, warning, critical }
 
 /// Recomendación inmutable para el conductor.
 class WeatherRecommendation {

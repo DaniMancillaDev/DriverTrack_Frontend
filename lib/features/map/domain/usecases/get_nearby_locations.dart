@@ -8,7 +8,17 @@ class GetNearbyLocations {
 
   GetNearbyLocations(this.repository);
 
-  Future<List<MapLocation>> execute({String? type, String? search, LatLng? userLocation, LatLngBounds? bounds}) {
-    return repository.getNearbyLocations(type: type, search: search, userLocation: userLocation, bounds: bounds);
+  Future<List<MapLocation>> execute({
+    String? type,
+    String? search,
+    LatLng? userLocation,
+    LatLngBounds? bounds,
+  }) {
+    return repository.getNearbyLocations(
+      type: type,
+      search: search,
+      userLocation: userLocation,
+      bounds: bounds,
+    );
   }
 }
