@@ -41,16 +41,21 @@ final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
 });
 
 /// WebSocket provider — se recrea automáticamente cuando cambia authProvider.
+///
+/// Pasa el JWT como token de autenticación. El servidor valida el token
+/// antes de aceptar la conexión WebSocket (código 4001 si es inválido).
 final notificationWsProvider = Provider<NotificationWebSocketDataSource?>((
   ref,
 ) {
   final user = ref.watch(authProvider);
-  if (user == null) return null;
+
+  // Si no hay usuario autenticado o no tiene token, no conectar
+  if (user == null || user.token == null || user.token!.isEmpty) return null;
 
   final config = ref.watch(appConfigProvider);
   final ws = NotificationWebSocketDataSource(
     baseUrl: config.baseUrl,
-    userId: user.id,
+    token: user.token!,   // ← JWT para auth, no userId
   );
   ws.connect();
 
@@ -127,23 +132,19 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
     _listenToWebSocket();
 
     // Configurar polling como fallback
-    _startPolling(user.id);
+    _startPolling();
 
     // Fetch inicial
-    return _fetchPage(userId: user.id, skip: 0);
+    return _fetchPage(skip: 0);
   }
 
   /// Obtiene el user_id del usuario autenticado.
   int? get _userId => ref.read(authProvider)?.id;
 
   /// Obtiene una página de notificaciones del servidor.
-  Future<NotificationsState> _fetchPage({
-    required int userId,
-    int skip = 0,
-  }) async {
+  Future<NotificationsState> _fetchPage({int skip = 0}) async {
     final repo = ref.read(notificationRepositoryProvider);
     final result = await repo.getNotifications(
-      userId: userId,
       skip: skip,
       limit: _pageSize,
     );
@@ -179,16 +180,16 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
   }
 
   /// Polling como fallback: refresca el conteo de no leídas periódicamente.
-  void _startPolling(int userId) {
+  void _startPolling() {
     _pollingTimer?.cancel();
     _pollingTimer = Timer.periodic(_pollingInterval, (_) async {
       try {
         final repo = ref.read(notificationRepositoryProvider);
-        final serverCount = await repo.getUnreadCount(userId);
+        final serverCount = await repo.getUnreadCount();
         final currentState = state.value;
         if (currentState != null && serverCount != currentState.unreadCount) {
           // El conteo cambió => refrescar toda la lista
-          final freshState = await _fetchPage(userId: userId, skip: 0);
+          final freshState = await _fetchPage(skip: 0);
           state = AsyncData(freshState);
         }
       } catch (_) {
@@ -206,16 +207,12 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
       return;
     }
 
-    final userId = _userId;
-    if (userId == null) return;
-
     // Marcar como cargando más
     state = AsyncData(currentState.copyWith(isLoadingMore: true));
 
     try {
       final repo = ref.read(notificationRepositoryProvider);
       final result = await repo.getNotifications(
-        userId: userId,
         skip: currentState.notifications.length,
         limit: _pageSize,
       );
@@ -271,8 +268,6 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
   Future<void> markAllAsRead() async {
     final currentState = state.value;
     if (currentState == null) return;
-    final userId = _userId;
-    if (userId == null) return;
 
     // Optimistic update
     final updatedList = currentState.notifications
@@ -285,7 +280,7 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
 
     try {
       final repo = ref.read(notificationRepositoryProvider);
-      await repo.markAllAsRead(userId);
+      await repo.markAllAsRead();
     } catch (e) {
       state = AsyncData(currentState);
     }
@@ -293,11 +288,8 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
 
   /// Refresca la lista completa.
   Future<void> refresh() async {
-    final userId = _userId;
-    if (userId == null) return;
-
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => _fetchPage(userId: userId, skip: 0));
+    state = await AsyncValue.guard(() => _fetchPage(skip: 0));
   }
 
   /// Elimina una notificación.

@@ -2,6 +2,10 @@
 ///
 /// Orquesta remote + local datasources con estrategia
 /// cache-first y refresh en background.
+///
+/// NOTA: El user_id ya no se pasa explícitamente — el ApiClient
+/// incluye el JWT automáticamente en cada petición y el backend
+/// extrae la identidad del usuario del token.
 
 import 'dart:async';
 import '../../domain/entities/notification_entity.dart';
@@ -17,19 +21,17 @@ class NotificationRepositoryImpl implements NotificationRepository {
   NotificationRepositoryImpl({
     required NotificationRemoteDataSource remoteDataSource,
     required NotificationLocalDataSource localDataSource,
-  }) : _remoteDataSource = remoteDataSource,
-       _localDataSource = localDataSource;
+  })  : _remoteDataSource = remoteDataSource,
+        _localDataSource = localDataSource;
 
   @override
   Future<PaginatedNotifications> getNotifications({
-    required int userId,
     int skip = 0,
     int limit = 20,
   }) async {
     try {
-      // Intentar obtener del servidor
+      // Intentar obtener del servidor (JWT en headers automáticamente)
       final response = await _remoteDataSource.getNotifications(
-        userId: userId,
         skip: skip,
         limit: limit,
       );
@@ -68,8 +70,8 @@ class NotificationRepositoryImpl implements NotificationRepository {
   }
 
   @override
-  Future<void> markAllAsRead(int userId) async {
-    await _remoteDataSource.markAllAsRead(userId);
+  Future<void> markAllAsRead() async {
+    await _remoteDataSource.markAllAsRead();
 
     // Marcar todas como leídas en el caché
     final cached = _localDataSource.getCachedNotifications();
@@ -92,9 +94,9 @@ class NotificationRepositoryImpl implements NotificationRepository {
   }
 
   @override
-  Future<int> getUnreadCount(int userId) async {
+  Future<int> getUnreadCount() async {
     try {
-      return await _remoteDataSource.getUnreadCount(userId);
+      return await _remoteDataSource.getUnreadCount();
     } catch (_) {
       // Fallback al caché local
       final cached = _localDataSource.getCachedNotifications();

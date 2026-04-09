@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/i18n/translations.g.dart';
+import '../../../../widgets/ui/notification_card_skeleton.dart';
 import '../providers/notifications_provider.dart';
 import '../widgets/notification_tile.dart';
 import '../../../../theme/app_color_scheme.dart';
@@ -67,16 +68,11 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           notificationsAsync.when(
             data: (state) {
               if (state.unreadCount > 0) {
-                return TextButton.icon(
+                return TextButton(
                   onPressed: () {
                     ref.read(notificationsProvider.notifier).markAllAsRead();
                   },
-                  icon: Icon(
-                    Icons.done_all_rounded,
-                    size: AppIconSizes.sm(context),
-                    color: AppColors.cyan,
-                  ),
-                  label: Text(
+                  child: Text(
                     t.notifications.markAllReadButton,
                     style: AppTextStyles.caption(context).copyWith(
                       color: AppColors.cyan,
@@ -163,11 +159,21 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   }
 
   Widget _buildLoadingState(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(
-        color: AppColors.orangePrimary,
-        strokeWidth: 2,
+    final r = context.responsive;
+    
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(
+        horizontal: r.space(AppSpacing.md),
+        vertical: r.space(AppSpacing.xs),
       ),
+      itemCount: 6,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: r.space(AppSpacing.xs)),
+          child: const NotificationCardSkeleton(),
+        );
+      },
     );
   }
 
@@ -232,7 +238,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         children: [
           SizedBox(height: r.hp(25)),
           Icon(
-            Icons.notifications_off_outlined,
+            Icons.notifications_none_rounded,
             size: AppIconSizes.massive(context),
             color: context.colors.textDark,
           ),

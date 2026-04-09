@@ -2,6 +2,11 @@
 ///
 /// Mantiene conexión persistente con auto-reconexión,
 /// heartbeat y stream de nuevas notificaciones.
+///
+/// Autenticación: el JWT se pasa como query parameter:
+///   ws://host/ws/notifications?token=<JWT>
+/// El servidor valida el token antes de aceptar la conexión.
+/// Si el token es inválido, cierra con código 4001.
 
 import 'dart:async';
 import 'dart:convert';
@@ -10,7 +15,7 @@ import '../models/notification_model.dart';
 
 class NotificationWebSocketDataSource {
   final String _baseUrl;
-  final int _userId;
+  final String _token;
 
   WebSocket? _channel;
   Timer? _heartbeatTimer;
@@ -39,11 +44,14 @@ class NotificationWebSocketDataSource {
   /// Si fue desconectado intencionalmente.
   bool _isDisposed = false;
 
+  /// Si el servidor rechazó el token (4001) — no reintentar.
+  bool _isAuthRejected = false;
+
   NotificationWebSocketDataSource({
     required String baseUrl,
-    required int userId,
-  }) : _baseUrl = baseUrl,
-       _userId = userId;
+    required String token,
+  })  : _baseUrl = baseUrl,
+        _token = token;
 
   /// Stream de nuevas notificaciones recibidas en tiempo real.
   Stream<NotificationModel> get notificationStream =>
@@ -55,18 +63,21 @@ class NotificationWebSocketDataSource {
   /// Si la conexión WebSocket está activa.
   bool get isConnected => _isConnected;
 
-  /// Establece la conexión WebSocket.
+  /// Establece la conexión WebSocket autenticada.
   Future<void> connect() async {
-    if (_isDisposed) return;
+    if (_isDisposed || _isAuthRejected) return;
 
     try {
-      // Convertir http:// a ws:// para la URL del WebSocket
+      // Construir la URL WebSocket con el token JWT como query param
       final wsUrl = _baseUrl
           .replaceFirst('http://', 'ws://')
           .replaceFirst('https://', 'wss://');
-      final uri = '$wsUrl/ws/notifications/$_userId';
+
+      // El backend valida el token antes de aceptar la conexión
+      final uri = '$wsUrl/ws/notifications?token=${Uri.encodeComponent(_token)}';
 
       _channel = await WebSocket.connect(uri);
+      _channel!.pingInterval = const Duration(seconds: 15);
       _isConnected = true;
       _reconnectAttempts = 0;
       _connectionStateController.add(true);
@@ -120,6 +131,19 @@ class NotificationWebSocketDataSource {
   /// Maneja el cierre de la conexión.
   void _onDone() {
     _isConnected = false;
+
+    // Verificar si el servidor cerró con código 4001 (token inválido)
+    final closeCode = _channel?.closeCode;
+    if (closeCode == 4001) {
+      // Token rechazado — NO reconectar automáticamente
+      // Flutter debe manejar el 401 y actualizar el token
+      _isAuthRejected = true;
+      if (!_connectionStateController.isClosed) {
+        _connectionStateController.add(false);
+      }
+      return;
+    }
+
     if (!_connectionStateController.isClosed) {
       _connectionStateController.add(false);
     }
@@ -154,14 +178,15 @@ class NotificationWebSocketDataSource {
 
   /// Programa una reconexión con backoff exponencial.
   void _scheduleReconnect() {
-    if (_isDisposed || _reconnectAttempts >= _maxReconnectAttempts) return;
+    if (_isDisposed || _isAuthRejected) return;
+    if (_reconnectAttempts >= _maxReconnectAttempts) return;
 
     _reconnectTimer?.cancel();
     final delay = Duration(seconds: (1 << _reconnectAttempts).clamp(1, 60));
     _reconnectAttempts++;
 
     _reconnectTimer = Timer(delay, () {
-      if (!_isDisposed) connect();
+      if (!_isDisposed && !_isAuthRejected) connect();
     });
   }
 
