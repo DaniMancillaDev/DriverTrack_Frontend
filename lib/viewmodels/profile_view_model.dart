@@ -3,35 +3,38 @@ import '../models/maintenance_model.dart';
 import '../theme/app_theme.dart';
 import '../core/i18n/translations.g.dart';
 
-/// Modelo de vista para las estadísticas globales en el perfil del usuario.
+/// Orquestador de métricas agregadas para el perfil del usuario.
 ///
-/// Consolida datos de múltiples vehículos y mantenimientos para presentar
-/// contadores y sumas financieras de forma visual y atractiva.
+/// Su responsabilidad es consolidar datos de múltiples vehículos y 
+/// mantenimientos para presentar indicadores clave de rendimiento (KPIs) 
+/// y resúmenes financieros de forma visual y atractiva.
 class ProfileStatsViewModel {
-  /// Lista de todos los vehículos del usuario.
+  /// Colección completa de vehículos vinculados a la cuenta.
   final List<Vehicle> vehicles;
 
-  /// Historial completo de mantenimientos registrados.
+  /// Historial íntegro de servicios realizados por el usuario.
   final List<Maintenance> maintenance;
 
   ProfileStatsViewModel({required this.vehicles, required this.maintenance});
 
-  /// Cantidad total de vehículos en formato String.
+  /// Conteo total de la flota en formato de texto.
   String get vehicleCount => vehicles.length.toString();
 
-  /// Cantidad total de servicios realizados.
+  /// Conteo total de intervenciones técnicas registradas.
   String get maintenanceCount => maintenance.length.toString();
 
-  /// Calcula el gasto acumulado total y lo formatea (ej. $2.5K o $850).
+  /// Calcula el gasto acumulado global y aplica un formato de abreviación monetaria.
+  /// 
+  /// Ejemplos: "$2.5K", "$850".
   String get totalCostFormatted {
     final total = maintenance.fold<double>(0, (sum, item) => sum + item.cost);
     if (total >= 1000) return '\$${(total / 1000).toStringAsFixed(1)}K';
     return '\$${total.toStringAsFixed(0)}';
   }
 
-  /// Retorna una lista estructurada para renderizar tarjetas de estadísticas.
+  /// Retorna una lista estructurada de objetos para renderizar tarjetas de estadísticas.
   ///
-  /// Incluye etiquetas localizadas, valores calculados y colores de énfasis.
+  /// Consolida etiquetas localizadas, valores dinámicos y colores de identidad visual.
   List<Map<String, dynamic>> getStatsItems(Translations t) => [
     {
       'label': t.profile.statsVehicles,

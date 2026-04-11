@@ -4,11 +4,11 @@ import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 
-/// Un campo de entrada de texto estandarizado para formularios.
+/// Nucleo de entrada de datos estandarizado para la plataforma.
 /// 
-/// Integra soporte para etiquetas, textos de ayuda inferiores, iconos de 
-/// prefijo/sufijo y validaciones responsivas. Utiliza el esquema de colores 
-/// de la aplicación para resaltar estados de enfoque y error.
+/// Su responsabilidad es gestionar la captura de información del usuario, 
+/// integrando soporte para etiquetas semánticas, validaciones reactivas y 
+/// retroalimentación visual de errores conforme al sistema de diseño.
 class CustomInput extends StatelessWidget {
   /// Controlador de texto opcional.
   final TextEditingController? controller;

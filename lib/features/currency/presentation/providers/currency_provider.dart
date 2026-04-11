@@ -14,9 +14,28 @@ import '../../data/repositories/currency_repository_impl.dart';
 import '../../../../core/units/presentation/unit_system_provider.dart'
     show sharedPreferencesProvider;
 
-/// Providers for Dependencies
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../domain/entities/currency.dart';
+import '../../domain/entities/exchange_rate.dart';
+import '../../domain/usecases/convert_currency.dart';
+import '../../domain/usecases/get_exchange_rate.dart';
+import '../../domain/usecases/get_user_currency_preference.dart';
+import '../../domain/usecases/save_user_currency_preference.dart';
+import '../../data/datasources/currency_local_data_source.dart';
+import '../../data/datasources/currency_remote_data_source.dart';
+import '../../data/repositories/currency_repository_impl.dart';
+import '../../../../core/units/presentation/unit_system_provider.dart'
+    show sharedPreferencesProvider;
+
+// ─── Proveedores de Infraestructura y Dependencias ───────────────────
+
+/// Punto de acceso global al cliente HTTP para servicios de divisas.
 final httpClientProvider = Provider<http.Client>((ref) => http.Client());
 
+/// Orquestador del almacenamiento persistente de preferencias de moneda.
 final currencyLocalDataSourceProvider = Provider<CurrencyLocalDataSource>((
   ref,
 ) {
@@ -25,12 +44,14 @@ final currencyLocalDataSourceProvider = Provider<CurrencyLocalDataSource>((
   );
 });
 
+/// Gestiona la comunicación con APIs externas para la obtención de tipos de cambio.
 final currencyRemoteDataSourceProvider = Provider<CurrencyRemoteDataSource>((
   ref,
 ) {
   return CurrencyRemoteDataSourceImpl(client: ref.read(httpClientProvider));
 });
 
+/// Implementación del repositorio de divisas que unifica fuentes de datos locales y remotas.
 final currencyRepositoryProvider = Provider<CurrencyRepositoryImpl>((ref) {
   return CurrencyRepositoryImpl(
     localDataSource: ref.read(currencyLocalDataSourceProvider),
@@ -38,31 +59,44 @@ final currencyRepositoryProvider = Provider<CurrencyRepositoryImpl>((ref) {
   );
 });
 
+// ─── Casos de Uso (Lógica de Dominio Inyectada) ─────────────────────
+
+/// Servicio de dominio para la obtención proactiva de tasas de cambio.
 final getExchangeRateUseCaseProvider = Provider<GetExchangeRate>((ref) {
   return GetExchangeRate(ref.read(currencyRepositoryProvider));
 });
 
+/// Servicio de dominio para recuperar la moneda preferida del usuario.
 final getUserCurrencyPreferenceUseCaseProvider =
     Provider<GetUserCurrencyPreference>((ref) {
       return GetUserCurrencyPreference(ref.read(currencyRepositoryProvider));
     });
 
+/// Servicio de dominio para persistir cambios en la preferencia de moneda.
 final saveUserCurrencyPreferenceUseCaseProvider =
     Provider<SaveUserCurrencyPreference>((ref) {
       return SaveUserCurrencyPreference(ref.read(currencyRepositoryProvider));
     });
 
+/// Utilidad de dominio pura para el cálculo de conversiones monetarias.
 final convertCurrencyUseCaseProvider = Provider<ConvertCurrency>((ref) {
   return ConvertCurrency();
 });
 
-/// State Class
+// ─── Gestión de Estado de la Interfaz ─────────────────────────────
+
+/// Representa el estado inmutable del sistema de divisas en la UI.
+/// 
+/// Consolida el tipo de cambio actual y la moneda activa seleccionada por el usuario.
 class CurrencyState {
+  /// Valor de conversión actual entre las monedas soportadas.
   final ExchangeRate exchangeRate;
+  /// Moneda en uso para la visualización de costos (ej. USD o MXN).
   final Currency activeCurrency;
 
   CurrencyState({required this.exchangeRate, required this.activeCurrency});
 
+  /// Crea una copia del estado permitiendo actualizaciones parciales.
   CurrencyState copyWith({
     ExchangeRate? exchangeRate,
     Currency? activeCurrency,
@@ -74,29 +108,37 @@ class CurrencyState {
   }
 }
 
-/// AsyncNotifier Provider
+/// Proveedor del Notificador que gestiona el ciclo de vida de las divisas.
+/// 
+/// Provee acceso reactivo al [CurrencyState] y permite disparar actualizaciones.
 final currencyNotifierProvider =
     AsyncNotifierProvider<CurrencyNotifier, CurrencyState>(() {
       return CurrencyNotifier();
     });
 
+/// Orquestador reactivo de la lógica de negocio para la gestión de divisas.
+/// 
+/// Sus responsabilidades incluyen:
+/// * **Inicialización**: Carga las preferencias del usuario al arrancar la app.
+/// * **Sincronización**: Actualiza los tipos de cambio desde servidores remotos.
+/// * **Persistencia**: Garantiza que el cambio de moneda se guarde localmente.
+/// * **Cálculo**: Provee métodos de conveniencia para convertir montos financieros.
 class CurrencyNotifier extends AsyncNotifier<CurrencyState> {
   @override
   Future<CurrencyState> build() async {
     return _fetchInitialData();
   }
 
+  /// Recupera los datos iniciales de sesión (preferencia y tasa base).
   Future<CurrencyState> _fetchInitialData() async {
     final getPrefUseCase = ref.read(getUserCurrencyPreferenceUseCaseProvider);
     final getRateUseCase = ref.read(getExchangeRateUseCaseProvider);
 
-    // Get preferred currency
     Currency preferred = Currency.usd;
     final prefResult = await getPrefUseCase();
     prefResult.fold((_) {}, (val) => preferred = val);
 
-    // Get exchange rate (Fixed USD to MXN since that's our target conversion)
-    // We always request USD -> MXN to have a stable cache, and can invert it later.
+    // Solicitamos siempre USD -> MXN para mantener una base de comparación estable
     final rateResult = await getRateUseCase(
       base: Currency.usd,
       target: Currency.mxn,
@@ -108,7 +150,7 @@ class CurrencyNotifier extends AsyncNotifier<CurrencyState> {
     );
   }
 
-  /// Refreshes the exchange rate from the API
+  /// Refresca las tasas de cambio consultando el API externo.
   Future<void> refreshRates() async {
     state = const AsyncValue.loading();
     try {
@@ -135,7 +177,7 @@ class CurrencyNotifier extends AsyncNotifier<CurrencyState> {
     }
   }
 
-  /// Toggles the active currency (e.g., USD -> MXN -> USD)
+  /// Alterna entre las monedas disponibles (USD <-> MXN) y persiste la elección.
   Future<void> toggleCurrency() async {
     final currentState = state.value;
     if (currentState == null) return;
@@ -144,22 +186,21 @@ class CurrencyNotifier extends AsyncNotifier<CurrencyState> {
         ? Currency.mxn
         : Currency.usd;
 
-    // Save to preferences
     final savePrefUseCase = ref.read(saveUserCurrencyPreferenceUseCaseProvider);
     await savePrefUseCase(newCurrency);
 
     state = AsyncValue.data(currentState.copyWith(activeCurrency: newCurrency));
   }
 
-  /// Helper to convert amount using the current state and use case
+  /// Utilidad para convertir un monto bruto a la moneda activa actualmente.
   double convert(double amount) {
     final currentState = state.value;
     if (currentState == null) return 0.0;
 
     final convertUseCase = ref.read(convertCurrencyUseCaseProvider);
 
-    // If our active currency is USD, we convert USD -> MXN using the standard rate.
-    // If active is MXN, we convert MXN -> USD using the inverted rate.
+    // Si la moneda activa es USD, convertimos usando la tasa estándar.
+    // Si es MXN, invertimos la tasa para el cálculo.
     final effectiveRate = currentState.activeCurrency == Currency.usd
         ? currentState.exchangeRate
         : currentState.exchangeRate.invert();

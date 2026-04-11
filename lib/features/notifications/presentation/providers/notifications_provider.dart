@@ -1,8 +1,8 @@
-/// Providers para el sistema de notificaciones.
+/// Proveedores y componentes de lógica para el sistema de notificaciones.
 ///
-/// Usa AsyncNotifier de Riverpod para manejar estados de
-/// carga, error y datos con soporte para paginación,
-/// WebSocket y operaciones de lectura.
+/// Implementa un flujo de comunicación bidireccional y reactivo utilizando 
+/// [AsyncNotifier]. Gestiona la sincronización en tiempo real vía WebSocket, 
+/// la paginación de datos históricos y la persistencia de estados de lectura.
 
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,20 +19,23 @@ import '../../data/repositories/notification_repository_impl.dart';
 import '../../domain/entities/notification_entity.dart';
 import '../../domain/repositories/notification_repository.dart';
 
-// ─── Dependency Providers ────────────────────────────────────
+// ─── Proveedores de Infraestructura ───────────────────────────────
 
+/// Gestiona la comunicación REST para operaciones históricas de notificaciones.
 final notificationRemoteDataSourceProvider =
     Provider<NotificationRemoteDataSource>((ref) {
       final apiClient = ref.watch(apiClientProvider);
       return NotificationRemoteDataSource(apiClient);
     });
 
+/// Orquestador del almacenamiento persistente de estados de notificación locales.
 final notificationLocalDataSourceProvider =
     Provider<NotificationLocalDataSource>((ref) {
       final prefs = ref.watch(sharedPreferencesProvider);
       return NotificationLocalDataSource(prefs);
     });
 
+/// Implementación del repositorio de notificaciones que cohesiona fuentes locales y remotas.
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   return NotificationRepositoryImpl(
     remoteDataSource: ref.watch(notificationRemoteDataSourceProvider),
@@ -40,22 +43,21 @@ final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   );
 });
 
-/// WebSocket provider — se recrea automáticamente cuando cambia authProvider.
-///
-/// Pasa el JWT como token de autenticación. El servidor valida el token
-/// antes de aceptar la conexión WebSocket (código 4001 si es inválido).
+/// Orquestador de la conexión en tiempo real ([WebSocket]).
+/// 
+/// Se reinicia automáticamente ante cambios en [authProvider], garantizando 
+/// que el canal de comunicación use siempre un token JWT válido.
 final notificationWsProvider = Provider<NotificationWebSocketDataSource?>((
   ref,
 ) {
   final user = ref.watch(authProvider);
 
-  // Si no hay usuario autenticado o no tiene token, no conectar
   if (user == null || user.token == null || user.token!.isEmpty) return null;
 
   final config = ref.watch(appConfigProvider);
   final ws = NotificationWebSocketDataSource(
     baseUrl: config.baseUrl,
-    token: user.token!,   // ← JWT para auth, no userId
+    token: user.token!,
   );
   ws.connect();
 
@@ -66,14 +68,19 @@ final notificationWsProvider = Provider<NotificationWebSocketDataSource?>((
   return ws;
 });
 
-// ─── State Class ─────────────────────────────────────────────
+// ─── Definición del Estado de la UI ─────────────────────────────
 
-/// Estado del sistema de notificaciones.
+/// Representa el estado consolidado del buzón de notificaciones.
 class NotificationsState {
+  /// Lista de alertas cargadas actualmente en memoria.
   final List<NotificationEntity> notifications;
+  /// Cantidad de alertas sin leer para el badge de navegación.
   final int unreadCount;
+  /// Conteo total de alertas disponibles en el servidor.
   final int totalCount;
+  /// Indica si existen más páginas de datos para cargar (infinit scroll).
   final bool hasMore;
+  /// Estado dinámico de carga para operaciones de paginación.
   final bool isLoadingMore;
 
   const NotificationsState({
@@ -84,6 +91,7 @@ class NotificationsState {
     this.isLoadingMore = false,
   });
 
+  /// Permite actualizaciones granulares manteniendo la inmutabilidad.
   NotificationsState copyWith({
     List<NotificationEntity>? notifications,
     int? unreadCount,
@@ -101,22 +109,27 @@ class NotificationsState {
   }
 }
 
-// ─── Main Notifier ───────────────────────────────────────────
+// ─── Notificador de Lógica de Presentación ─────────────────────
 
-/// Tamaño de página para paginación.
+/// Cantidad de registro solicitados por lote (paginación).
 const int _pageSize = 20;
 
-/// Polling interval como fallback del WebSocket (30 segundos).
+/// Intervalo de seguridad para sincronización pasiva ante fallos del WebSocket.
 const Duration _pollingInterval = Duration(seconds: 30);
 
+/// Orquestador central de las alertas del sistema.
+/// 
+/// Sus responsabilidades incluyen:
+/// * **Streaming**: Escucha eventos en tiempo real e inserta alertas instantáneamente.
+/// * **Ciclo de Vida**: Gestiona la transición entre estados de autenticación.
+/// * **Paginación**: Coordina la carga "perezosa" de datos históricos.
+/// * **Acciones de Usuario**: Sincroniza estados de "leído" y eliminaciones con el backend.
 class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
   StreamSubscription? _wsSubscription;
   Timer? _pollingTimer;
 
   @override
   Future<NotificationsState> build() async {
-    // ref.watch() aquí hace que build() se re-ejecute cuando
-    // authProvider cambia (null → user, user → null).
     final user = ref.watch(authProvider);
 
     ref.onDispose(() {
@@ -128,20 +141,16 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
       return const NotificationsState();
     }
 
-    // Configurar escucha WebSocket para tiempo real
     _listenToWebSocket();
-
-    // Configurar polling como fallback
     _startPolling();
 
-    // Fetch inicial
     return _fetchPage(skip: 0);
   }
 
-  /// Obtiene el user_id del usuario autenticado.
+  /// ID del usuario activo para contextualizar las peticiones.
   int? get _userId => ref.read(authProvider)?.id;
 
-  /// Obtiene una página de notificaciones del servidor.
+  /// Recupera una página específica del historial de notificaciones.
   Future<NotificationsState> _fetchPage({int skip = 0}) async {
     final repo = ref.read(notificationRepositoryProvider);
     final result = await repo.getNotifications(
@@ -157,7 +166,7 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
     );
   }
 
-  /// Escucha el WebSocket para nuevas notificaciones en tiempo real.
+  /// Conecta la lógica de negocio con el flujo de datos del WebSocket.
   void _listenToWebSocket() {
     _wsSubscription?.cancel();
 
@@ -168,7 +177,7 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
       final currentState = state.value;
       if (currentState == null) return;
 
-      // Agregar la notificación al inicio de la lista
+      // Inserción en la cabeza de la lista para visibilidad inmediata
       state = AsyncData(
         currentState.copyWith(
           notifications: [notification, ...currentState.notifications],
@@ -179,7 +188,7 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
     });
   }
 
-  /// Polling como fallback: refresca el conteo de no leídas periódicamente.
+  /// Mantiene la consistencia del contador de notificaciones mediante sondeo periódico.
   void _startPolling() {
     _pollingTimer?.cancel();
     _pollingTimer = Timer.periodic(_pollingInterval, (_) async {
@@ -188,17 +197,17 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
         final serverCount = await repo.getUnreadCount();
         final currentState = state.value;
         if (currentState != null && serverCount != currentState.unreadCount) {
-          // El conteo cambió => refrescar toda la lista
+          // Si hay discrepancia, forzamos un refresco total de la bandeja
           final freshState = await _fetchPage(skip: 0);
           state = AsyncData(freshState);
         }
       } catch (_) {
-        // Polling silencioso — no interrumpir la UI por un fallo de red
+        // Sondeo silencioso: priorizamos la estabilidad de la UI.
       }
     });
   }
 
-  /// Carga más notificaciones (infinite scroll).
+  /// Dispara la carga de la siguiente página de resultados.
   Future<void> fetchMore() async {
     final currentState = state.value;
     if (currentState == null ||
@@ -207,7 +216,6 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
       return;
     }
 
-    // Marcar como cargando más
     state = AsyncData(currentState.copyWith(isLoadingMore: true));
 
     try {
@@ -229,12 +237,13 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
     }
   }
 
-  /// Marca una notificación como leída.
+  /// Actualiza el estado de lectura de una notificación específica.
+  /// 
+  /// Implementa una **Actualización Optimista** para respuesta inmediata en UI.
   Future<void> markAsRead(int notificationId) async {
     final currentState = state.value;
     if (currentState == null) return;
 
-    // Optimistic update
     final updatedList = currentState.notifications.map((n) {
       if (n.id == notificationId && !n.isRead) {
         return n.copyWith(isRead: true);
@@ -259,17 +268,16 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
       final repo = ref.read(notificationRepositoryProvider);
       await repo.markAsRead(notificationId);
     } catch (e) {
-      // Rollback en caso de error
+      // Reversión de estado en caso de fallo de red
       state = AsyncData(currentState);
     }
   }
 
-  /// Marca todas las notificaciones como leídas.
+  /// Marca todas las alertas activas como leídas en una sola transacción.
   Future<void> markAllAsRead() async {
     final currentState = state.value;
     if (currentState == null) return;
 
-    // Optimistic update
     final updatedList = currentState.notifications
         .map((n) => n.copyWith(isRead: true))
         .toList();
@@ -286,13 +294,15 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
     }
   }
 
-  /// Refresca la lista completa.
+  /// Fuerza la recarga completa del historial de notificaciones.
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => _fetchPage(skip: 0));
   }
 
-  /// Elimina una notificación.
+  /// Elimina permanentemente una notificación.
+  /// 
+  /// Utiliza actualización optimista para asegurar fluidez en el gesto de borrado.
   Future<void> deleteNotification(int notificationId) async {
     final currentState = state.value;
     if (currentState == null) return;
@@ -301,7 +311,6 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
         .where((n) => n.id == notificationId)
         .firstOrNull;
 
-    // Optimistic update
     state = AsyncData(
       currentState.copyWith(
         notifications: currentState.notifications
@@ -324,14 +333,15 @@ class NotificationsNotifier extends AsyncNotifier<NotificationsState> {
   }
 }
 
-// ─── Provider Declarations ──────────────────────────────────
+// ─── Puntos de Acceso Globales (Providers) ─────────────────────
 
+/// Proveedor del estado reactivo de las notificaciones.
 final notificationsProvider =
     AsyncNotifierProvider<NotificationsNotifier, NotificationsState>(
       () => NotificationsNotifier(),
     );
 
-/// Provider derivado para el badge de no leídas.
+/// Proveedor derivado optimizado para el badge de alertas no leídas.
 final unreadCountProvider = Provider<int>((ref) {
   final notificationsState = ref.watch(notificationsProvider);
   return notificationsState.value?.unreadCount ?? 0;

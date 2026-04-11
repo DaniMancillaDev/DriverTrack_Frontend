@@ -1,11 +1,12 @@
 import '../../theme/app_color_scheme.dart';
 
-/// Un widget de avatar circular versátil con gestión de fallbacks.
+/// Orquestador de identidad visual para usuarios y activos de flota.
 /// 
-/// El componente maneja tres niveles de visualización:
-/// 1. **Imagen**: Muestra [imageUrl] si se recibe y carga correctamente.
-/// 2. **Texto**: Muestra iniciales obtenidas de [fallbackText] si la imagen falla o no existe.
-/// 3. **Icono**: Muestra [fallbackIcon] o un icono genérico como último recurso.
+/// Su responsabilidad es gestionar la representación gráfica mediante tres 
+/// niveles de respaldo (Fallback): 
+/// 1. **Imagen**: Renderizado prioritario de [imageUrl].
+/// 2. **Texto**: Iniciales dinámicas basadas en [fallbackText].
+/// 3. **Icono**: Glifo genérico como garantía de visualización final.
 class CustomAvatar extends StatelessWidget {
   /// URL remota de la imagen de perfil.
   final String? imageUrl;

@@ -32,11 +32,13 @@ enum ButtonSize {
   icon 
 }
 
-/// Un botón altamente personalizable que implementa el sistema de diseño.
+/// Orquestador de acciones táctiles altamente personalizable.
 /// 
-/// El [CustomButton] unifica los estilos de botones de la aplicación, soportando
-/// estados de carga automáticos ([isLoading]), gradientes complejos y 
-/// adaptabilidad responsiva del tamaño.
+/// El [CustomButton] es el bloque fundamental de interacción. Su responsabilidad
+/// es unificar los estilos visuales de la aplicación, gestionando automáticamente:
+/// * **Estados de Carga**: Feedback visual proactivo mediante [isLoading].
+/// * **Jerarquía Visual**: Soporte para múltiples variantes (gradientes, contornos, etc.).
+/// * **Responsividad**: Adaptabilidad de tamaño y área de contacto física.
 class CustomButton extends StatelessWidget {
   /// Función a ejecutar al presionar.
   final VoidCallback? onPressed;

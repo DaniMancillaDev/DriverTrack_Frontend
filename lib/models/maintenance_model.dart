@@ -1,9 +1,10 @@
 // lib/models/maintenance_model.dart
 
-/// Representa un registro de mantenimiento realizado a un vehículo.
+/// Entidad de dominio representativa de una intervención técnica vehicular.
 /// 
-/// Contiene detalles sobre la fecha, costo, kilometraje en el momento del 
-/// servicio y una descripción de los trabajos realizados.
+/// Su responsabilidad es encapsular los datos históricos de un servicio, 
+/// incluyendo la trazabilidad cronológica, económica y técnica (kilometraje) 
+/// del mantenimiento realizado.
 class Maintenance {
   /// Identificador único del registro de mantenimiento.
   final int id;

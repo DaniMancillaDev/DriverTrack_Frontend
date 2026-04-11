@@ -1,7 +1,8 @@
-/// Providers para el sistema de clima.
+/// Orquestadores de datos y lógica para el sistema meteorológico (Weather).
 ///
-/// Usa AsyncNotifier de Riverpod para manejar estados de
-/// carga, error y datos con cache automático y auto-refresh.
+/// Implementa un flujo reactivo utilizando [AsyncNotifier] para gestionar
+/// estados de carga, errores y persistencia de datos ambientales, incluyendo
+/// mecanismos de auto-actualización (polling).
 
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,12 +19,14 @@ import '../../domain/entities/weather_recommendation.dart';
 import '../../domain/repositories/weather_repository.dart';
 import '../../domain/services/recommendation_engine.dart';
 
-// ─── Dependency Providers ────────────────────────────────────
+// ─── Proveedores de Dependencias Inferiores ────────────────────────
 
+/// Punto de acceso al servicio de geolocalización del dispositivo.
 final geoLocationServiceProvider = Provider<GeoLocationService>((ref) {
   return const GeoLocationService();
 });
 
+/// Gestiona la comunicación con la API externa de clima.
 final weatherRemoteDataSourceProvider = Provider<WeatherRemoteDataSource>((
   ref,
 ) {
@@ -31,11 +34,13 @@ final weatherRemoteDataSourceProvider = Provider<WeatherRemoteDataSource>((
   return WeatherRemoteDataSource(apiClient: apiClient);
 });
 
+/// Orquestador del almacenamiento persistente (caché) de datos climáticos.
 final weatherLocalDataSourceProvider = Provider<WeatherLocalDataSource>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
   return WeatherLocalDataSource(prefs);
 });
 
+/// Implementación del repositorio que unifica las fuentes de datos (Remota/Local).
 final weatherRepositoryProvider = Provider<WeatherRepository>((ref) {
   return WeatherRepositoryImpl(
     remoteDataSource: ref.watch(weatherRemoteDataSourceProvider),
@@ -43,13 +48,20 @@ final weatherRepositoryProvider = Provider<WeatherRepository>((ref) {
   );
 });
 
-// ─── State Class ─────────────────────────────────────────────
+// ─── Definición del Estado del Dominio ─────────────────────────────
 
-/// Estado del sistema de clima.
+/// Representa el balance informativo del contexto ambiental en la UI.
+/// 
+/// Consolida el clima actual, las alertas de seguridad recomendadas y 
+/// metadatos de sincronización.
 class WeatherState {
+  /// Entidad de dominio con los valores climáticos (temperatura, condición).
   final WeatherEntity weather;
+  /// Lista de avisos generados basados en las condiciones (ej. "Piso resbaladizo").
   final List<WeatherRecommendation> recommendations;
+  /// Indica si la ubicación utilizada es una de respaldo debido a falta de GPS.
   final bool isFallbackLocation;
+  /// Marca temporal de la última sincronización exitosa.
   final DateTime lastUpdated;
 
   const WeatherState({
@@ -59,11 +71,12 @@ class WeatherState {
     required this.lastUpdated,
   });
 
-  /// Retorna la recomendación más importante (mayor severidad).
+  /// Extrae la recomendación de mayor impacto para la conducción inmediata.
+  /// 
+  /// Filtra y prioriza las alertas por nivel de severidad (Crítico > Advertencia > Info).
   WeatherRecommendation? get primaryRecommendation {
     if (recommendations.isEmpty) return null;
 
-    // Priorizar: critical > warning > info
     final sorted = [...recommendations]
       ..sort((a, b) {
         return b.severity.index.compareTo(a.severity.index);
@@ -72,11 +85,18 @@ class WeatherState {
   }
 }
 
-// ─── Main Notifier ───────────────────────────────────────────
+// ─── Notificador de Lógica de Negocio (Presentation Logic) ────────
 
-/// Intervalo de auto-refresh para el clima.
+/// Intervalo de refresco automático del clima (defensa ante cambios rápidos).
 const Duration _refreshInterval = Duration(minutes: 15);
 
+/// Orquestador reactivo de las condiciones ambientales para la flota.
+/// 
+/// Sus responsabilidades incluyen:
+/// * **Ubicación Dinámica**: Coordina con el sensor GPS para obtener el clima local.
+/// * **Evaluación de Riesgos**: Dispara el motor de recomendaciones según la meteorología.
+/// * **Cache Cooperativo**: Mantiene datos visibles incluso sin conexión.
+/// * **Auto-Sincronización**: Registra un temporizador para refrescar el estado periódicamente.
 class WeatherNotifier extends AsyncNotifier<WeatherState> {
   Timer? _refreshTimer;
 
@@ -86,13 +106,12 @@ class WeatherNotifier extends AsyncNotifier<WeatherState> {
       _refreshTimer?.cancel();
     });
 
-    // Iniciar auto-refresh
     _startAutoRefresh();
 
     return _fetchWeather();
   }
 
-  /// Obtiene el clima actual, dando prioridad a una ciudad manual.
+  /// Recupera el clima consolidado, priorizando selecciones manuales sobre el GPS.
   Future<WeatherState> _fetchWeather({String? overrideCity}) async {
     final geoService = ref.read(geoLocationServiceProvider);
     final repo = ref.read(weatherRepositoryProvider);
@@ -106,18 +125,18 @@ class WeatherNotifier extends AsyncNotifier<WeatherState> {
     if (city != null && city.isNotEmpty) {
       weather = await repo.getWeatherByCity(cityName: city);
     } else {
-      // 1. Obtener ubicación
+      // 1. Geolocalización
       final location = await geoService.getCurrentLocation();
       isFallback = location.isFallback;
 
-      // 2. Obtener clima
+      // 2. Transmisión de datos
       weather = await repo.getWeather(
         latitude: location.latitude,
         longitude: location.longitude,
       );
     }
 
-    // 3. Generar recomendaciones
+    // 3. Post-procesamiento: Generar recomendaciones de conducción
     final recommendations = RecommendationEngine.evaluate(weather);
 
     return WeatherState(
@@ -128,7 +147,7 @@ class WeatherNotifier extends AsyncNotifier<WeatherState> {
     );
   }
 
-  /// Auto-refresh periódico.
+  /// Inicia la actualización periódica en segundo plano.
   void _startAutoRefresh() {
     _refreshTimer?.cancel();
     _refreshTimer = Timer.periodic(_refreshInterval, (_) async {
@@ -136,19 +155,21 @@ class WeatherNotifier extends AsyncNotifier<WeatherState> {
         final newState = await _fetchWeather();
         state = AsyncData(newState);
       } catch (_) {
-        // Refresh silencioso — no interrumpir la UI
+        // Fallo silencioso: Mantenemos el último estado válido por seguridad.
       }
     });
   }
 
-  /// Refresca manualmente.
+  /// Fuerza una recarga completa del estado desde la interfaz.
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => _fetchWeather());
   }
 
-  /// Cambia a una ciudad manual, guardándola en caché si es válida.
-  /// Para volver al GPS, pasar un string vacío.
+  /// Establece una ciudad fija para el clima, anulando la geolocalización.
+  /// 
+  /// Persiste la elección en preferencias para mantenerla entre sesiones.
+  /// Si [city] es vacío, se restaura el seguimiento por GPS.
   Future<void> setManualCity(String city) async {
     final prefs = ref.read(sharedPreferencesProvider);
     state = const AsyncLoading();
@@ -167,13 +188,14 @@ class WeatherNotifier extends AsyncNotifier<WeatherState> {
   }
 }
 
-// ─── Provider Declarations ──────────────────────────────────
+// ─── Declaración de Proveedores Globales (Puntos de Acceso) ────────
 
+/// Proveedor principal del estado meteorológico reactivo.
 final weatherProvider = AsyncNotifierProvider<WeatherNotifier, WeatherState>(
   () => WeatherNotifier(),
 );
 
-/// Provider derivado para las recomendaciones (conveniencia para la UI).
+/// Proveedor simplificado para acceder exclusivamente a las recomendaciones activas.
 final weatherRecommendationsProvider = Provider<List<WeatherRecommendation>>((
   ref,
 ) {

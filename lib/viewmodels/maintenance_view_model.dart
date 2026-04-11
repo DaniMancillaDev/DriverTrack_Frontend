@@ -3,50 +3,51 @@ import '../models/maintenance_model.dart';
 import '../features/maintenance/domain/mappers/maintenance_mapper.dart';
 import '../core/i18n/translations.g.dart';
 
-/// Modelo de vista para representar un registro de [Maintenance] en la UI.
+/// Transformador de registros de mantenimiento para la interfaz de usuario.
 ///
-/// Refina los datos planos del modelo mediante mappers para obtener
-/// iconos, colores y formato de fechas relativo al contexto actual.
+/// Su responsabilidad es enriquecer los datos planos del dominio [Maintenance]
+/// mediante mappers que determinan iconos, colores y formato de fechas 
+/// relativo al contexto temporal del usuario.
 class MaintenanceViewModel {
-  /// Objeto de dominio del registro de mantenimiento.
+  /// Objeto de dominio que contiene los datos base del servicio.
   final Maintenance maintenance;
 
   const MaintenanceViewModel(this.maintenance);
 
-  /// ID del registro.
+  /// Identificador único del registro.
   int get id => maintenance.id;
 
-  /// ID del vehículo relacionado.
+  /// Referencia al vehículo asociado.
   int get vehicleId => maintenance.vehicleId;
 
-  /// Fecha del servicio.
+  /// Fecha cronológica del servicio.
   DateTime get date => maintenance.date;
 
-  /// Descripción original del servicio.
+  /// Descripción original ingresada por el usuario o sistema.
   String get description => maintenance.description;
 
-  /// Costo total incurrido.
+  /// Inversión económica en el servicio.
   double get cost => maintenance.cost;
 
-  /// Kilometraje registrado en ese momento.
+  /// Kilometraje del odómetro registrado al momento del servicio.
   int get mileage => maintenance.mileage;
 
-  /// Título parseado a partir de la descripción (extrae la primera línea).
+  /// Título sintético extraído de la descripción (normalmente la primera línea).
   String get title => MaintenanceMapper.getTitle(description);
 
-  /// Notas adicionales (todo lo que no sea el título en la descripción).
+  /// Notas descriptivas adicionales.
   String? get notes => MaintenanceMapper.getNotes(description);
 
-  /// Categoría del servicio.
+  /// Clasificación técnica del mantenimiento.
   String get category => maintenance.category;
 
-  /// Icono visual basado en la categoría.
+  /// Icono representativo basado en la [category].
   IconData get computedIcon => MaintenanceMapper.getIcon(category);
 
-  /// Color de énfasis basado en la categoría.
+  /// Color de énfasis visual basado en la [category].
   Color get computedAccent => MaintenanceMapper.getAccent(category);
 
-  /// Calcula cuánto tiempo ha pasado desde el servicio en un formato legible.
+  /// Calcula la antigüedad relativa del servicio en un formato humano y localizado.
   /// 
   /// Ejemplos: "Hoy", "Hace 3 días", "Hace 2 meses".
   String getTimeAgo(Translations t) {
@@ -54,8 +55,9 @@ class MaintenanceViewModel {
     final difference = now.difference(date);
 
     if (difference.inDays == 0) return t.time.today;
-    if (difference.inDays < 30)
+    if (difference.inDays < 30) {
       return t.time.daysAgo.replaceAll('{n}', '${difference.inDays}');
+    }
     if (difference.inDays < 365) {
       final months = (difference.inDays / 30).floor();
       return t.time.monthsAgo.replaceAll('{n}', '$months');
@@ -64,6 +66,6 @@ class MaintenanceViewModel {
     return t.time.yearsAgo.replaceAll('{n}', '$years');
   }
 
-  /// Placeholder para el nombre del vehículo si fuese necesario inyectarlo.
+  /// Provee el nombre del vehículo asociado (usualmente inyectado desde el contexto).
   String vehicleName(String nameFallback) => nameFallback;
 }

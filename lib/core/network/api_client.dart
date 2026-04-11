@@ -5,14 +5,14 @@ import 'package:http/http.dart' as http;
 
 import '../../config/app_config.dart';
 
-/// Devuelve el access token actual o null.
+/// Definición de contrato para proveer el token de acceso actual (JWT).
 typedef TokenProvider = String? Function();
 
-/// Intenta refrescar el access token usando el refresh token guardado.
-/// Devuelve el nuevo access token si lo logró, o null si falló.
+/// Definición de contrato para la lógica asíncrona de renovación de credenciales.
+/// Retorna un nuevo access token o null en caso de fallo crítico.
 typedef TokenRefresher = Future<String?> Function();
 
-/// Invocado cuando el refresh también falla: sesión definitivamente expirada.
+/// Definición de contrato para notificar el cese definitivo de la sesión.
 typedef SessionExpiredCallback = void Function();
 
 /// Cliente HTTP centralizado para la comunicación con el backend de DriveTrack.

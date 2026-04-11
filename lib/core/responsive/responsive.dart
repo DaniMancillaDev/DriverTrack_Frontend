@@ -4,21 +4,23 @@ import 'package:flutter/material.dart';
 // Breakpoints
 // ─────────────────────────────────────────────────────────────
 
-/// Define los umbrales de ancho de pantalla (en píxeles lógicos) para
-/// determinar la categoría del dispositivo.
+/// Orquestador de los umbrales de visualización (Breakpoints).
+/// 
+/// Define los límites físicos en píxeles lógicos que determinan cuándo 
+/// la interfaz debe reorganizarse para optimizar la experiencia de usuario.
 class AppBreakpoints {
   AppBreakpoints._();
 
-  /// Móviles pequeños o pantallas muy estrechas.
+  /// Umbral para teléfonos compactos (< 360px).
   static const double mobileSmall = 360;
 
-  /// Móviles estándar.
+  /// Umbral para teléfonos estándar (~ 400px).
   static const double mobile = 400;
 
-  /// Tablets y iPads en modo vertical o pantallas pequeñas.
+  /// Umbral para tabletas y dispositivos de formato medio (~ 600px).
   static const double tablet = 600;
 
-  /// Pantallas grandes, tablets en horizontal y monitores.
+  /// Umbral para monitores y estaciones de trabajo (> 900px).
   static const double desktop = 900;
 }
 

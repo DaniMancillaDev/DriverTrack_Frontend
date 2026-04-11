@@ -13,10 +13,10 @@ import '../features/map/data/repositories/map_repository_impl.dart';
 import '../providers/auth_provider.dart';
 import '../services/vehicle_photo_upload_service.dart';
 
-// --- Core Providers ---
+// ─── Proveedores de Infraestructura Core ────────────────────────────
 
 /// Provee la configuración global de la aplicación ([AppConfig]).
-/// Determina el entorno de ejecución (dev/prod) y las URLs base de la API.
+/// Determina el entorno de ejecución (desarrollo/producción) y las URLs base de la API.
 final appConfigProvider = Provider<AppConfig>((ref) {
   return AppConfig.dev();
 });
@@ -24,10 +24,10 @@ final appConfigProvider = Provider<AppConfig>((ref) {
 /// Provee una instancia configurada de [ApiClient].
 /// 
 /// Esta instancia actúa como el cliente HTTP centralizado. Implementa lógica de 
-/// interceptación para manejar errores 401 (Unauthorized):
+/// interceptación para manejar errores 401 (No autorizado):
 /// 1. Intenta refrescar el token automáticamente mediante [authProvider].
 /// 2. Si el refresco falla, invoca [logoutDueToExpiry] para limpiar la sesión 
-///    y redirigir al usuario al login.
+///    y redirigir al usuario al inicio de sesión.
 final apiClientProvider = Provider<ApiClient>((ref) {
   final config = ref.watch(appConfigProvider);
   return ApiClient(
@@ -38,41 +38,45 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   );
 });
 
-/// Global repositories providers
+// ─── Proveedores de Repositorios Globales ───────────────────────────
+
+/// Punto de acceso a la gestión de datos de vehículos.
 final vehicleRepositoryProvider = Provider<VehicleRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return VehicleRepository(apiClient);
 });
 
+/// Punto de acceso a la gestión de registros de mantenimiento.
 final maintenanceRepositoryProvider = Provider<MaintenanceRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return MaintenanceRepository(apiClient);
 });
 
+/// Punto de acceso a los servicios de autenticación y sesiones.
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return AuthRepository(apiClient);
 });
 
+/// Punto de acceso a la gestión de perfiles de usuario.
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return UserRepository(apiClient);
 });
 
+/// Punto de acceso a los servicios de mapas y geolocalización de servicios.
 final mapRepositoryProvider = Provider<MapRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return MapRepositoryImpl(apiClient);
 });
 
-// --- State Providers ---
-
-// --- State Providers ---
+// ─── Notificadores de Estado (State Management) ──────────────────────
 
 /// Gestiona la colección de vehículos del usuario con soporte para **Actualizaciones Optimistas**.
 /// 
-/// Este notifier permite que la UI responda instantáneamente a cambios (agregar/borrar)
-/// mientras las peticiones al servidor se procesan en segundo plano, realizando un rollback 
-/// automático si ocurre algún error.
+/// Este notificador permite que la interfaz de usuario responda instantáneamente a cambios 
+/// (agregar/borrar) mientras las peticiones al servidor se procesan en segundo plano, 
+/// realizando una reversión automática (rollback) si ocurre algún error.
 class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
   @override
   Future<List<Vehicle>> build() async {
@@ -81,7 +85,7 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
   }
 
   /// Registra un nuevo vehículo. Utiliza actualización optimista insertando 
-  /// un elemento temporal con ID negativo.
+  /// un elemento temporal con un identificador negativo.
   Future<void> addVehicle(Map<String, dynamic> vehicleData) async {
     final repository = ref.read(vehicleRepositoryProvider);
     final previousState = state;
@@ -101,25 +105,25 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
       )).firstWhere((t) => t.id == vehicleData['type_id']),
     );
 
-    // Actualización Optimista: El vehículo aparece de inmediato en la lista
+    // Actualización Optimista: El vehículo aparece de inmediato en la lista.
     state = AsyncData([...state.value ?? [], tempVehicle]);
 
     try {
       final newVehicle = await repository.createVehicle(vehicleData);
 
-      // Sincronizar con el dato real del backend
+      // Sincronizar con el dato real retornado por el servidor.
       state = AsyncData([
         ...(state.value ?? []).where((v) => v.id != -1),
         newVehicle,
       ]);
     } catch (e) {
-      // Revertir estado si el servidor falla
+      // Revertir estado si el servidor falla.
       state = previousState;
       rethrow;
     }
   }
 
-  /// Elimina un vehículo. Oculta el elemento de la lista antes de recibir confirmación del servidor.
+  /// Elimina un vehículo de forma permanente.
   Future<void> deleteVehicle(int vehicleId) async {
     final repository = ref.read(vehicleRepositoryProvider);
     final previousState = state;
@@ -171,11 +175,10 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
     }
   }
 
-  /// Limite de favoritos por usuario.
+  /// Límite máximo de vehículos favoritos por usuario.
   static const int maxFavorites = 3;
 
-  /// Alterna el estado de favorito de un vehículo.
-  /// Valida el límite de favoritos localmente antes de proceder.
+  /// Alterna el estado de "favorito" validando el límite localmente.
   Future<void> toggleFavorite(int id, bool isFavorite) async {
     if (isFavorite) {
       final currentFavorites = state.value?.where((v) => v.isFavorite).length ?? 0;
@@ -186,7 +189,7 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
     await updateVehicle(id, {'is_favorite': isFavorite});
   }
 
-  /// Actualiza un vehículo de forma puramente local en el estado Reactivo.
+  /// Actualiza un vehículo de forma puramente local en el estado reactivo.
   void updateVehicleLocally(Vehicle updatedVehicle) {
     if (state.value == null) return;
     state = AsyncData(
@@ -194,33 +197,35 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
     );
   }
 
-  /// Fuerza una recarga completa de la lista desde el servidor.
+  /// Fuerza el refresco completo de la flota desde el servidor.
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => build());
   }
 }
 
+/// Punto de acceso al servicio de carga de fotografías de vehículos.
 final vehiclePhotoUploadProvider = Provider<VehiclePhotoUploadService>((ref) {
   final repo = ref.watch(vehicleRepositoryProvider);
   return VehiclePhotoUploadService(repo);
 });
 
+/// Proveedor global reactivo para la lista de vehículos del usuario.
 final vehiclesProvider = AsyncNotifierProvider<VehiclesNotifier, List<Vehicle>>(
   () {
     return VehiclesNotifier();
   },
 );
 
-/// Fetches the catalogue of vehicle types
+/// Obtiene el catálogo de tipos de vehículos disponibles desde el servidor.
 final vehicleTypesProvider = FutureProvider<List<VehicleType>>((ref) async {
   final repository = ref.watch(vehicleRepositoryProvider);
   return await repository.getVehicleTypes();
 });
 
-/// Fetches and caches the maintenance records, grouped by an optional vehicle Id
-/// We use autoDispose so it re-fetches when navigating back to avoid stale data,
-/// or family to fetch specific vehicles.
+// ─── Gestión de Registros de Mantenimiento ───────────────────────────
+
+/// Parámetros para la consulta filtrada de registros de mantenimiento.
 class MaintenanceParams {
   final int? vehicleId;
   final int skip;
@@ -243,8 +248,8 @@ class MaintenanceParams {
 
 /// Gestiona el historial de registros de mantenimiento con soporte para filtrado por vehículo.
 /// 
-/// Utiliza [AsyncNotifierProvider.family] para permitir múltiples instancias del 
-/// historial (ej: uno general y otro específico para un coche en particular).
+/// Utiliza [family] para permitir múltiples instancias del historial 
+/// (ej. uno global para el historial y uno específico para el detalle de un coche).
 class MaintenanceDocsNotifier extends AsyncNotifier<List<Maintenance>> {
   final MaintenanceParams arg;
 
@@ -255,14 +260,12 @@ class MaintenanceDocsNotifier extends AsyncNotifier<List<Maintenance>> {
     final repository = ref.watch(maintenanceRepositoryProvider);
     List<Maintenance> docs;
     if (arg.vehicleId != null) {
-      // Carga registros específicos de un vehículo.
       docs = await repository.getMaintenanceRecords(
         vehicleId: arg.vehicleId,
         skip: arg.skip,
         limit: arg.limit,
       );
     } else {
-      // Carga el historial global y lo ordena cronológicamente (más reciente primero).
       docs = await repository.getMaintenanceRecords(
         skip: arg.skip,
         limit: arg.limit,
@@ -272,7 +275,7 @@ class MaintenanceDocsNotifier extends AsyncNotifier<List<Maintenance>> {
     return docs;
   }
 
-  /// Inyecta o actualiza un registro directamente en la lista local sin recargar de red.
+  /// Sincroniza o inserta un registro directamente en la lista local.
   void updateLocal(Maintenance record) {
     if (state.hasValue && state.value != null) {
       final list = [...state.value!];
@@ -287,7 +290,7 @@ class MaintenanceDocsNotifier extends AsyncNotifier<List<Maintenance>> {
     }
   }
 
-  /// Elimina un registro del estado local.
+  /// Elimina un registro del estado local de forma inmediata.
   void deleteLocal(int id) {
     if (state.hasValue && state.value != null) {
       state = AsyncData(state.value!.where((m) => m.id != id).toList());
@@ -295,31 +298,33 @@ class MaintenanceDocsNotifier extends AsyncNotifier<List<Maintenance>> {
   }
 }
 
-/// Provider que expone el historial de mantenimiento parametrizado.
+/// Proveedor parametrizado del historial de mantenimiento.
 final maintenanceDocsProvider =
     AsyncNotifierProvider.family<MaintenanceDocsNotifier, List<Maintenance>, MaintenanceParams>(
   (arg) => MaintenanceDocsNotifier(arg),
 );
 
-/// Notifier para gestionar el filtro de visualización activo en la galería de vehículos.
+// ─── Control de Filtros de Visualización ───────────────────────────
+
+/// Gestiona la categoría de filtro seleccionada en la galería de vehículos.
 class ActiveFilterNotifier extends Notifier<String> {
   @override
-  String build() => 'All Vehicles';
+  String build() => 'Todos';
 
-  /// Actualiza la categoría de filtro seleccionada.
+  /// Actualiza el filtro activo (ej. 'Autos', 'Motos', 'Todos').
   void updateFilter(String newFilter) {
     state = newFilter;
   }
 }
 
-/// Provider global para el filtro de navegación.
+/// Proveedor global para el filtro de navegación superior.
 final activeFilterProvider = NotifierProvider<ActiveFilterNotifier, String>(() {
   return ActiveFilterNotifier();
 });
 
-/// Excepción lanzada cuando el usuario intenta exceder el tope de vehículos favoritos.
+/// Excepción lanzada cuando se intenta exceder el límite de vehículos favoritos.
 class FavoriteLimitException implements Exception {
-  /// Límite máximo configurado.
+  /// Límite máximo permitido.
   final int limit;
   const FavoriteLimitException(this.limit);
 

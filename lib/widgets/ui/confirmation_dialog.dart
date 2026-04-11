@@ -3,11 +3,11 @@ import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 
-/// Un diálogo de confirmación moderno adaptado para dispositivos móviles.
+/// Orquestador de validación para acciones críticas de usuario.
 /// 
-/// A diferencia de los diálogos centrales clásicos, este utiliza un 
-/// [showModalBottomSheet] para facilitar la interacción táctil en la parte 
-/// inferior de la pantalla. Ideal para validaciones de borrado o acciones críticas.
+/// Su responsabilidad es proporcionar un punto de control táctil antes de ejecutar 
+/// operaciones destructivas o irreversibles. Utiliza un [showModalBottomSheet] 
+/// para priorizar la accesibilidad ergonómica en dispositivos móviles.
 class ConfirmationDialog extends StatelessWidget {
   /// Título del diálogo (ej: "¿Eliminar vehículo?").
   final String title;
@@ -24,7 +24,7 @@ class ConfirmationDialog extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
-    this.confirmLabel = 'Delete',
+    this.confirmLabel = 'Eliminar',
     this.confirmColor = AppColors.red,
     required this.onConfirm,
   });
@@ -34,7 +34,7 @@ class ConfirmationDialog extends StatelessWidget {
     BuildContext context, {
     required String title,
     required String message,
-    String confirmLabel = 'Delete',
+    String confirmLabel = 'Eliminar',
     Color confirmColor = AppColors.red,
     required VoidCallback onConfirm,
   }) {

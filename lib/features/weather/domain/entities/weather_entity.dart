@@ -1,8 +1,9 @@
-/// Entidad de dominio para datos climáticos.
+/// Contrato de dominio para datos meteorológicos del sistema.
 ///
-/// Todos los valores se almacenan en unidades métricas (°C, m/s).
-/// La conversión a unidades imperiales o personalizadas se delega a los
-/// formateadores de la capa de presentación.
+/// Su responsabilidad es definir la estructura pura de los datos del clima.
+/// Todos los valores se normalizan en unidades métricas (°C, m/s). 
+/// La orquestación de la visualización (imperial vs métrico) se delega 
+/// específicamente a los ViewModels de la capa de presentación.
 
 /// Enumeración con las condiciones climáticas principales soportadas.
 enum WeatherCondition {

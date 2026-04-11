@@ -6,13 +6,16 @@ import 'package:flutter/widgets.dart';
 import '../../core/network/api_client.dart';
 import '../i18n/translations.g.dart';
 
-/// Utilidad centralizada para mapear errores de bajo nivel a mensajes legibles.
+/// Orquestador centralizado para la traducción de fallos técnicos a mensajes de usuario.
 ///
-/// Esta clase actúa como un traductor entre las excepciones técnicas (red, API, timeout)
-/// y los mensajes que el usuario final verá en la interfaz, garantizando que:
-/// 1. Nunca se exponga información sensible (URLs, nombres de clase, trazas).
-/// 2. Todos los mensajes estén localizados mediante [Translations].
-/// 3. Haya una respuesta consistente para errores desconocidos.
+/// Su responsabilidad es actuar como un adaptador semántico entre las excepciones 
+/// de bajo nivel (red, tiempos de espera, errores de servidor) y la comunicación 
+/// amigable que el conductor verá en la aplicación.
+/// 
+/// Principios aplicados:
+/// * **Privacidad**: Oculta detalles técnicos sensibles (URLs, IPs).
+/// * **Localización**: Utiliza [Translations] para asegurar el idioma correcto.
+/// * **Consistencia**: Unifica el feedback visual ante errores redundantes.
 abstract final class ErrorMapper {
   ErrorMapper._();
 
