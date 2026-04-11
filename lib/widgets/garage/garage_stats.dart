@@ -26,11 +26,6 @@ class GarageStats extends ConsumerWidget {
       return SummaryStats(
         stats: [
           StatItem(
-            label: t.garage.avgHealth,
-            value: '—',
-            accent: AppColors.textMuted,
-          ),
-          StatItem(
             label: t.garage.vehicles,
             value: '0',
             accent: AppColors.orangePrimary,
@@ -49,8 +44,6 @@ class GarageStats extends ConsumerWidget {
       data: (allRecords) {
         // Calculate Total Miles by taking the max mileage for each vehicle
         int totalCalculatedMiles = 0;
-        double totalHealth = 0;
-
         for (var vehicle in vehicles) {
           int vehicleMileage = vehicle.mileage;
           final vehicleRecords = allRecords
@@ -67,15 +60,8 @@ class GarageStats extends ConsumerWidget {
           }
 
           totalCalculatedMiles += vehicleMileage;
-          totalHealth += VehicleViewModel(
-            vehicle,
-            vehicleMileage,
-          ).healthPercentage;
         }
 
-        final avgHealth = vehicles.isNotEmpty
-            ? (totalHealth / vehicles.length).round()
-            : 100;
         final servicesDue = vehicles.where((v) {
           int vehicleMileage = v.mileage;
           final vehicleRecords = allRecords.where((r) => r.vehicleId == v.id);
@@ -90,11 +76,6 @@ class GarageStats extends ConsumerWidget {
 
         return SummaryStats(
           stats: [
-            StatItem(
-              label: t.garage.avgHealth,
-              value: '$avgHealth%',
-              accent: AppColors.green,
-            ),
             StatItem(
               label: totalDistanceLabel,
               value: totalCalculatedMiles >= 1000
@@ -117,22 +98,8 @@ class GarageStats extends ConsumerWidget {
             .where((v) => VehicleViewModel(v).status != 'good')
             .length;
 
-        final avgHealth = vehicles.isNotEmpty
-            ? (vehicles.fold<double>(
-                        0,
-                        (sum, v) => sum + VehicleViewModel(v).healthPercentage,
-                      ) /
-                      vehicles.length)
-                  .round()
-            : 100;
-
         return SummaryStats(
           stats: [
-            StatItem(
-              label: t.garage.avgHealth,
-              value: '$avgHealth%',
-              accent: AppColors.green,
-            ),
             StatItem(
               label: totalDistanceLabel,
               value: totalMiles >= 1000

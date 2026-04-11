@@ -42,6 +42,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	// Translations
 	late final TranslationsCommonEs common = TranslationsCommonEs._(_root);
 	late final TranslationsAuthEs auth = TranslationsAuthEs._(_root);
+	late final TranslationsForgotPasswordEs forgotPassword = TranslationsForgotPasswordEs._(_root);
 	late final TranslationsRegistrationEs registration = TranslationsRegistrationEs._(_root);
 	late final TranslationsNavEs nav = TranslationsNavEs._(_root);
 	late final TranslationsGarageEs garage = TranslationsGarageEs._(_root);
@@ -186,6 +187,93 @@ class TranslationsAuthEs {
 
 	/// es: 'Tu sesión expiró, inicia sesión de nuevo.'
 	String get sessionExpiredSnackbar => 'Tu sesión expiró, inicia sesión de nuevo.';
+}
+
+// Path: forgotPassword
+class TranslationsForgotPasswordEs {
+	TranslationsForgotPasswordEs._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// es: 'Recuperar Contraseña'
+	String get titleStep1 => 'Recuperar Contraseña';
+
+	/// es: 'Te ayudaremos a volver al volante.'
+	String get subtitleStep1 => 'Te ayudaremos a volver al volante.';
+
+	/// es: 'Verifica el Código'
+	String get titleStep2 => 'Verifica el Código';
+
+	/// es: 'Revisa tu bandeja de entrada.'
+	String get subtitleStep2 => 'Revisa tu bandeja de entrada.';
+
+	/// es: 'Nueva Contraseña'
+	String get titleStep3 => 'Nueva Contraseña';
+
+	/// es: 'Crea una contraseña segura.'
+	String get subtitleStep3 => 'Crea una contraseña segura.';
+
+	/// es: '¡Todo Listo!'
+	String get titleSuccess => '¡Todo Listo!';
+
+	/// es: 'Has vuelto al carril rápido.'
+	String get subtitleSuccess => 'Has vuelto al carril rápido.';
+
+	/// es: 'CORREO ELECTRÓNICO'
+	String get emailLabel => 'CORREO ELECTRÓNICO';
+
+	/// es: 'ejemplo@correo.com'
+	String get emailPlaceholder => 'ejemplo@correo.com';
+
+	/// es: 'Enviar Código'
+	String get sendCode => 'Enviar Código';
+
+	/// es: 'CÓDIGO DE VERIFICACIÓN'
+	String get otpLabel => 'CÓDIGO DE VERIFICACIÓN';
+
+	/// es: '123456'
+	String get otpPlaceholder => '123456';
+
+	/// es: 'Revisa la consola del servidor por ahora.'
+	String get otpHint => 'Revisa la consola del servidor por ahora.';
+
+	/// es: 'El código debe tener 6 dígitos'
+	String get otpInvalid => 'El código debe tener 6 dígitos';
+
+	/// es: 'Verificar Código'
+	String get verifyCode => 'Verificar Código';
+
+	/// es: 'NUEVA CONTRASEÑA'
+	String get newPasswordLabel => 'NUEVA CONTRASEÑA';
+
+	/// es: 'CONFIRMAR CONTRASEÑA'
+	String get confirmPasswordLabel => 'CONFIRMAR CONTRASEÑA';
+
+	/// es: '••••••••'
+	String get passwordPlaceholder => '••••••••';
+
+	/// es: 'Las contraseñas no coinciden'
+	String get passwordsMismatch => 'Las contraseñas no coinciden';
+
+	/// es: 'Actualizar Contraseña'
+	String get updatePassword => 'Actualizar Contraseña';
+
+	/// es: 'Ya puedes iniciar sesión con tus nuevas credenciales.'
+	String get successMessage => 'Ya puedes iniciar sesión con tus nuevas credenciales.';
+
+	/// es: 'Ir al Login'
+	String get goToLogin => 'Ir al Login';
+
+	/// es: 'Error al solicitar el código'
+	String get errorRequestOtp => 'Error al solicitar el código';
+
+	/// es: 'Código inválido o expirado'
+	String get errorVerifyOtp => 'Código inválido o expirado';
+
+	/// es: 'Error al actualizar contraseña'
+	String get errorResetPassword => 'Error al actualizar contraseña';
 }
 
 // Path: registration
@@ -929,6 +1017,7 @@ class TranslationsNotificationsEs {
 	/// es: 'Info'
 	String get summaryInfo => 'Info';
 
+	late final TranslationsNotificationsRulesEs rules = TranslationsNotificationsRulesEs._(_root);
 	late final TranslationsNotificationsMocksEs mocks = TranslationsNotificationsMocksEs._(_root);
 }
 
@@ -1373,6 +1462,19 @@ class TranslationsMaintenanceCategoriesEs {
 	String get electrical => 'Eléctrico';
 }
 
+// Path: notifications.rules
+class TranslationsNotificationsRulesEs {
+	TranslationsNotificationsRulesEs._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsNotificationsRulesMileageWarningEs mileage_warning = TranslationsNotificationsRulesMileageWarningEs._(_root);
+	late final TranslationsNotificationsRulesMileageCriticalEs mileage_critical = TranslationsNotificationsRulesMileageCriticalEs._(_root);
+	late final TranslationsNotificationsRulesMaintenanceOverdueEs maintenance_overdue = TranslationsNotificationsRulesMaintenanceOverdueEs._(_root);
+	late final TranslationsNotificationsRulesNoMaintenanceEs no_maintenance = TranslationsNotificationsRulesNoMaintenanceEs._(_root);
+}
+
 // Path: notifications.mocks
 class TranslationsNotificationsMocksEs {
 	TranslationsNotificationsMocksEs._(this._root);
@@ -1544,6 +1646,66 @@ class TranslationsWeatherRecommendationsEs {
 
 	/// es: 'Condiciones de conducción estables. ¡Buen viaje!'
 	String get stable => 'Condiciones de conducción estables. ¡Buen viaje!';
+}
+
+// Path: notifications.rules.mileage_warning
+class TranslationsNotificationsRulesMileageWarningEs {
+	TranslationsNotificationsRulesMileageWarningEs._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// es: 'Kilometraje alto: {brand} {model}'
+	String get title => 'Kilometraje alto: {brand} {model}';
+
+	/// es: 'Tu {brand} {model} ({plate}) está al {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Considera programar un servicio.'
+	String get message => 'Tu {brand} {model} ({plate}) está al {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Considera programar un servicio.';
+}
+
+// Path: notifications.rules.mileage_critical
+class TranslationsNotificationsRulesMileageCriticalEs {
+	TranslationsNotificationsRulesMileageCriticalEs._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// es: '⚠️ Kilometraje excedido: {brand} {model}'
+	String get title => '⚠️ Kilometraje excedido: {brand} {model}';
+
+	/// es: 'Tu {brand} {model} ({plate}) ha alcanzado el {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Es urgente llevar tu vehículo a servicio.'
+	String get message => 'Tu {brand} {model} ({plate}) ha alcanzado el {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Es urgente llevar tu vehículo a servicio.';
+}
+
+// Path: notifications.rules.maintenance_overdue
+class TranslationsNotificationsRulesMaintenanceOverdueEs {
+	TranslationsNotificationsRulesMaintenanceOverdueEs._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// es: 'Mantenimiento vencido: {brand} {model}'
+	String get title => 'Mantenimiento vencido: {brand} {model}';
+
+	/// es: 'Tu {brand} {model} ({plate}) lleva {days} días sin mantenimiento. El último servicio fue el {last_date}.'
+	String get message => 'Tu {brand} {model} ({plate}) lleva {days} días sin mantenimiento. El último servicio fue el {last_date}.';
+}
+
+// Path: notifications.rules.no_maintenance
+class TranslationsNotificationsRulesNoMaintenanceEs {
+	TranslationsNotificationsRulesNoMaintenanceEs._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// es: 'Sin mantenimiento: {brand} {model}'
+	String get title => 'Sin mantenimiento: {brand} {model}';
+
+	/// es: 'Tu {brand} {model} ({plate}) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes.'
+	String get message => 'Tu {brand} {model} ({plate}) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes.';
 }
 
 // Path: notifications.mocks.n1
@@ -1751,6 +1913,32 @@ extension on Translations {
 			'auth.sessionExpiredTitle' => 'Sesión expirada',
 			'auth.sessionExpiredMessage' => 'Tu sesión expiró. Por favor inicia sesión de nuevo.',
 			'auth.sessionExpiredSnackbar' => 'Tu sesión expiró, inicia sesión de nuevo.',
+			'forgotPassword.titleStep1' => 'Recuperar Contraseña',
+			'forgotPassword.subtitleStep1' => 'Te ayudaremos a volver al volante.',
+			'forgotPassword.titleStep2' => 'Verifica el Código',
+			'forgotPassword.subtitleStep2' => 'Revisa tu bandeja de entrada.',
+			'forgotPassword.titleStep3' => 'Nueva Contraseña',
+			'forgotPassword.subtitleStep3' => 'Crea una contraseña segura.',
+			'forgotPassword.titleSuccess' => '¡Todo Listo!',
+			'forgotPassword.subtitleSuccess' => 'Has vuelto al carril rápido.',
+			'forgotPassword.emailLabel' => 'CORREO ELECTRÓNICO',
+			'forgotPassword.emailPlaceholder' => 'ejemplo@correo.com',
+			'forgotPassword.sendCode' => 'Enviar Código',
+			'forgotPassword.otpLabel' => 'CÓDIGO DE VERIFICACIÓN',
+			'forgotPassword.otpPlaceholder' => '123456',
+			'forgotPassword.otpHint' => 'Revisa la consola del servidor por ahora.',
+			'forgotPassword.otpInvalid' => 'El código debe tener 6 dígitos',
+			'forgotPassword.verifyCode' => 'Verificar Código',
+			'forgotPassword.newPasswordLabel' => 'NUEVA CONTRASEÑA',
+			'forgotPassword.confirmPasswordLabel' => 'CONFIRMAR CONTRASEÑA',
+			'forgotPassword.passwordPlaceholder' => '••••••••',
+			'forgotPassword.passwordsMismatch' => 'Las contraseñas no coinciden',
+			'forgotPassword.updatePassword' => 'Actualizar Contraseña',
+			'forgotPassword.successMessage' => 'Ya puedes iniciar sesión con tus nuevas credenciales.',
+			'forgotPassword.goToLogin' => 'Ir al Login',
+			'forgotPassword.errorRequestOtp' => 'Error al solicitar el código',
+			'forgotPassword.errorVerifyOtp' => 'Código inválido o expirado',
+			'forgotPassword.errorResetPassword' => 'Error al actualizar contraseña',
 			'registration.title' => 'Crear cuenta',
 			'registration.subtitle' => 'Completa tus datos para comenzar',
 			'registration.appTagline' => 'Tu compañero inteligente de vehículos',
@@ -2008,6 +2196,14 @@ extension on Translations {
 			'notifications.typeError' => 'Error',
 			'notifications.filterInfo' => 'Info',
 			'notifications.summaryInfo' => 'Info',
+			'notifications.rules.mileage_warning.title' => 'Kilometraje alto: {brand} {model}',
+			'notifications.rules.mileage_warning.message' => 'Tu {brand} {model} ({plate}) está al {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Considera programar un servicio.',
+			'notifications.rules.mileage_critical.title' => '⚠️ Kilometraje excedido: {brand} {model}',
+			'notifications.rules.mileage_critical.message' => 'Tu {brand} {model} ({plate}) ha alcanzado el {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Es urgente llevar tu vehículo a servicio.',
+			'notifications.rules.maintenance_overdue.title' => 'Mantenimiento vencido: {brand} {model}',
+			'notifications.rules.maintenance_overdue.message' => 'Tu {brand} {model} ({plate}) lleva {days} días sin mantenimiento. El último servicio fue el {last_date}.',
+			'notifications.rules.no_maintenance.title' => 'Sin mantenimiento: {brand} {model}',
+			'notifications.rules.no_maintenance.message' => 'Tu {brand} {model} ({plate}) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes.',
 			'notifications.mocks.n1.title' => 'Presión de neumáticos baja',
 			'notifications.mocks.n1.body' => 'El neumático trasero izquierdo está a 28 PSI. Recomendado: 32 PSI.',
 			'notifications.mocks.n1.time' => 'hace 2 min',

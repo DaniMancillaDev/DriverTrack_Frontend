@@ -273,14 +273,17 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
                 // Scroll content — padding top deja espacio al sticky header
                 RefreshIndicator(
                   onRefresh: () async {
-                    ref.invalidate(
-                      maintenanceDocsProvider(const MaintenanceParams()),
-                    );
+                    ref.invalidate(maintenanceDocsProvider);
+                    ref.invalidate(vehiclesProvider);
                   },
                   color: AppColors.orangePrimary,
+                  backgroundColor: context.colors.surface,
+                  edgeOffset: MediaQuery.of(context).padding.top + r.dim(120),
                   child: CustomScrollView(
                     controller: _scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
                     slivers: [
                       SliverToBoxAdapter(
                         child: Padding(
@@ -452,6 +455,20 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
               style: AppTextStyles.bodyMedium(
                 context,
               ).copyWith(color: context.colors.textMuted, height: 1.5),
+            ),
+            SizedBox(height: r.space(AppSpacing.lg)),
+            TextButton.icon(
+              onPressed: () {
+                ref.invalidate(maintenanceDocsProvider);
+                ref.invalidate(vehiclesProvider);
+              },
+              icon: Icon(Icons.refresh_rounded,
+                  color: AppColors.orangePrimary, size: AppIconSizes.md(context)),
+              label: Text(
+                Translations.of(context).common.retry,
+                style: AppTextStyles.button(context)
+                    .copyWith(color: AppColors.orangePrimary),
+              ),
             ),
           ],
         ),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
@@ -22,6 +23,66 @@ class NotificationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final r = context.responsive;
     final cfg = _getTypeConfig(notif.type, context);
+
+    String displayTitle = notif.title;
+    String displayMessage = notif.message;
+    bool isDynamic = notif.message.trim().startsWith('{');
+    
+    if (isDynamic) {
+      try {
+        final payload = jsonDecode(notif.message) as Map<String, dynamic>;
+        final currentLang = Translations.of(context).notifications;
+        
+        switch (notif.title) {
+          case 'mileage_warning':
+            displayTitle = currentLang.rules.mileage_warning.title
+                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
+                .replaceAll('{model}', payload['model']?.toString() ?? '');
+            displayMessage = currentLang.rules.mileage_warning.message
+                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
+                .replaceAll('{model}', payload['model']?.toString() ?? '')
+                .replaceAll('{plate}', payload['plate']?.toString() ?? '')
+                .replaceAll('{percent}', payload['percent']?.toString() ?? '')
+                .replaceAll('{mileage}', payload['mileage']?.toString() ?? '')
+                .replaceAll('{max_mileage}', payload['max_mileage']?.toString() ?? '');
+            break;
+          case 'mileage_critical':
+            displayTitle = currentLang.rules.mileage_critical.title
+                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
+                .replaceAll('{model}', payload['model']?.toString() ?? '');
+            displayMessage = currentLang.rules.mileage_critical.message
+                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
+                .replaceAll('{model}', payload['model']?.toString() ?? '')
+                .replaceAll('{plate}', payload['plate']?.toString() ?? '')
+                .replaceAll('{percent}', payload['percent']?.toString() ?? '')
+                .replaceAll('{mileage}', payload['mileage']?.toString() ?? '')
+                .replaceAll('{max_mileage}', payload['max_mileage']?.toString() ?? '');
+            break;
+          case 'maintenance_overdue':
+            displayTitle = currentLang.rules.maintenance_overdue.title
+                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
+                .replaceAll('{model}', payload['model']?.toString() ?? '');
+            displayMessage = currentLang.rules.maintenance_overdue.message
+                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
+                .replaceAll('{model}', payload['model']?.toString() ?? '')
+                .replaceAll('{plate}', payload['plate']?.toString() ?? '')
+                .replaceAll('{days}', payload['days']?.toString() ?? '')
+                .replaceAll('{last_date}', payload['last_date']?.toString() ?? '');
+            break;
+          case 'no_maintenance':
+            displayTitle = currentLang.rules.no_maintenance.title
+                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
+                .replaceAll('{model}', payload['model']?.toString() ?? '');
+            displayMessage = currentLang.rules.no_maintenance.message
+                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
+                .replaceAll('{model}', payload['model']?.toString() ?? '')
+                .replaceAll('{plate}', payload['plate']?.toString() ?? '');
+            break;
+        }
+      } catch (_) {
+        // Fallback to raw text if JSON is malformed
+      }
+    }
 
     // Wrap unread cards with a left accent strip — mobile pattern, no full border
     Widget card = Container(
@@ -61,7 +122,7 @@ class NotificationCard extends StatelessWidget {
                     children: [
                       // Title only — icon color already communicates type
                       Text(
-                        notif.title,
+                        displayTitle,
                         style: AppTextStyles.bodyMedium(context).copyWith(
                           color: context.colors.textMain,
                           fontWeight: notif.isRead
@@ -73,7 +134,7 @@ class NotificationCard extends StatelessWidget {
                       ),
                       SizedBox(height: r.space(3)),
                       Text(
-                        notif.message,
+                        displayMessage,
                         style: AppTextStyles.caption(
                           context,
                         ).copyWith(color: context.colors.textMuted, height: 1.4),
@@ -121,18 +182,26 @@ class NotificationCard extends StatelessWidget {
     return Slidable(
       key: ValueKey(notif.id),
       endActionPane: ActionPane(
-        motion: const ScrollMotion(),
+        motion: const StretchMotion(),
         extentRatio: 0.25,
         children: [
-          SlidableAction(
+          CustomSlidableAction(
             onPressed: (context) => onDelete(),
-            backgroundColor: AppColors.red.withValues(alpha: 0.1),
+            backgroundColor: Colors.transparent,
             foregroundColor: AppColors.red,
-            icon: Icons.delete_outline,
             autoClose: true,
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(AppRadius.xl),
-              bottomRight: Radius.circular(AppRadius.xl),
+            padding: EdgeInsets.only(left: r.space(AppSpacing.md)),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.red.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.delete_outline_rounded,
+                  color: AppColors.red,
+                ),
+              ),
             ),
           ),
         ],

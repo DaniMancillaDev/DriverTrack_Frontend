@@ -106,6 +106,7 @@ class _GaragePageState extends ConsumerState<GaragePage> {
         'plate': data['plate'] ?? 'UNKNOWN',
         'year': data['year'],
         'mileage': data['mileage'] ?? 0,
+        'max_mileage': data['max_mileage'] ?? 50000,
       };
       await ref.read(vehiclesProvider.notifier).addVehicle(newVehicleData);
       _showSuccessSnackBar(Translations.of(context).garage.vehicleAdded);
@@ -270,43 +271,51 @@ class _GaragePageState extends ConsumerState<GaragePage> {
             data: (vehiclesList) => Stack(
               children: [
                 Positioned.fill(
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    physics: const BouncingScrollPhysics(),
-                    slivers: [
-                      SliverPadding(
-                        padding: EdgeInsets.only(
-                          top: MediaQuery.of(context).padding.top + r.dim(80),
-                          left: r.space(AppSpacing.lg),
-                          right: r.space(AppSpacing.lg),
-                          bottom: r.dim(120),
-                        ),
-                        sliver: SliverList(
-                          delegate: SliverChildListDelegate([
-                            Center(
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxWidth: r.value(mobile: 600, tablet: 700),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    GarageStats(vehicles: vehiclesList),
-                                    SizedBox(height: r.space(AppSpacing.xxl)),
-                                    _buildVehiclesSection(vehiclesList, r),
-                                    SizedBox(
-                                      height: r.space(AppSpacing.massive),
-                                    ),
-                                    const WeatherWidget(),
-                                  ],
+                  child: RefreshIndicator(
+                    onRefresh: () => ref.read(vehiclesProvider.notifier).refresh(),
+                    color: AppColors.orangePrimary,
+                    backgroundColor: context.colors.surface,
+                    edgeOffset: MediaQuery.of(context).padding.top + r.dim(80),
+                    child: CustomScrollView(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      slivers: [
+                        SliverPadding(
+                          padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).padding.top + r.dim(80),
+                            left: r.space(AppSpacing.lg),
+                            right: r.space(AppSpacing.lg),
+                            bottom: r.dim(120),
+                          ),
+                          sliver: SliverList(
+                            delegate: SliverChildListDelegate([
+                              Center(
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: r.value(mobile: 600, tablet: 700),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      GarageStats(vehicles: vehiclesList),
+                                      SizedBox(height: r.space(AppSpacing.xxl)),
+                                      _buildVehiclesSection(vehiclesList, r),
+                                      SizedBox(
+                                        height: r.space(AppSpacing.massive),
+                                      ),
+                                      const WeatherWidget(),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ]),
+                            ]),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 Positioned(
@@ -468,7 +477,7 @@ class _GaragePageState extends ConsumerState<GaragePage> {
               Translations.of(context).garage.errorSyncFailed,
               style: AppTextStyles.sheetTitle(
                 context,
-              ).copyWith(color: Colors.white),
+              ).copyWith(color: context.colors.textMain),
             ),
             SizedBox(height: r.space(AppSpacing.s)),
             Text(

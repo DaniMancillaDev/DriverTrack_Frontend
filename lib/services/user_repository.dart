@@ -14,6 +14,21 @@ class UserRepository {
     return User.fromJson(response);
   }
 
+  /// Actualiza las preferencias de notificaciones del usuario
+  Future<User> updatePreferences({
+    bool? pushNotifications,
+    bool? serviceReminders,
+    bool? criticalAlerts,
+  }) async {
+    final Map<String, dynamic> body = {};
+    if (pushNotifications != null) body['push_notifications'] = pushNotifications;
+    if (serviceReminders != null) body['service_reminders'] = serviceReminders;
+    if (criticalAlerts != null) body['critical_alerts'] = criticalAlerts;
+
+    final response = await _apiClient.patch('/users/me/preferences', body);
+    return User.fromJson(response);
+  }
+
   /// Cambia la contraseña del usuario autenticado
   Future<void> changePassword({
     required String currentPassword,

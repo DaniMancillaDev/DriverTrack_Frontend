@@ -20,6 +20,7 @@ class CustomInput extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
+  final int? maxLength;
 
   const CustomInput({
     super.key,
@@ -38,6 +39,7 @@ class CustomInput extends StatelessWidget {
     this.inputFormatters,
     this.prefixIcon,
     this.suffixIcon,
+    this.maxLength,
   });
 
   @override
@@ -55,8 +57,9 @@ class CustomInput extends StatelessWidget {
       onChanged: onChanged,
       validator: validator,
       maxLines: maxLines,
+      maxLength: maxLength,
       inputFormatters: inputFormatters,
-      style: AppTextStyles.body(context),
+      style: AppTextStyles.body(context).copyWith(color: context.colors.textMain),
       cursorColor: colorScheme.primary,
       decoration: InputDecoration(
         hintText: placeholder,

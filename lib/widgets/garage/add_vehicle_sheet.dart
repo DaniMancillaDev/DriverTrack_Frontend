@@ -34,6 +34,7 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
   String? _year;
   late final TextEditingController _plateController;
   late final TextEditingController _mileageController;
+  late final TextEditingController _maxMileageController;
 
   bool _isSaving = false;
   bool _isSaved = false;
@@ -43,6 +44,7 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
   String? _modelError;
   String? _plateError;
   String? _mileageError;
+  String? _maxMileageError;
 
   final List<String> _carBrands = [
     "Toyota",
@@ -57,6 +59,9 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
     "Audi",
     "Volkswagen",
     "Subaru",
+    "Mazda",
+    "Lexus",
+    "Jeep",
   ];
   final List<String> _motoBrands = [
     "Honda",
@@ -84,14 +89,23 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
       final v = widget.initialVehicle!;
       _type = v.vehicleType;
       _brand = v.brand;
+      
+      // Prevent dropdown errors if brand is not in the list
+      if (_brand != null) {
+        if (!_carBrands.contains(_brand)) _carBrands.add(_brand!);
+        if (!_motoBrands.contains(_brand)) _motoBrands.add(_brand!);
+      }
+      
       _modelController = TextEditingController(text: v.model);
       _year = v.year.toString();
       _plateController = TextEditingController(text: v.plate);
       _mileageController = TextEditingController(text: v.mileage.toString());
+      _maxMileageController = TextEditingController(text: v.maxMileage.toString());
     } else {
       _modelController = TextEditingController();
       _plateController = TextEditingController();
       _mileageController = TextEditingController();
+      _maxMileageController = TextEditingController(text: '50000');
     }
   }
 
@@ -105,6 +119,7 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
       );
       _plateError = FormValidators.licensePlate(_plateController.text, context);
       _mileageError = FormValidators.mileage(_mileageController.text, context);
+      _maxMileageError = FormValidators.mileage(_maxMileageController.text, context);
     });
   }
 
@@ -115,16 +130,18 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
       _modelError == null &&
       _plateError == null &&
       _mileageError == null &&
+      _maxMileageError == null &&
       _modelController.text.isNotEmpty &&
       _plateController.text.isNotEmpty &&
-      _mileageController.text.isNotEmpty;
+      _mileageController.text.isNotEmpty &&
+      _maxMileageController.text.isNotEmpty;
 
   void _handleSave() async {
     _validate();
 
     if (!_isValid) {
       setState(() {
-        _dirtyFields.addAll(['model', 'plate', 'mileage']);
+        _dirtyFields.addAll(['model', 'plate', 'mileage', 'maxMileage']);
       });
       return;
     }
@@ -140,6 +157,7 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
       'year': int.parse(_year!),
       'plate': _plateController.text.toUpperCase(),
       'mileage': int.tryParse(_mileageController.text) ?? 0,
+      'max_mileage': int.tryParse(_maxMileageController.text) ?? 50000,
       'type_id': _type!.id,
     };
 
@@ -370,6 +388,30 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
                 },
               ),
             ),
+            const SizedBox(height: AppSpacing.lg),
+
+            _buildAnimatedItem(
+              6,
+              CustomInput(
+                controller: _maxMileageController,
+                label: Translations.of(context).$meta.locale.languageCode == 'es' ? 'Límite Máximo de KM' : 'Max Life Mileage',
+                placeholder: 'ej., 50000',
+                errorText: (_dirtyFields.contains('maxMileage'))
+                    ? _maxMileageError
+                    : null,
+                prefixIcon: Icon(
+                  Icons.av_timer_rounded,
+                  size: 16,
+                  color: context.colors.textDark,
+                ),
+                keyboardType: TextInputType.number,
+                subHint: Translations.of(context).$meta.locale.languageCode == 'es' ? 'Vida útil del vehículo (sirve para alertas y estado de salud)' : 'Expected life span to calculate vehicle health',
+                onChanged: (_) {
+                  _markDirty('maxMileage');
+                  _validate();
+                },
+              ),
+            ),
             const SizedBox(height: AppSpacing.xl),
 
             if (_brand != null || _modelController.text.isNotEmpty) ...[
@@ -385,7 +427,7 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
                 ),
               ),
               _buildAnimatedItem(
-                6,
+                7,
                 VehiclePreviewCard(
                   type: _type,
                   brand: _brand,
@@ -399,7 +441,7 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
             const SizedBox(height: AppSpacing.lg),
 
             _buildAnimatedItem(
-              7,
+              8,
               SheetActionButton(
                 label: widget.initialVehicle != null
                     ? Translations.of(context).garage.addVehicleForm.btnUpdate
@@ -433,7 +475,7 @@ class _AddVehicleSheetState extends ConsumerState<AddVehicleSheet>
             ),
             const SizedBox(height: AppSpacing.s),
             _buildAnimatedItem(
-              8,
+              9,
               Center(
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),

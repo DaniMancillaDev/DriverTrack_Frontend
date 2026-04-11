@@ -89,7 +89,7 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
       plate: vehicleData['plate'],
       year: vehicleData['year'],
       mileage: vehicleData['mileage'],
-      maxMileage: 50000,
+      maxMileage: vehicleData['max_mileage'] ?? 50000,
       vehicleType: (await ref.read(
         vehicleTypesProvider.future,
       )).firstWhere((t) => t.id == vehicleData['type_id']),
@@ -149,6 +149,7 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
             year: vehicleData['year'],
             plate: vehicleData['plate'],
             mileage: vehicleData['mileage'],
+            maxMileage: vehicleData['max_mileage'],
             isFavorite: vehicleData['is_favorite'],
           );
         }

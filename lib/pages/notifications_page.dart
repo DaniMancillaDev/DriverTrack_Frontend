@@ -257,6 +257,13 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             .length,
         'color': AppColors.cyan,
       },
+      {
+        'label': 'Crítico',
+        'value': notifications
+            .where((n) => n.type == NotificationType.error)
+            .length,
+        'color': AppColors.red,
+      },
     ];
 
     return Padding(
@@ -311,9 +318,15 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       {'key': 'all', 'label': t.notifications.filterAll},
       {'key': 'unread', 'label': t.notifications.filterUnread},
       {'key': 'warning', 'label': t.notifications.filterWarnings},
+      {'key': 'error', 'label': 'Crítico'},
       {'key': 'success', 'label': t.notifications.filterSuccess},
       {'key': 'info', 'label': t.notifications.filterInfo},
     ];
+
+    // Contar notificaciones críticas NO LEÍDAS para el badge
+    final errorCount = notifications
+        .where((n) => n.type == NotificationType.error && !n.isRead)
+        .length;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -324,6 +337,15 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       child: Row(
         children: filters.map((f) {
           final isSelected = _currentFilter == f['key'];
+          // Color semántico por tipo de tab
+          final tabColor = switch (f['key']) {
+            'error'   => AppColors.red,
+            'warning' => AppColors.orangeSecondary,
+            'success' => AppColors.green,
+            'info'    => AppColors.cyan,
+            _         => AppColors.orangePrimary,
+          };
+
           return GestureDetector(
             onTap: () => setState(() => _currentFilter = f['key'] as String),
             child: Container(
@@ -334,12 +356,12 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               ),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.orangePrimary.withValues(alpha: 0.12)
+                    ? tabColor.withValues(alpha: 0.12)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
                 border: Border.all(
                   color: isSelected
-                      ? AppColors.orangePrimary.withValues(alpha: 0.35)
+                      ? tabColor.withValues(alpha: 0.35)
                       : context.colors.borderLight,
                 ),
               ),
@@ -348,14 +370,12 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                   Text(
                     f['label'] as String,
                     style: AppTextStyles.bodySmall(context).copyWith(
-                      color: isSelected
-                          ? AppColors.orangePrimary
-                          : context.colors.textMain,
-                      fontWeight: isSelected
-                          ? FontWeight.w700
-                          : FontWeight.w500,
+                      color: isSelected ? tabColor : context.colors.textMain,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
+                  // Badge para "No leídas"
                   if (f['key'] == 'unread' && unread > 0) ...[
                     SizedBox(width: r.space(6)),
                     Container(
@@ -370,7 +390,28 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       child: Text(
                         '$unread',
                         style: AppTextStyles.tiny(context).copyWith(
-                          color: context.colors.textMain,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                  // Badge para "Crítico"
+                  if (f['key'] == 'error' && errorCount > 0) ...[
+                    SizedBox(width: r.space(6)),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: r.space(5),
+                        vertical: r.space(1),
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.red,
+                        borderRadius: BorderRadius.circular(r.r(10)),
+                      ),
+                      child: Text(
+                        '$errorCount',
+                        style: AppTextStyles.tiny(context).copyWith(
+                          color: Colors.white,
                           fontWeight: FontWeight.w800,
                         ),
                       ),

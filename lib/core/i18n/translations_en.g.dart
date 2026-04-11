@@ -39,6 +39,7 @@ class TranslationsEn with BaseTranslations<AppLocale, Translations> implements T
 	// Translations
 	@override late final _TranslationsCommonEn common = _TranslationsCommonEn._(_root);
 	@override late final _TranslationsAuthEn auth = _TranslationsAuthEn._(_root);
+	@override late final _TranslationsForgotPasswordEn forgotPassword = _TranslationsForgotPasswordEn._(_root);
 	@override late final _TranslationsRegistrationEn registration = _TranslationsRegistrationEn._(_root);
 	@override late final _TranslationsNavEn nav = _TranslationsNavEn._(_root);
 	@override late final _TranslationsGarageEn garage = _TranslationsGarageEn._(_root);
@@ -107,6 +108,41 @@ class _TranslationsAuthEn implements TranslationsAuthEs {
 	@override String get sessionExpiredTitle => 'Session expired';
 	@override String get sessionExpiredMessage => 'Your session expired. Please sign in again.';
 	@override String get sessionExpiredSnackbar => 'Your session expired, please sign in again.';
+}
+
+// Path: forgotPassword
+class _TranslationsForgotPasswordEn implements TranslationsForgotPasswordEs {
+	_TranslationsForgotPasswordEn._(this._root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get titleStep1 => 'Recover Password';
+	@override String get subtitleStep1 => 'We\'ll help you get back on the road.';
+	@override String get titleStep2 => 'Verify Your Code';
+	@override String get subtitleStep2 => 'Check your inbox.';
+	@override String get titleStep3 => 'New Password';
+	@override String get subtitleStep3 => 'Create a secure password.';
+	@override String get titleSuccess => 'All Done!';
+	@override String get subtitleSuccess => 'You\'re back in the fast lane.';
+	@override String get emailLabel => 'EMAIL ADDRESS';
+	@override String get emailPlaceholder => 'example@email.com';
+	@override String get sendCode => 'Send Code';
+	@override String get otpLabel => 'VERIFICATION CODE';
+	@override String get otpPlaceholder => '123456';
+	@override String get otpHint => 'Check the server console for now.';
+	@override String get otpInvalid => 'Code must be 6 digits';
+	@override String get verifyCode => 'Verify Code';
+	@override String get newPasswordLabel => 'NEW PASSWORD';
+	@override String get confirmPasswordLabel => 'CONFIRM PASSWORD';
+	@override String get passwordPlaceholder => '••••••••';
+	@override String get passwordsMismatch => 'Passwords do not match';
+	@override String get updatePassword => 'Update Password';
+	@override String get successMessage => 'You can now sign in with your new credentials.';
+	@override String get goToLogin => 'Go to Login';
+	@override String get errorRequestOtp => 'Error sending the code';
+	@override String get errorVerifyOtp => 'Invalid or expired code';
+	@override String get errorResetPassword => 'Error updating password';
 }
 
 // Path: registration
@@ -399,6 +435,7 @@ class _TranslationsNotificationsEn implements TranslationsNotificationsEs {
 	@override String get typeError => 'Error';
 	@override String get filterInfo => 'Info';
 	@override String get summaryInfo => 'Info';
+	@override late final _TranslationsNotificationsRulesEn rules = _TranslationsNotificationsRulesEn._(_root);
 	@override late final _TranslationsNotificationsMocksEn mocks = _TranslationsNotificationsMocksEn._(_root);
 }
 
@@ -605,6 +642,19 @@ class _TranslationsMaintenanceCategoriesEn implements TranslationsMaintenanceCat
 	@override String get electrical => 'Electrical';
 }
 
+// Path: notifications.rules
+class _TranslationsNotificationsRulesEn implements TranslationsNotificationsRulesEs {
+	_TranslationsNotificationsRulesEn._(this._root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsNotificationsRulesMileageWarningEn mileage_warning = _TranslationsNotificationsRulesMileageWarningEn._(_root);
+	@override late final _TranslationsNotificationsRulesMileageCriticalEn mileage_critical = _TranslationsNotificationsRulesMileageCriticalEn._(_root);
+	@override late final _TranslationsNotificationsRulesMaintenanceOverdueEn maintenance_overdue = _TranslationsNotificationsRulesMaintenanceOverdueEn._(_root);
+	@override late final _TranslationsNotificationsRulesNoMaintenanceEn no_maintenance = _TranslationsNotificationsRulesNoMaintenanceEn._(_root);
+}
+
 // Path: notifications.mocks
 class _TranslationsNotificationsMocksEn implements TranslationsNotificationsMocksEs {
 	_TranslationsNotificationsMocksEn._(this._root);
@@ -696,6 +746,50 @@ class _TranslationsWeatherRecommendationsEn implements TranslationsWeatherRecomm
 	@override String get strongWind => 'Strong wind detected. Grip the wheel firmly, especially on bridges.';
 	@override String get extremeWeather => 'Extreme conditions. Avoid driving and seek safe shelter.';
 	@override String get stable => 'Stable driving conditions. Have a safe trip!';
+}
+
+// Path: notifications.rules.mileage_warning
+class _TranslationsNotificationsRulesMileageWarningEn implements TranslationsNotificationsRulesMileageWarningEs {
+	_TranslationsNotificationsRulesMileageWarningEn._(this._root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'High mileage: {brand} {model}';
+	@override String get message => 'Your {brand} {model} ({plate}) is at {percent}% of the maximum mileage ({mileage}/{max_mileage} km). Consider scheduling a service.';
+}
+
+// Path: notifications.rules.mileage_critical
+class _TranslationsNotificationsRulesMileageCriticalEn implements TranslationsNotificationsRulesMileageCriticalEs {
+	_TranslationsNotificationsRulesMileageCriticalEn._(this._root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '⚠️ Mileage exceeded: {brand} {model}';
+	@override String get message => 'Your {brand} {model} ({plate}) has reached {percent}% of the maximum mileage ({mileage}/{max_mileage} km). It\'s urgent to take your vehicle for service.';
+}
+
+// Path: notifications.rules.maintenance_overdue
+class _TranslationsNotificationsRulesMaintenanceOverdueEn implements TranslationsNotificationsRulesMaintenanceOverdueEs {
+	_TranslationsNotificationsRulesMaintenanceOverdueEn._(this._root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Maintenance overdue: {brand} {model}';
+	@override String get message => 'Your {brand} {model} ({plate}) has gone {days} days without maintenance. The last service was on {last_date}.';
+}
+
+// Path: notifications.rules.no_maintenance
+class _TranslationsNotificationsRulesNoMaintenanceEn implements TranslationsNotificationsRulesNoMaintenanceEs {
+	_TranslationsNotificationsRulesNoMaintenanceEn._(this._root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'No maintenance: {brand} {model}';
+	@override String get message => 'Your {brand} {model} ({plate}) has no maintenance records. Log your service history to receive smart alerts.';
 }
 
 // Path: notifications.mocks.n1
@@ -845,6 +939,32 @@ extension on TranslationsEn {
 			'auth.sessionExpiredTitle' => 'Session expired',
 			'auth.sessionExpiredMessage' => 'Your session expired. Please sign in again.',
 			'auth.sessionExpiredSnackbar' => 'Your session expired, please sign in again.',
+			'forgotPassword.titleStep1' => 'Recover Password',
+			'forgotPassword.subtitleStep1' => 'We\'ll help you get back on the road.',
+			'forgotPassword.titleStep2' => 'Verify Your Code',
+			'forgotPassword.subtitleStep2' => 'Check your inbox.',
+			'forgotPassword.titleStep3' => 'New Password',
+			'forgotPassword.subtitleStep3' => 'Create a secure password.',
+			'forgotPassword.titleSuccess' => 'All Done!',
+			'forgotPassword.subtitleSuccess' => 'You\'re back in the fast lane.',
+			'forgotPassword.emailLabel' => 'EMAIL ADDRESS',
+			'forgotPassword.emailPlaceholder' => 'example@email.com',
+			'forgotPassword.sendCode' => 'Send Code',
+			'forgotPassword.otpLabel' => 'VERIFICATION CODE',
+			'forgotPassword.otpPlaceholder' => '123456',
+			'forgotPassword.otpHint' => 'Check the server console for now.',
+			'forgotPassword.otpInvalid' => 'Code must be 6 digits',
+			'forgotPassword.verifyCode' => 'Verify Code',
+			'forgotPassword.newPasswordLabel' => 'NEW PASSWORD',
+			'forgotPassword.confirmPasswordLabel' => 'CONFIRM PASSWORD',
+			'forgotPassword.passwordPlaceholder' => '••••••••',
+			'forgotPassword.passwordsMismatch' => 'Passwords do not match',
+			'forgotPassword.updatePassword' => 'Update Password',
+			'forgotPassword.successMessage' => 'You can now sign in with your new credentials.',
+			'forgotPassword.goToLogin' => 'Go to Login',
+			'forgotPassword.errorRequestOtp' => 'Error sending the code',
+			'forgotPassword.errorVerifyOtp' => 'Invalid or expired code',
+			'forgotPassword.errorResetPassword' => 'Error updating password',
 			'registration.title' => 'Create Account',
 			'registration.subtitle' => 'Fill in your details to get started',
 			'registration.appTagline' => 'Your intelligent vehicle companion',
@@ -1102,6 +1222,14 @@ extension on TranslationsEn {
 			'notifications.typeError' => 'Error',
 			'notifications.filterInfo' => 'Info',
 			'notifications.summaryInfo' => 'Info',
+			'notifications.rules.mileage_warning.title' => 'High mileage: {brand} {model}',
+			'notifications.rules.mileage_warning.message' => 'Your {brand} {model} ({plate}) is at {percent}% of the maximum mileage ({mileage}/{max_mileage} km). Consider scheduling a service.',
+			'notifications.rules.mileage_critical.title' => '⚠️ Mileage exceeded: {brand} {model}',
+			'notifications.rules.mileage_critical.message' => 'Your {brand} {model} ({plate}) has reached {percent}% of the maximum mileage ({mileage}/{max_mileage} km). It\'s urgent to take your vehicle for service.',
+			'notifications.rules.maintenance_overdue.title' => 'Maintenance overdue: {brand} {model}',
+			'notifications.rules.maintenance_overdue.message' => 'Your {brand} {model} ({plate}) has gone {days} days without maintenance. The last service was on {last_date}.',
+			'notifications.rules.no_maintenance.title' => 'No maintenance: {brand} {model}',
+			'notifications.rules.no_maintenance.message' => 'Your {brand} {model} ({plate}) has no maintenance records. Log your service history to receive smart alerts.',
 			'notifications.mocks.n1.title' => 'Low tire pressure detected',
 			'notifications.mocks.n1.body' => 'Rear left tire is at 28 PSI. Recommended: 32 PSI.',
 			'notifications.mocks.n1.time' => '2 mins ago',

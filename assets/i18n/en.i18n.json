@@ -41,6 +41,34 @@
     "sessionExpiredMessage": "Your session expired. Please sign in again.",
     "sessionExpiredSnackbar": "Your session expired, please sign in again."
   },
+  "forgotPassword": {
+    "titleStep1": "Recover Password",
+    "subtitleStep1": "We'll help you get back on the road.",
+    "titleStep2": "Verify Your Code",
+    "subtitleStep2": "Check your inbox.",
+    "titleStep3": "New Password",
+    "subtitleStep3": "Create a secure password.",
+    "titleSuccess": "All Done!",
+    "subtitleSuccess": "You're back in the fast lane.",
+    "emailLabel": "EMAIL ADDRESS",
+    "emailPlaceholder": "example@email.com",
+    "sendCode": "Send Code",
+    "otpLabel": "VERIFICATION CODE",
+    "otpPlaceholder": "123456",
+    "otpHint": "Check the server console for now.",
+    "otpInvalid": "Code must be 6 digits",
+    "verifyCode": "Verify Code",
+    "newPasswordLabel": "NEW PASSWORD",
+    "confirmPasswordLabel": "CONFIRM PASSWORD",
+    "passwordPlaceholder": "••••••••",
+    "passwordsMismatch": "Passwords do not match",
+    "updatePassword": "Update Password",
+    "successMessage": "You can now sign in with your new credentials.",
+    "goToLogin": "Go to Login",
+    "errorRequestOtp": "Error sending the code",
+    "errorVerifyOtp": "Invalid or expired code",
+    "errorResetPassword": "Error updating password"
+  },
   "registration": {
     "title": "Create Account",
     "subtitle": "Fill in your details to get started",
@@ -326,6 +354,24 @@
     "typeError": "Error",
     "filterInfo": "Info",
     "summaryInfo": "Info",
+    "rules": {
+      "mileage_warning": {
+          "title": "High mileage: {brand} {model}",
+          "message": "Your {brand} {model} ({plate}) is at {percent}% of the maximum mileage ({mileage}/{max_mileage} km). Consider scheduling a service."
+      },
+      "mileage_critical": {
+          "title": "⚠️ Mileage exceeded: {brand} {model}",
+          "message": "Your {brand} {model} ({plate}) has reached {percent}% of the maximum mileage ({mileage}/{max_mileage} km). It's urgent to take your vehicle for service."
+      },
+      "maintenance_overdue": {
+          "title": "Maintenance overdue: {brand} {model}",
+          "message": "Your {brand} {model} ({plate}) has gone {days} days without maintenance. The last service was on {last_date}."
+      },
+      "no_maintenance": {
+          "title": "No maintenance: {brand} {model}",
+          "message": "Your {brand} {model} ({plate}) has no maintenance records. Log your service history to receive smart alerts."
+      }
+    },
     "mocks": {
       "n1": {
         "title": "Low tire pressure detected",

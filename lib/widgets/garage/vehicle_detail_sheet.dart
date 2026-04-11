@@ -395,7 +395,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                   Translations.of(context).garage.editVehicle,
                   style: Theme.of(
                     context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.white),
+                  ).textTheme.bodyMedium?.copyWith(color: context.colors.textMain),
                 ),
               ],
             ),

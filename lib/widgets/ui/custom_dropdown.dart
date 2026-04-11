@@ -33,6 +33,9 @@ class CustomDropdown<T> extends StatelessWidget {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
           value: value,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: context.colors.textMain,
+          ),
           hint: Row(
             children: [
               if (icon != null) ...[

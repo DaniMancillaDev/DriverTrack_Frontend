@@ -287,7 +287,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
         Align(
           alignment: Alignment.centerRight,
           child: GestureDetector(
-            onTap: () {},
+            onTap: () => context.push('/forgot-password'),
             child: Text(
               t.auth.forgotPassword,
               style: AppTextStyles.caption(context).copyWith(

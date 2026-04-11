@@ -8,7 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/units/presentation/unit_system_provider.dart'
     show sharedPreferencesProvider;
-import '../../../../providers/app_providers.dart';
+import '../../../../providers/app_providers.dart' show appConfigProvider;
+import '../../../../providers/auth_provider.dart';
 import '../../data/datasources/weather_local_datasource.dart';
 import '../../data/datasources/weather_remote_datasource.dart';
 import '../../data/repositories/weather_repository_impl.dart';
@@ -28,7 +29,10 @@ final weatherRemoteDataSourceProvider = Provider<WeatherRemoteDataSource>((
   ref,
 ) {
   final config = ref.watch(appConfigProvider);
-  return WeatherRemoteDataSource(apiKey: config.openWeatherApiKey);
+  return WeatherRemoteDataSource(
+    baseUrl: config.baseUrl,
+    getToken: () => ref.read(authProvider)?.token,
+  );
 });
 
 final weatherLocalDataSourceProvider = Provider<WeatherLocalDataSource>((ref) {

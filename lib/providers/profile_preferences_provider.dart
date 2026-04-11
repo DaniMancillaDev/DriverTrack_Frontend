@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'app_providers.dart';
 // ─────────────────────────────────────────────────────────────
 // Model — Immutable state for all user profile preferences
 // ─────────────────────────────────────────────────────────────
@@ -72,16 +72,25 @@ class ProfilePreferencesNotifier extends AsyncNotifier<ProfilePreferences> {
   Future<void> setPushNotifications(bool value) async {
     await _prefs.setBool(_PrefKeys.pushNotifications, value);
     state = AsyncData(state.requireValue.copyWith(pushNotifications: value));
+    try {
+      await ref.read(userRepositoryProvider).updatePreferences(pushNotifications: value);
+    } catch (_) {}
   }
 
   Future<void> setServiceReminders(bool value) async {
     await _prefs.setBool(_PrefKeys.serviceReminders, value);
     state = AsyncData(state.requireValue.copyWith(serviceReminders: value));
+    try {
+      await ref.read(userRepositoryProvider).updatePreferences(serviceReminders: value);
+    } catch (_) {}
   }
 
   Future<void> setCriticalAlerts(bool value) async {
     await _prefs.setBool(_PrefKeys.criticalAlerts, value);
     state = AsyncData(state.requireValue.copyWith(criticalAlerts: value));
+    try {
+      await ref.read(userRepositoryProvider).updatePreferences(criticalAlerts: value);
+    } catch (_) {}
   }
 
   Future<void> setTwoFactorAuth(bool value) async {

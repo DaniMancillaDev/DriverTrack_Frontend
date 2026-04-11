@@ -41,6 +41,34 @@
     "sessionExpiredMessage": "Tu sesión expiró. Por favor inicia sesión de nuevo.",
     "sessionExpiredSnackbar": "Tu sesión expiró, inicia sesión de nuevo."
   },
+  "forgotPassword": {
+    "titleStep1": "Recuperar Contraseña",
+    "subtitleStep1": "Te ayudaremos a volver al volante.",
+    "titleStep2": "Verifica el Código",
+    "subtitleStep2": "Revisa tu bandeja de entrada.",
+    "titleStep3": "Nueva Contraseña",
+    "subtitleStep3": "Crea una contraseña segura.",
+    "titleSuccess": "¡Todo Listo!",
+    "subtitleSuccess": "Has vuelto al carril rápido.",
+    "emailLabel": "CORREO ELECTRÓNICO",
+    "emailPlaceholder": "ejemplo@correo.com",
+    "sendCode": "Enviar Código",
+    "otpLabel": "CÓDIGO DE VERIFICACIÓN",
+    "otpPlaceholder": "123456",
+    "otpHint": "Revisa la consola del servidor por ahora.",
+    "otpInvalid": "El código debe tener 6 dígitos",
+    "verifyCode": "Verificar Código",
+    "newPasswordLabel": "NUEVA CONTRASEÑA",
+    "confirmPasswordLabel": "CONFIRMAR CONTRASEÑA",
+    "passwordPlaceholder": "••••••••",
+    "passwordsMismatch": "Las contraseñas no coinciden",
+    "updatePassword": "Actualizar Contraseña",
+    "successMessage": "Ya puedes iniciar sesión con tus nuevas credenciales.",
+    "goToLogin": "Ir al Login",
+    "errorRequestOtp": "Error al solicitar el código",
+    "errorVerifyOtp": "Código inválido o expirado",
+    "errorResetPassword": "Error al actualizar contraseña"
+  },
   "registration": {
     "title": "Crear cuenta",
     "subtitle": "Completa tus datos para comenzar",
@@ -326,6 +354,24 @@
     "typeError": "Error",
     "filterInfo": "Info",
     "summaryInfo": "Info",
+    "rules": {
+      "mileage_warning": {
+          "title": "Kilometraje alto: {brand} {model}",
+          "message": "Tu {brand} {model} ({plate}) está al {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Considera programar un servicio."
+      },
+      "mileage_critical": {
+          "title": "⚠️ Kilometraje excedido: {brand} {model}",
+          "message": "Tu {brand} {model} ({plate}) ha alcanzado el {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Es urgente llevar tu vehículo a servicio."
+      },
+      "maintenance_overdue": {
+          "title": "Mantenimiento vencido: {brand} {model}",
+          "message": "Tu {brand} {model} ({plate}) lleva {days} días sin mantenimiento. El último servicio fue el {last_date}."
+      },
+      "no_maintenance": {
+          "title": "Sin mantenimiento: {brand} {model}",
+          "message": "Tu {brand} {model} ({plate}) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes."
+      }
+    },
     "mocks": {
       "n1": {
         "title": "Presión de neumáticos baja",

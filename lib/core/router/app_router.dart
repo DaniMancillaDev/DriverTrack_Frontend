@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../pages/login_page.dart';
 import '../../pages/registration_page.dart';
+import '../../pages/auth/forgot_password_page.dart';
 import '../../pages/notifications_page.dart';
 import '../../layouts/main_layout.dart';
 import '../../providers/auth_provider.dart';
@@ -27,11 +28,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final isGoingToLogin = state.matchedLocation == '/login';
       final isGoingToRegister = state.matchedLocation == '/registration';
+      final isGoingToForgot = state.matchedLocation == '/forgot-password';
 
-      if (!isAuth && !isGoingToLogin && !isGoingToRegister) {
+      if (!isAuth && !isGoingToLogin && !isGoingToRegister && !isGoingToForgot) {
         return '/login';
       }
-      if (isAuth && (isGoingToLogin || isGoingToRegister)) {
+      if (isAuth && (isGoingToLogin || isGoingToRegister || isGoingToForgot)) {
         return '/';
       }
       return null;
@@ -44,6 +46,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/registration',
         builder: (context, state) => const RegistrationPage(),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordPage(),
       ),
       GoRoute(
         path: '/',
