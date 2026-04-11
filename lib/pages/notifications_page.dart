@@ -142,10 +142,8 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           Expanded(
             child: Row(
               children: [
-                Tooltip(
-                  message: 'Volver',
-                  child: IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
                     icon: Icon(
                       Icons.arrow_back_ios_new_rounded,
                       color: context.colors.textMain,
@@ -158,7 +156,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       ),
                     ),
                   ),
-                ),
                 SizedBox(width: r.space(AppSpacing.s)),
                 Expanded(
                   child: Column(
@@ -254,7 +251,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         'color': AppColors.green,
       },
       {
-        'label': 'Info',
+        'label': t.notifications.summaryInfo,
         'value': notifications
             .where((n) => n.type == NotificationType.info)
             .length,
@@ -315,7 +312,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       {'key': 'unread', 'label': t.notifications.filterUnread},
       {'key': 'warning', 'label': t.notifications.filterWarnings},
       {'key': 'success', 'label': t.notifications.filterSuccess},
-      {'key': 'info', 'label': 'Info'},
+      {'key': 'info', 'label': t.notifications.filterInfo},
     ];
 
     return SingleChildScrollView(
@@ -428,21 +425,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       size: AppIconSizes.massive(context),
                       color: AppColors.green,
                     ),
-                  ),
-                ),
-                // Badge check verde
-                Container(
-                  width: r.dim(28),
-                  height: r.dim(28),
-                  decoration: BoxDecoration(
-                    color: AppColors.green,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: context.colors.background, width: 2),
-                  ),
-                  child: Icon(
-                    Icons.check_rounded,
-                    color: context.colors.textMain,
-                    size: r.dim(16),
                   ),
                 ),
               ],

@@ -33,8 +33,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
   var _activeFilter = '';
   late ScrollController _scrollController;
   bool _isFabExtended = true;
-  int? _selectedServiceId;
-  bool _sheetExpanded = false;
+
 
   @override
   void initState() {
@@ -200,11 +199,6 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
           ref.read(maintenanceDocsProvider(params).notifier).deleteLocal(entryId);
           ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).deleteLocal(entryId);
 
-          setState(() {
-            _selectedServiceId = null;
-            _sheetExpanded = false;
-          });
-
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -260,7 +254,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
                   .firstOrNull;
               return v != null
                   ? VehicleViewModel(v).displayName
-                  : 'Unknown Vehicle';
+                  : Translations.of(context).common.unknownVehicle;
             }
 
             final filtered =
@@ -312,7 +306,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
                               if (filtered.isEmpty)
                                 MaintenanceEmptyState(
                                   isFiltering:
-                                      _activeFilter != 'All Vehicles',
+                                      _activeFilter != Translations.of(context).maintenance.allVehicles,
                                 )
                               else
                                 ...List.generate(
@@ -322,10 +316,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
                                     vehicleName: getVehicleName(
                                       filtered[i].vehicleId,
                                     ),
-                                    onTap: () => setState(() {
-                                      _selectedServiceId = filtered[i].id;
-                                      _sheetExpanded = false;
-                                    }),
+                                    onTap: () => _showServiceDetailSheet(filtered[i], getVehicleName),
                                   ),
                                 ),
                               SizedBox(height: r.dim(100)),
@@ -351,9 +342,6 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
                     ),
                   ),
                 ),
-
-                if (_selectedServiceId != null)
-                  _buildDetailOverlay(filtered, getVehicleName),
               ],
             );
           },
@@ -363,9 +351,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
         loading: _buildLoading,
         error: _buildError,
       ),
-      floatingActionButton: _selectedServiceId != null
-          ? null
-          : vehiclesAsync.maybeWhen(
+      floatingActionButton: vehiclesAsync.maybeWhen(
               data: (vehicles) => Center(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
@@ -387,52 +373,33 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
     );
   }
 
-  Widget _buildDetailOverlay(
-    List<MaintenanceViewModel> filtered,
-    String Function(int) getName,
-  ) {
-    final e = filtered.firstWhere(
-      (vm) => vm.id == _selectedServiceId,
-      orElse: () => filtered.first,
-    );
-    return Stack(
-      children: [
-        GestureDetector(
-          onTap: () => setState(() {
-            _selectedServiceId = null;
-            _sheetExpanded = false;
-          }),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            color: Colors.black.withValues(alpha: _sheetExpanded ? 0.6 : 0.3),
-          ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: ServiceDetailSheet(
-            serviceTitle: e.title,
-            vehicleName: e.vehicleName(getName(e.vehicleId)),
-            date: e.date,
-            cost: e.cost,
-            mileage: e.mileage,
-            accentColor: e.computedAccent,
-            category: e.category,
-            notes: e.notes,
-            isExpanded: _sheetExpanded,
-            onToggle: () => setState(() => _sheetExpanded = !_sheetExpanded),
-            onClose: () => setState(() {
-              _selectedServiceId = null;
-              _sheetExpanded = false;
-            }),
-            onEdit: () => _handleEditEntry(e.maintenance),
-            onRemove: () => _handleRemoveEntry(_selectedServiceId!, e),
-          ),
-        ),
-      ],
+  void _showServiceDetailSheet(MaintenanceViewModel e, String Function(int) getName) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ServiceDetailSheet(
+        serviceTitle: e.title,
+        vehicleName: e.vehicleName(getName(e.vehicleId)),
+        date: e.date,
+        cost: e.cost,
+        mileage: e.mileage,
+        accentColor: e.computedAccent,
+        category: e.category,
+        notes: e.notes,
+        onClose: () => Navigator.pop(context),
+        onEdit: () {
+          Navigator.pop(context);
+          _handleEditEntry(e.maintenance);
+        },
+        onRemove: () {
+          Navigator.pop(context);
+          _handleRemoveEntry(e.id, e);
+        },
+      ),
     );
   }
+
 
   Widget _buildLoading() {
     final r = context.responsive;

@@ -19,19 +19,22 @@ class ProfileExpandableContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final r = context.responsive;
-    return Container(
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(children: [header, if (isOpen) ...children]),
       ),
-      child: Column(children: [header, if (isOpen) ...children]),
     );
   }
 }

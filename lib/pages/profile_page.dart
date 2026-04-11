@@ -13,6 +13,9 @@ import '../features/currency/presentation/widgets/currency_converter_widget.dart
 
 import '../core/responsive/responsive.dart';
 import '../theme/app_color_scheme.dart';
+import '../models/maintenance_model.dart';
+import '../models/vehicle_model.dart';
+import '../viewmodels/vehicle_view_model.dart';
 
 // Modular Widgets
 import '../core/units/presentation/unit_system_provider.dart';
@@ -22,6 +25,11 @@ import '../widgets/profile/profile_stats_dashboard.dart';
 import '../widgets/profile/profile_menu_widgets.dart';
 import '../widgets/profile/profile_vehicle_item.dart';
 import '../widgets/profile/profile_settings_widgets.dart';
+import '../widgets/profile/edit_profile_sheet.dart';
+import '../widgets/profile/change_password_dialog.dart';
+import '../widgets/maintenance/add_service_sheet.dart';
+
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -41,6 +49,31 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     });
   }
 
+  void _showEditProfileSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const EditProfileSheet(),
+    );
+  }
+
+  void _showChangePasswordDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const ChangePasswordDialog(),
+    );
+  }
+
+  Future<void> _callSupport() async {
+    final uri = Uri.parse('tel:+526645367724');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
@@ -51,8 +84,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          const SliverToBoxAdapter(
-            child: ProfileHero(),
+          SliverToBoxAdapter(
+            child: ProfileHero(
+              onTapEdit: _showEditProfileSheet,
+            ),
           ),
           SliverToBoxAdapter(
             child: Center(
@@ -125,6 +160,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   Widget _buildVehicleSection(Translations t) {
     final vehiclesAsync = ref.watch(vehiclesProvider);
+    final maintenanceAsync = ref.watch(
+      maintenanceDocsProvider(const MaintenanceParams()),
+    );
     final bool isOpen = _openSection == 'vehicles';
     final r = context.responsive;
 
@@ -137,7 +175,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         subtitle: vehiclesAsync.maybeWhen(
           data: (list) {
             final count = list.where((v) => v.isFavorite).length;
-            return t.profile.favoritesSaved(n: count);
+            return t.profile.favoritesSaved(n: count).replaceAll('{n}', count.toString());
           },
           orElse: () => t.common.loading,
         ),
@@ -168,15 +206,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
               ];
             }
+
+            final allRecords = maintenanceAsync.value ?? [];
+
             return favorites.map((vehicle) {
+              final vm = VehicleViewModel(vehicle);
+              final vehicleRecords = allRecords
+                  .where((rec) => rec.vehicleId == vehicle.id)
+                  .toList();
+
               Color brandColor = AppColors.orangeSecondary;
               final typeSlug = vehicle.vehicleType.slug.toLowerCase();
-
-              if (typeSlug.contains('motorcycle') ||
-                  typeSlug.contains('moto')) {
+              if (typeSlug.contains('motorcycle') || typeSlug.contains('moto')) {
                 brandColor = AppColors.green;
-              } else if (typeSlug.contains('suv') ||
-                  typeSlug.contains('truck')) {
+              } else if (typeSlug.contains('suv') || typeSlug.contains('truck')) {
                 brandColor = AppColors.red;
               }
 
@@ -194,6 +237,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 details: '$formattedType · ${vehicle.plate}',
                 color: brandColor,
                 isFavorite: true,
+                viewModel: vm,
+                maintenanceRecords: vehicleRecords,
+                onLogService: () => _showLogServiceSheet(vehicle, allRecords),
               );
             }).toList();
           },
@@ -210,12 +256,58 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
+  /// Abre el sheet de registro de servicio para un vehículo favorito.
+  void _showLogServiceSheet(Vehicle vehicle, List<Maintenance> allRecords) {
+    final t = Translations.of(context);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => AddServiceSheet(
+        vehicles: [vehicle],
+        onSave: (data) async {
+          final repository = ref.read(maintenanceRepositoryProvider);
+          final params = MaintenanceParams(vehicleId: vehicle.id);
+          final recordData = {
+            'vehicle_id': vehicle.id,
+            'date': data['date'] as String,
+            'description': data['notes'] != null && data['notes'].toString().isNotEmpty
+                ? '${data['description']} | ${data['notes']}'
+                : data['description'],
+            'cost': data['cost'].toString(),
+            'mileage': data['mileage'],
+            'category': data['category'],
+          };
+          final newRecord = await repository.addMaintenanceRecord(recordData);
+          ref.read(maintenanceDocsProvider(params).notifier).updateLocal(newRecord);
+          ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(newRecord);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  t.garage.serviceLogged.replaceAll('{vehicleName}', vehicle.displayName),
+                ),
+                backgroundColor: AppColors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+
+
   Widget _buildNotificationSection(Translations t) {
     final bool isOpen = _openSection == 'notifs';
-    // Lee las preferencias del provider persistido.
     final prefsAsync = ref.watch(profilePreferencesProvider);
-    final prefs = prefsAsync.value ?? const ProfilePreferences();
     final notifier = ref.read(profilePreferencesProvider.notifier);
+
+    // Determine loading/error state
+    final isLoading = prefsAsync.isLoading;
+    final hasError = prefsAsync.hasError;
+    final prefs = prefsAsync.value ?? const ProfilePreferences();
 
     return ProfileExpandableContainer(
       isOpen: isOpen,
@@ -233,36 +325,90 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         showBottomBorder: isOpen,
       ),
       children: [
-        ProfileToggleRow(
-          label: t.profile.pushNotifications,
-          value: prefs.pushNotifications,
-          onChanged: notifier.setPushNotifications,
-          accent: AppColors.cyan,
-        ),
-        ProfileToggleRow(
-          label: t.profile.serviceReminders,
-          value: prefs.serviceReminders,
-          onChanged: notifier.setServiceReminders,
-          accent: AppColors.cyan,
-        ),
-        ProfileToggleRow(
-          label: t.profile.criticalAlerts,
-          value: prefs.criticalAlerts,
-          onChanged: notifier.setCriticalAlerts,
-          accent: AppColors.red,
-          showBottomBorder: false,
-        ),
+        if (hasError)
+          _buildPrefsError(t)
+        else ...[
+          ProfileToggleRow(
+            label: t.profile.pushNotifications,
+            value: prefs.pushNotifications,
+            onChanged: notifier.setPushNotifications,
+            accent: AppColors.cyan,
+            enabled: !isLoading,
+          ),
+          ProfileToggleRow(
+            label: t.profile.serviceReminders,
+            value: prefs.serviceReminders,
+            onChanged: notifier.setServiceReminders,
+            accent: AppColors.cyan,
+            enabled: !isLoading,
+          ),
+          ProfileToggleRow(
+            label: t.profile.criticalAlerts,
+            value: prefs.criticalAlerts,
+            onChanged: notifier.setCriticalAlerts,
+            accent: AppColors.red,
+            showBottomBorder: false,
+            enabled: !isLoading,
+          ),
+        ],
       ],
+    );
+  }
+
+  Widget _buildPrefsError(Translations t) {
+    final r = context.responsive;
+    return Padding(
+      padding: EdgeInsets.all(r.space(AppSpacing.md)),
+      child: Column(
+        children: [
+          Text(
+            t.profile.errorLoadingPreferences,
+            style: AppTextStyles.caption(context).copyWith(
+              color: context.colors.textMuted,
+            ),
+          ),
+          SizedBox(height: r.space(AppSpacing.xs)),
+          TextButton.icon(
+            onPressed: () => ref.invalidate(profilePreferencesProvider),
+            icon: Icon(Icons.refresh, size: AppIconSizes.xs(context)),
+            label: Text(t.common.retry),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.orangePrimary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildSecuritySection(Translations t) {
     final bool isOpen = _openSection == 'security';
-    final prefs =
-        ref.watch(profilePreferencesProvider).value ??
-        const ProfilePreferences();
-    final notifier = ref.read(profilePreferencesProvider.notifier);
-    final twoFA = prefs.twoFactorAuth;
+    final user = ref.watch(authProvider);
+
+    String pwdSubtitle = t.profile.passwordLastChanged;
+    if (user?.passwordChangedAt != null) {
+      final diff = DateTime.now().difference(user!.passwordChangedAt!);
+      final months = diff.inDays / 30.0;
+
+      String colorIcon = '🟢';
+      if (months >= 6) {
+        colorIcon = '🔴';
+      } else if (months >= 3) {
+        colorIcon = '🟡';
+      }
+
+      if (diff.inDays == 0) {
+        pwdSubtitle = 'Cambiada hoy $colorIcon';
+      } else if (diff.inDays < 30) {
+        pwdSubtitle = 'Cambiada hace ${diff.inDays} días $colorIcon';
+      } else if (diff.inDays < 365) {
+        pwdSubtitle = 'Cambiada hace ${diff.inDays ~/ 30} meses $colorIcon';
+      } else {
+        pwdSubtitle = 'Cambiada hace ${diff.inDays ~/ 365} años $colorIcon';
+      }
+    } else {
+      pwdSubtitle = 'No has cambiado tu contraseña 🔴';
+    }
 
     return ProfileExpandableContainer(
       isOpen: isOpen,
@@ -270,9 +416,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         icon: Icons.shield_outlined,
         accent: AppColors.green,
         label: t.profile.privacySecurity,
-        subtitle: twoFA
-            ? t.profile.securitySubtitleActive
-            : t.profile.securitySubtitleDefault,
+        subtitle: t.profile.securitySubtitleDefault,
         onTap: () => _toggleSection('security'),
         trailing: Icon(
           isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
@@ -283,29 +427,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ),
       children: [
         ProfileSecurityButton(
-          label: t.profile.passwordReset,
-          subtitle: t.profile.passwordLastChanged,
+          label: t.profile.changePassword,
+          subtitle: pwdSubtitle,
           icon: Icons.vpn_key_outlined,
-          actionLabel: t.profile.reset,
-        ),
-        ProfileToggleRow(
-          label: t.profile.twoFactor,
-          value: twoFA,
-          onChanged: notifier.setTwoFactorAuth,
-          accent: AppColors.green,
-          subtitle: twoFA
-              ? t.profile.twoFactorEnabled
-              : t.profile.twoFactorDisabled,
-          showBottomBorder: false,
+          actionLabel: t.profile.changePassword,
+          onTap: _showChangePasswordDialog,
         ),
       ],
     );
   }
 
+
   Widget _buildAppSettingsSection(Translations t) {
     final bool isOpen = _openSection == 'settings';
-    final currentLangTag = LocaleProvider.instance.currentAppLocale.languageTag
-        .toUpperCase();
+    final appLocale = ref.watch(localeProvider);
+    final currentLangTag = appLocale.languageTag.toUpperCase();
 
     // Leer tema actual desde el provider — se actualiza en tiempo real
     final currentTheme = ref.watch(themeProvider).value ?? ThemeMode.dark;
@@ -353,12 +489,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           options: const ['es', 'en'],
           displayLabels: const ['ES', 'EN'],
           onChanged: (val) {
-            final locale = LocaleProvider.fromTag(val);
+            final locale = LocaleNotifier.fromTag(val);
             if (locale != null) {
-              LocaleProvider.instance.setLocale(locale);
+              ref.read(localeProvider.notifier).setLocale(locale);
             }
           },
-          currentValue: LocaleProvider.instance.currentAppLocale.languageTag,
+          currentValue: appLocale.languageTag,
           accent: AppColors.accent,
           showBottomBorder: true,
         ),
@@ -388,75 +524,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Widget _buildSupportSection(Translations t) {
-    final bool isOpen = _openSection == 'support';
     return ProfileExpandableContainer(
-      isOpen: isOpen,
-      header: Column(
-        children: [
-          ProfileMenuRow(
-            icon: Icons.star_outline,
-            accent: AppColors.orangeSecondary,
-            label: t.profile.rateDriveTrack,
-            subtitle: t.profile.shareExperience,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.star,
-                  size: AppIconSizes.xs(context),
-                  color: AppColors.orangeSecondary,
-                ),
-                Icon(
-                  Icons.star,
-                  size: AppIconSizes.xs(context),
-                  color: AppColors.orangeSecondary,
-                ),
-                Icon(
-                  Icons.star,
-                  size: AppIconSizes.xs(context),
-                  color: AppColors.orangeSecondary,
-                ),
-                Icon(
-                  Icons.star,
-                  size: AppIconSizes.xs(context),
-                  color: AppColors.orangeSecondary,
-                ),
-                Icon(
-                  Icons.star,
-                  size: AppIconSizes.xs(context),
-                  color: AppColors.orangeSecondary,
-                ),
-              ],
-            ),
-          ),
-          ProfileMenuRow(
-            icon: Icons.help_outline,
-            accent: context.colors.textMuted,
-            label: t.profile.helpSupport,
-            subtitle: t.profile.faqsContact,
-            onTap: () => _toggleSection('support'),
-            trailing: Icon(
-              isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-              size: AppIconSizes.sm(context),
-              color: isOpen ? context.colors.textMuted : context.colors.surfaceLight2,
-            ),
-            showBottomBorder: isOpen,
-            borderBottom: false,
-          ),
-        ],
+      isOpen: false,
+      header: ProfileMenuRow(
+        icon: Icons.phone_outlined,
+        accent: AppColors.green,
+        label: t.profile.callSupport,
+        subtitle: t.profile.supportPhone,
+        onTap: _callSupport,
+        trailing: Icon(
+          Icons.call_outlined,
+          size: AppIconSizes.sm(context),
+          color: AppColors.green,
+        ),
       ),
-      children: [
-        ProfileSimpleRow(label: t.profile.faqs, icon: Icons.bookmark_border),
-        ProfileSimpleRow(
-          label: t.profile.chatSupport,
-          icon: Icons.chat_bubble_outline,
-        ),
-        const ProfileSimpleRow(
-          label: '+1 (800) DRIVE-TK',
-          icon: Icons.phone_outlined,
-          showBottomBorder: false,
-        ),
-      ],
+      children: const [],
     );
   }
 

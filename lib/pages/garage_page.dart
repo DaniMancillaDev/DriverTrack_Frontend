@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/app_providers.dart';
 import '../providers/auth_provider.dart';
+import '../services/api_client.dart';
 import '../viewmodels/vehicle_view_model.dart';
 import '../widgets/garage/add_vehicle_sheet.dart';
 import '../widgets/garage/vehicle_detail_sheet.dart';
@@ -34,8 +35,44 @@ class GaragePage extends ConsumerStatefulWidget {
 class _GaragePageState extends ConsumerState<GaragePage> {
   late ScrollController _scrollController;
   bool _isFabExtended = true;
-  int? _selectedVehicleId;
-  bool _sheetExpanded = false;
+
+  // ─── Helper: mostrar SnackBar de error amigable ───────────
+
+  void _showErrorSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  /// Muestra mensaje de sesión expirada (amigable, sin datos del servidor).
+  void _showSessionExpiredMessage() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(Translations.of(context).auth.sessionExpiredSnackbar),
+        backgroundColor: AppColors.orangeSecondary,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
 
   @override
   void initState() {
@@ -61,7 +98,6 @@ class _GaragePageState extends ConsumerState<GaragePage> {
   Future<void> _handleAddVehicle(Map<String, dynamic> data) async {
     try {
       final userId = ref.read(authProvider)?.id ?? 1;
-
       final newVehicleData = {
         'user_id': userId,
         'type_id': data['type_id'],
@@ -71,30 +107,12 @@ class _GaragePageState extends ConsumerState<GaragePage> {
         'year': data['year'],
         'mileage': data['mileage'] ?? 0,
       };
-
       await ref.read(vehiclesProvider.notifier).addVehicle(newVehicleData);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(Translations.of(context).garage.vehicleAdded),
-            backgroundColor: AppColors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${Translations.of(context).garage.errorAddingVehicle.replaceAll('{error}', '$e')}',
-            ),
-            backgroundColor: AppColors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      _showSuccessSnackBar(Translations.of(context).garage.vehicleAdded);
+    } on SessionExpiredException {
+      _showSessionExpiredMessage();
+    } catch (_) {
+      _showErrorSnackBar(Translations.of(context).garage.errorAddingVehicle);
     }
   }
 
@@ -119,27 +137,12 @@ class _GaragePageState extends ConsumerState<GaragePage> {
   Future<void> _handleEditVehicle(int id, Map<String, dynamic> data) async {
     try {
       await ref.read(vehiclesProvider.notifier).updateVehicle(id, data);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(Translations.of(context).garage.vehicleUpdated),
-            backgroundColor: AppColors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${Translations.of(context).garage.errorUpdatingVehicle.replaceAll('{error}', '$e')}',
-            ),
-            backgroundColor: AppColors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      _showSuccessSnackBar(Translations.of(context).garage.vehicleUpdated);
+    } on SessionExpiredException {
+      _showSessionExpiredMessage();
+      rethrow;
+    } catch (_) {
+      _showErrorSnackBar(Translations.of(context).garage.errorUpdatingVehicle);
       rethrow;
     }
   }
@@ -244,33 +247,11 @@ class _GaragePageState extends ConsumerState<GaragePage> {
       onConfirm: () async {
         try {
           await ref.read(vehiclesProvider.notifier).deleteVehicle(vehicleId);
-
-          setState(() {
-            _selectedVehicleId = null;
-            _sheetExpanded = false;
-          });
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(Translations.of(context).garage.vehicleRemoved),
-                backgroundColor: AppColors.red,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '${Translations.of(context).garage.errorRemovingVehicle.replaceAll('{error}', '$e')}',
-                ),
-                backgroundColor: AppColors.red,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
+          _showSuccessSnackBar(Translations.of(context).garage.vehicleRemoved);
+        } on SessionExpiredException {
+          _showSessionExpiredMessage();
+        } catch (_) {
+          _showErrorSnackBar(Translations.of(context).garage.errorRemovingVehicle);
         }
       },
     );
@@ -351,28 +332,55 @@ class _GaragePageState extends ConsumerState<GaragePage> {
             ),
             error: (err, stack) => _buildErrorState(r),
           ),
-          if (_selectedVehicleId != null)
-            _buildDetailSheetOverlay(vehiclesAsyncValue),
         ],
       ),
-      floatingActionButton: _selectedVehicleId != null
-          ? null
-          : Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: r.value(mobile: 600, tablet: 700),
-                ),
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: PremiumFAB(
-                    onPressed: _showAddVehicleSheet,
-                    label: Translations.of(context).garage.addVehicle,
-                    icon: Icons.add,
-                    isExtended: _isFabExtended,
-                  ),
-                ),
-              ),
+      floatingActionButton: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: r.value(mobile: 600, tablet: 700),
+          ),
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: PremiumFAB(
+              onPressed: _showAddVehicleSheet,
+              label: Translations.of(context).garage.addVehicle,
+              icon: Icons.add,
+              isExtended: _isFabExtended,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showVehicleDetailSheet(Vehicle vehicle) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => VehicleDetailSheet(
+        vehicle: VehicleViewModel(vehicle),
+        onClose: () => Navigator.pop(context),
+        onLogService: () {
+          Navigator.pop(context);
+          _handleLogService(vehicle);
+        },
+        onEdit: () {
+          Navigator.pop(context);
+          _showAddVehicleSheet(initialVehicle: vehicle);
+        },
+        onRemove: () {
+          Navigator.pop(context);
+          _handleRemoveVehicle(vehicle.id, vehicle.brand);
+        },
+        onRemoveService: (id) {
+          _handleRemoveService(vehicle, id);
+        },
+        onEditService: (maintenance) {
+          Navigator.pop(context);
+          _showEditServiceSheet(vehicle, maintenance);
+        },
+      ),
     );
   }
 
@@ -405,10 +413,7 @@ class _GaragePageState extends ConsumerState<GaragePage> {
             vehiclesList.length,
             (i) => VehicleCard(
               vehicleData: vehiclesList[i],
-              onTap: () => setState(() {
-                _selectedVehicleId = vehiclesList[i].id;
-                _sheetExpanded = false;
-              }),
+              onTap: () => _showVehicleDetailSheet(vehiclesList[i]),
             ),
           ),
       ],
@@ -483,78 +488,12 @@ class _GaragePageState extends ConsumerState<GaragePage> {
     try {
       final repository = ref.read(maintenanceRepositoryProvider);
       await repository.deleteMaintenanceRecord(serviceId);
-
       ref.invalidate(maintenanceDocsProvider);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(Translations.of(context).maintenance.serviceRemoved),
-            backgroundColor: AppColors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${Translations.of(context).maintenance.errorRemovingService.replaceAll('{error}', '$e')}',
-            ),
-            backgroundColor: AppColors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      _showSuccessSnackBar(Translations.of(context).maintenance.serviceRemoved);
+    } on SessionExpiredException {
+      _showSessionExpiredMessage();
+    } catch (_) {
+      _showErrorSnackBar(Translations.of(context).maintenance.errorRemovingService);
     }
-  }
-
-  Widget _buildDetailSheetOverlay(
-    AsyncValue<List<Vehicle>> vehiclesAsyncValue,
-  ) {
-    return Stack(
-      children: [
-        GestureDetector(
-          onTap: () => setState(() {
-            _selectedVehicleId = null;
-            _sheetExpanded = false;
-          }),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            color: Colors.black.withValues(alpha: _sheetExpanded ? 0.6 : 0.3),
-          ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: vehiclesAsyncValue.maybeWhen(
-            data: (vehicles) {
-              final vId = _selectedVehicleId;
-              if (vId == null) return const SizedBox.shrink();
-              final vData = vehicles.firstWhere((v) => v.id == vId);
-              return VehicleDetailSheet(
-                vehicle: VehicleViewModel(vData),
-                isExpanded: _sheetExpanded,
-                onToggle: () =>
-                    setState(() => _sheetExpanded = !_sheetExpanded),
-                onClose: () => setState(() {
-                  _selectedVehicleId = null;
-                  _sheetExpanded = false;
-                }),
-                onLogService: () => _handleLogService(vData),
-                onEdit: () => _showAddVehicleSheet(initialVehicle: vData),
-                onRemove: () => _handleRemoveVehicle(vId, vData.displayName),
-                onRemoveService: (id) => _handleRemoveService(vData, id),
-                onEditService: (maintenance) =>
-                    _showEditServiceSheet(vData, maintenance),
-              );
-            },
-            orElse: () => const SizedBox.shrink(),
-          ),
-        ),
-      ],
-    );
   }
 }

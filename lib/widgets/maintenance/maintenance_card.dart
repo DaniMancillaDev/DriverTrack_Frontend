@@ -53,10 +53,19 @@ class _MaintenanceCardState extends ConsumerState<MaintenanceCard> {
           decoration: BoxDecoration(
             color: context.colors.surface,
             borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
-            // Borde izquierdo de acento — misma técnica que el Status Ribbon
-            border: Border(
-              left: BorderSide(color: accent, width: 3),
+            border: Border.all(
+               color: context.colors.border.withValues(alpha: 0.3),
+              width: 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: context.colors.isDark
+                    ? Colors.black.withValues(alpha: 0.15)
+                    : Colors.black.withValues(alpha: 0.06),
+                blurRadius: r.dim(24),
+                offset: Offset(0, r.dim(8)),
+              ),
+            ],
           ),
           child: Padding(
             padding: EdgeInsets.all(r.space(AppSpacing.lg)),
@@ -99,7 +108,7 @@ class _MaintenanceCardState extends ConsumerState<MaintenanceCard> {
 
                       // Meta: vehículo · fecha · km
                       Text(
-                        '${widget.vehicleName} · ${DateFormat('MMM d, y').format(widget.vm.date)} · ${UnitFormatter.formatDistance(widget.vm.mileage.toDouble(), unitSystem, fractionDigits: 0)}',
+                        '${widget.vehicleName} · ${DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(widget.vm.date)} · ${UnitFormatter.formatDistance(widget.vm.mileage.toDouble(), unitSystem, fractionDigits: 0)}',
                         style: AppTextStyles.caption(context).copyWith(
                           color: context.colors.textMuted,
                           fontWeight: FontWeight.w500,
@@ -123,7 +132,7 @@ class _MaintenanceCardState extends ConsumerState<MaintenanceCard> {
                         child: Text(
                           widget.vm.category.isNotEmpty
                               ? widget.vm.category
-                              : 'General',
+                              : Translations.of(context).maintenance.categoryGeneral,
                           style: AppTextStyles.tiny(context).copyWith(
                             color: accent,
                             fontWeight: FontWeight.w700,

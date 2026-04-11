@@ -10,19 +10,28 @@ import 'providers/theme_provider.dart';
 import 'core/i18n/locale_provider.dart';
 import 'core/i18n/translations.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'core/units/presentation/unit_system_provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'core/units/presentation/unit_system_provider.dart';
 import 'core/router/app_router.dart';
 
+import 'package:intl/intl.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await LocaleProvider.initialize();
-
   final prefs = await SharedPreferences.getInstance();
+  final savedLocaleTag = prefs.getString('app_locale') ?? 'es';
+  final initialLocale = AppLocale.values.firstWhere(
+    (l) => l.languageTag == savedLocaleTag,
+    orElse: () => AppLocale.es,
+  );
+  await LocaleSettings.setLocale(initialLocale);
+  Intl.defaultLocale = initialLocale.languageTag;
 
   runApp(
     ProviderScope(
-      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
       child: const MyApp(),
     ),
   );
@@ -49,6 +58,7 @@ class _AppWithLocale extends ConsumerWidget {
     // Leer el ThemeMode actual desde themeProvider (persiste en SharedPreferences).
     final themeMode = ref.watch(themeProvider).value ?? ThemeMode.dark;
     final router = ref.watch(goRouterProvider);
+    final currentAppLocale = ref.watch(localeProvider); // Guarantee rebuild
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
@@ -56,7 +66,7 @@ class _AppWithLocale extends ConsumerWidget {
       theme: AppThemes.light,
       darkTheme: AppThemes.dark,
       themeMode: themeMode,
-      locale: TranslationProvider.of(context).flutterLocale,
+      locale: currentAppLocale.flutterLocale,
       supportedLocales: AppLocale.values.map((l) => l.flutterLocale),
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       // Clamp text scaling for accessibility without breaking UI

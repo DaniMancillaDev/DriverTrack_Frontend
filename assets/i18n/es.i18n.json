@@ -13,7 +13,19 @@
     "confirm": "Confirmar",
     "unknownVehicle": "Vehículo desconocido",
     "free": "Gratis",
-    "none": "Ninguno"
+    "none": "Ninguno",
+    "back": "Volver",
+    "settingsAndUnits": "Configuración y Unidades",
+    "realTimeExamples": "Ejemplos en tiempo real",
+    "totalDistance": "Distancia total",
+    "operatingTemperature": "Temperatura de operación",
+    "networkError": "Sin conexión. Verifica tu internet e intenta de nuevo.",
+    "timeoutError": "La solicitud tardó demasiado. Intenta de nuevo.",
+    "unauthorizedError": "Correo o contraseña incorrectos.",
+    "notFoundError": "El recurso solicitado no fue encontrado.",
+    "validationError": "Los datos ingresados no son válidos. Revísalos e intenta de nuevo.",
+    "serverError": "El servidor no está disponible. Intenta más tarde.",
+    "requestError": "No pudimos completar la solicitud. Intenta de nuevo."
   },
   "auth": {
     "welcomeBack": "Bienvenido de vuelta",
@@ -24,7 +36,10 @@
     "forgotPassword": "¿Olvidaste tu contraseña?",
     "signIn": "Iniciar sesión",
     "noAccount": "¿No tienes una cuenta? ",
-    "signUp": "Regístrate"
+    "signUp": "Regístrate",
+    "sessionExpiredTitle": "Sesión expirada",
+    "sessionExpiredMessage": "Tu sesión expiró. Por favor inicia sesión de nuevo.",
+    "sessionExpiredSnackbar": "Tu sesión expiró, inicia sesión de nuevo."
   },
   "registration": {
     "title": "Crear cuenta",
@@ -60,9 +75,9 @@
     "vehicleAdded": "Vehículo agregado exitosamente",
     "vehicleUpdated": "Vehículo actualizado exitosamente",
     "vehicleRemoved": "Vehículo eliminado",
-    "errorAddingVehicle": "Error al agregar vehículo: {error}",
-    "errorUpdatingVehicle": "Error al actualizar vehículo: {error}",
-    "errorRemovingVehicle": "Error al eliminar vehículo: {error}",
+    "errorAddingVehicle": "No se pudo agregar el vehículo. Intenta de nuevo.",
+    "errorUpdatingVehicle": "No se pudo actualizar el vehículo. Intenta de nuevo.",
+    "errorRemovingVehicle": "No se pudo eliminar el vehículo. Intenta de nuevo.",
     "serviceLogged": "Servicio registrado para {vehicleName}",
     "serviceRecordUpdated": "Registro de servicio actualizado",
     "removeVehicleTitle": "¿Eliminar vehículo?",
@@ -142,7 +157,11 @@
     "totalDistanceKm": "Kilómetros totales",
     "unitKilometers": "Kilómetros",
     "unitMiShort": "mi",
-    "unitKmShort": "km"
+    "unitKmShort": "km",
+    "notificationsUnread": "Notificaciones, {count} no leídas",
+    "notificationsNone": "Notificaciones, sin novedades",
+    "goodAfternoon": "Buenas tardes",
+    "goodEvening": "Buenas noches"
   },
   "maintenance": {
     "title": "Mantenimiento",
@@ -155,7 +174,7 @@
     "serviceRemoved": "Registro de servicio eliminado",
     "errorAddingService": "Error al agregar servicio: {error}",
     "errorUpdatingService": "Error al actualizar registro: {error}",
-    "errorRemovingService": "Error al eliminar registro: {error}",
+    "errorRemovingService": "No se pudo eliminar el servicio. Intenta de nuevo.",
     "removeEntryTitle": "¿Eliminar registro?",
     "removeEntryMessage": "¿Estás seguro de que quieres eliminar el registro de \"{title}\"? Esta acción no se puede deshacer.",
     "errorTitle": "Algo salió mal",
@@ -195,7 +214,18 @@
     "unknownVehicle": "Desconocido",
     "costLabel": "COSTO",
     "costFree": "Gratis",
-    "mileageLabel": "KILOMETRAJE"
+    "mileageLabel": "KILOMETRAJE",
+    "serviceNotesLabel": "NOTAS DEL SERVICIO",
+    "categoryGeneral": "General",
+    "historyLabel": "Historial",
+    "categories": {
+      "general": "General",
+      "fluidService": "Fluidos",
+      "wearAndTear": "Desgaste",
+      "inspection": "Inspección",
+      "cosmetic": "Estética",
+      "electrical": "Eléctrico"
+    }
   },
   "profile": {
     "vehiclePreferences": "Preferencias de vehículo",
@@ -213,7 +243,7 @@
     "criticalAlerts": "Alertas críticas",
     "privacySecurity": "Privacidad y seguridad",
     "securitySubtitleActive": "2FA activo · Protegido",
-    "securitySubtitleDefault": "Contraseña, 2FA",
+    "securitySubtitleDefault": "Contraseña y privacidad",
     "passwordReset": "Restablecer contraseña",
     "passwordLastChanged": "Último cambio hace 30 días",
     "reset": "Restablecer",
@@ -226,7 +256,7 @@
     "themeLight": "Claro",
     "theme": "Tema",
     "language": "Idioma",
-    "feedbackSupport": "Comentarios y soporte",
+    "feedbackSupport": "Soporte",
     "rateDriveTrack": "Calificar DriveTrack",
     "shareExperience": "Comparte tu experiencia",
     "helpSupport": "Ayuda y soporte",
@@ -246,7 +276,27 @@
     "statsSavedSub": "en costos",
     "systemOfUnits": "Sistema de Unidades",
     "metric": "Métrico",
-    "imperial": "Imperial"
+    "imperial": "Imperial",
+    "editProfile": "Editar Perfil",
+    "editProfileName": "Nombre Completo",
+    "editProfileSave": "Guardar Cambios",
+    "editProfileSuccess": "Perfil actualizado exitosamente",
+    "changePassword": "Cambiar Contraseña",
+    "currentPassword": "Contraseña Actual",
+    "newPassword": "Nueva Contraseña",
+    "confirmNewPassword": "Confirmar Contraseña",
+    "changePasswordSuccess": "Contraseña actualizada exitosamente",
+    "changePasswordError": "La contraseña actual es incorrecta",
+    "passwordsMismatch": "Las contraseñas no coinciden",
+    "callSupport": "Llamar a Soporte",
+    "supportPhone": "+52 664 536 7724",
+    "loadingPreferences": "Cargando preferencias...",
+    "errorLoadingPreferences": "No se pudieron cargar las preferencias",
+    "errorLoadingStats": "No se pudieron cargar las estadísticas",
+    "changePhoto": "Cambiar foto",
+    "camera": "Cámara",
+    "gallery": "Galería",
+    "uploadingPhoto": "Subiendo foto..."
   },
   "notifications": {
     "title": "Notificaciones",
@@ -273,6 +323,9 @@
     "typeSuccess": "Exitoso",
     "typeWeather": "Clima",
     "typeInfo": "Información",
+    "typeError": "Error",
+    "filterInfo": "Info",
+    "summaryInfo": "Info",
     "mocks": {
       "n1": {
         "title": "Presión de neumáticos baja",
@@ -347,7 +400,8 @@
     "zoomIn": "Acercar",
     "zoomOut": "Alejar",
     "overpassError": "El servidor de mapas está saturado. Reintenta en unos segundos.",
-    "searchThisArea": "Buscar en esta zona"
+    "searchThisArea": "Buscar en esta zona",
+    "gpsSearching": "Buscando ubicación GPS... Asegúrate de tener la ubicación activada en tu dispositivo."
   },
   "weatherWidget": {
     "alert": "ALERTA DEL CLIMA",
@@ -448,7 +502,13 @@
       "strongWind": "Vientos fuertes detectados. Sujeta el volante con firmeza, especialmente en puentes.",
       "extremeWeather": "Condiciones extremas. Evita conducir y busca un refugio seguro.",
       "stable": "Condiciones de conducción estables. ¡Buen viaje!"
-    }
+    },
+    "changeCity": "Cambiar ciudad",
+    "changeCityHint": "Ej. Monterrey, MX",
+    "changeCityTitle": "Clima por ciudad",
+    "useGps": "Usar GPS",
+    "search": "Buscar",
+    "cityNotFound": "Ciudad no encontrada. Intenta con «Ciudad, País»"
   },
   "time": {
     "now": "Ahora",

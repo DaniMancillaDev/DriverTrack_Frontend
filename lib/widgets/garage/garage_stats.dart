@@ -27,8 +27,8 @@ class GarageStats extends ConsumerWidget {
         stats: [
           StatItem(
             label: t.garage.avgHealth,
-            value: '100%',
-            accent: AppColors.green,
+            value: '—',
+            accent: AppColors.textMuted,
           ),
           StatItem(
             label: t.garage.vehicles,

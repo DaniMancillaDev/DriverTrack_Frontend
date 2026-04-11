@@ -6,10 +6,12 @@ import '../services/api_client.dart';
 import '../services/vehicle_repository.dart';
 import '../services/maintenance_repository.dart';
 import '../services/auth_repository.dart';
+import '../services/user_repository.dart';
 import '../config/app_config.dart';
 import '../features/map/domain/repositories/map_repository.dart';
 import '../features/map/data/repositories/map_repository_impl.dart';
 import '../providers/auth_provider.dart';
+import '../services/vehicle_photo_upload_service.dart';
 
 // --- Core Providers ---
 
@@ -20,15 +22,16 @@ final appConfigProvider = Provider<AppConfig>((ref) {
 });
 
 /// Global ApiClient provider
-/// Inyecta el token de autenticación actual via un TokenProvider lazy callback,
-/// evitando dependencias circulares con AuthNotifier.
+/// En 401: primero intenta refrescar el access token automáticamente.
+/// Si el refresh también falla: hace logoutDueToExpiry() para distinguirlo de
+/// un error normal y que la UI muestre el mensaje adecuado.
 final apiClientProvider = Provider<ApiClient>((ref) {
   final config = ref.watch(appConfigProvider);
   return ApiClient(
     config,
-    // TokenProvider: Se llama en cada request, siempre devuelve el token vigente.
-    // Si el backend usa cookies, user.token será null y el header no se agrega.
     getToken: () => ref.read(authProvider)?.token,
+    tryRefreshToken: () => ref.read(authProvider.notifier).tryRefreshToken(),
+    onSessionExpired: () => ref.read(authProvider.notifier).logoutDueToExpiry(),
   );
 });
 
@@ -46,6 +49,11 @@ final maintenanceRepositoryProvider = Provider<MaintenanceRepository>((ref) {
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return AuthRepository(apiClient);
+});
+
+final userRepositoryProvider = Provider<UserRepository>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return UserRepository(apiClient);
 });
 
 final mapRepositoryProvider = Provider<MapRepository>((ref) {
@@ -162,9 +170,29 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
     }
   }
 
-  /// Toggles favorite status optimistically
+  /// Toggles favorite status optimistically.
+  /// Límite: máximo [maxFavorites] vehículos marcados como favoritos.
+  /// Si se excede, lanza [FavoriteLimitException] sin tocar el backend.
+  static const int maxFavorites = 3;
+
   Future<void> toggleFavorite(int id, bool isFavorite) async {
+    if (isFavorite) {
+      // Solo verificar al MARCAR (no al desmarcar)
+      final currentFavorites = state.value?.where((v) => v.isFavorite).length ?? 0;
+      if (currentFavorites >= maxFavorites) {
+        throw FavoriteLimitException(maxFavorites);
+      }
+    }
     await updateVehicle(id, {'is_favorite': isFavorite});
+  }
+
+
+  /// Actualiza un vehículo directo en el estado local (ej. tras subir foto)
+  void updateVehicleLocally(Vehicle updatedVehicle) {
+    if (state.value == null) return;
+    state = AsyncData(
+      state.value!.map((v) => v.id == updatedVehicle.id ? updatedVehicle : v).toList(),
+    );
   }
 
   /// Refreshes the list from the server
@@ -173,6 +201,11 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
     state = await AsyncValue.guard(() => build());
   }
 }
+
+final vehiclePhotoUploadProvider = Provider<VehiclePhotoUploadService>((ref) {
+  final repo = ref.watch(vehicleRepositoryProvider);
+  return VehiclePhotoUploadService(repo);
+});
 
 final vehiclesProvider = AsyncNotifierProvider<VehiclesNotifier, List<Vehicle>>(
   () {
@@ -272,3 +305,13 @@ class ActiveFilterNotifier extends Notifier<String> {
 final activeFilterProvider = NotifierProvider<ActiveFilterNotifier, String>(() {
   return ActiveFilterNotifier();
 });
+
+/// Lanzada cuando el usuario intenta agregar un vehículo a favoritos
+/// pero ya alcanzó el límite permitido.
+class FavoriteLimitException implements Exception {
+  final int limit;
+  const FavoriteLimitException(this.limit);
+
+  @override
+  String toString() => 'FavoriteLimitException: máximo $limit favoritos permitidos.';
+}

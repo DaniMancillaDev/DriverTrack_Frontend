@@ -11,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'translations.g.dart';
 
 // Path: <root>
-class TranslationsEn extends Translations with BaseTranslations<AppLocale, Translations> {
+class TranslationsEn with BaseTranslations<AppLocale, Translations> implements Translations {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsEn({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -21,9 +21,7 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
-		  ),
-		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
+		  ) {
 		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
@@ -31,7 +29,7 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
 	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key);
 
 	late final TranslationsEn _root = this; // ignore: unused_field
 
@@ -56,8 +54,8 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
 }
 
 // Path: common
-class _TranslationsCommonEn extends TranslationsCommonEs {
-	_TranslationsCommonEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsCommonEn implements TranslationsCommonEs {
+	_TranslationsCommonEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -76,11 +74,23 @@ class _TranslationsCommonEn extends TranslationsCommonEs {
 	@override String get unknownVehicle => 'Unknown Vehicle';
 	@override String get free => 'Free';
 	@override String get none => 'None';
+	@override String get back => 'Back';
+	@override String get settingsAndUnits => 'Settings & Units';
+	@override String get realTimeExamples => 'Real-time examples';
+	@override String get totalDistance => 'Total distance';
+	@override String get operatingTemperature => 'Operating temperature';
+	@override String get networkError => 'No connection. Check your internet and try again.';
+	@override String get timeoutError => 'The request took too long. Please try again.';
+	@override String get unauthorizedError => 'Incorrect email or password.';
+	@override String get notFoundError => 'The requested resource was not found.';
+	@override String get validationError => 'The data entered is not valid. Please review and try again.';
+	@override String get serverError => 'The server is unavailable. Please try again later.';
+	@override String get requestError => 'We could not complete the request. Please try again.';
 }
 
 // Path: auth
-class _TranslationsAuthEn extends TranslationsAuthEs {
-	_TranslationsAuthEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsAuthEn implements TranslationsAuthEs {
+	_TranslationsAuthEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -94,11 +104,14 @@ class _TranslationsAuthEn extends TranslationsAuthEs {
 	@override String get signIn => 'Sign In';
 	@override String get noAccount => 'Don\'t have an account? ';
 	@override String get signUp => 'Sign Up';
+	@override String get sessionExpiredTitle => 'Session expired';
+	@override String get sessionExpiredMessage => 'Your session expired. Please sign in again.';
+	@override String get sessionExpiredSnackbar => 'Your session expired, please sign in again.';
 }
 
 // Path: registration
-class _TranslationsRegistrationEn extends TranslationsRegistrationEs {
-	_TranslationsRegistrationEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsRegistrationEn implements TranslationsRegistrationEs {
+	_TranslationsRegistrationEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -126,8 +139,8 @@ class _TranslationsRegistrationEn extends TranslationsRegistrationEs {
 }
 
 // Path: nav
-class _TranslationsNavEn extends TranslationsNavEs {
-	_TranslationsNavEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsNavEn implements TranslationsNavEs {
+	_TranslationsNavEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -139,8 +152,8 @@ class _TranslationsNavEn extends TranslationsNavEs {
 }
 
 // Path: garage
-class _TranslationsGarageEn extends TranslationsGarageEs {
-	_TranslationsGarageEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsGarageEn implements TranslationsGarageEs {
+	_TranslationsGarageEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -150,9 +163,9 @@ class _TranslationsGarageEn extends TranslationsGarageEs {
 	@override String get vehicleAdded => 'Vehicle added successfully';
 	@override String get vehicleUpdated => 'Vehicle updated successfully';
 	@override String get vehicleRemoved => 'Vehicle removed';
-	@override String get errorAddingVehicle => 'Error adding vehicle: {error}';
-	@override String get errorUpdatingVehicle => 'Error updating vehicle: {error}';
-	@override String get errorRemovingVehicle => 'Error removing vehicle: {error}';
+	@override String get errorAddingVehicle => 'Could not add vehicle. Please try again.';
+	@override String get errorUpdatingVehicle => 'Could not update vehicle. Please try again.';
+	@override String get errorRemovingVehicle => 'Could not remove vehicle. Please try again.';
 	@override String get serviceLogged => 'Service logged for {vehicleName}';
 	@override String get serviceRecordUpdated => 'Service record updated';
 	@override String get removeVehicleTitle => 'Remove Vehicle';
@@ -201,11 +214,18 @@ class _TranslationsGarageEn extends TranslationsGarageEs {
 	);
 	@override String get totalDistanceMiles => 'Total Miles';
 	@override String get totalDistanceKm => 'Total Kilometers';
+	@override String get unitKilometers => 'Kilometers';
+	@override String get unitMiShort => 'mi';
+	@override String get unitKmShort => 'km';
+	@override String get notificationsUnread => 'Notifications, {count} unread';
+	@override String get notificationsNone => 'Notifications, no new updates';
+	@override String get goodAfternoon => 'Good afternoon';
+	@override String get goodEvening => 'Good evening';
 }
 
 // Path: maintenance
-class _TranslationsMaintenanceEn extends TranslationsMaintenanceEs {
-	_TranslationsMaintenanceEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsMaintenanceEn implements TranslationsMaintenanceEs {
+	_TranslationsMaintenanceEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -220,7 +240,7 @@ class _TranslationsMaintenanceEn extends TranslationsMaintenanceEs {
 	@override String get serviceRemoved => 'Service record removed';
 	@override String get errorAddingService => 'Error adding service: {error}';
 	@override String get errorUpdatingService => 'Error updating record: {error}';
-	@override String get errorRemovingService => 'Error removing record: {error}';
+	@override String get errorRemovingService => 'Could not remove service. Please try again.';
 	@override String get removeEntryTitle => 'Remove Entry?';
 	@override String get removeEntryMessage => 'Are you sure you want to remove the record for "{title}"? This action cannot be undone.';
 	@override String get errorTitle => 'Something went wrong';
@@ -261,11 +281,15 @@ class _TranslationsMaintenanceEn extends TranslationsMaintenanceEs {
 	@override String get costLabel => 'COST';
 	@override String get costFree => 'Free';
 	@override String get mileageLabel => 'MILEAGE';
+	@override String get serviceNotesLabel => 'SERVICE NOTES';
+	@override String get categoryGeneral => 'General';
+	@override String get historyLabel => 'History';
+	@override late final _TranslationsMaintenanceCategoriesEn categories = _TranslationsMaintenanceCategoriesEn._(_root);
 }
 
 // Path: profile
-class _TranslationsProfileEn extends TranslationsProfileEs {
-	_TranslationsProfileEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsProfileEn implements TranslationsProfileEs {
+	_TranslationsProfileEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -285,7 +309,7 @@ class _TranslationsProfileEn extends TranslationsProfileEs {
 	@override String get criticalAlerts => 'Critical Alerts';
 	@override String get privacySecurity => 'Privacy & Security';
 	@override String get securitySubtitleActive => '2FA active · Protected';
-	@override String get securitySubtitleDefault => 'Password, 2FA';
+	@override String get securitySubtitleDefault => 'Password & privacy';
 	@override String get passwordReset => 'Password Reset';
 	@override String get passwordLastChanged => 'Last changed 30 days ago';
 	@override String get reset => 'Reset';
@@ -298,7 +322,7 @@ class _TranslationsProfileEn extends TranslationsProfileEs {
 	@override String get themeLight => 'Light';
 	@override String get theme => 'Theme';
 	@override String get language => 'Language';
-	@override String get feedbackSupport => 'Feedback & Support';
+	@override String get feedbackSupport => 'Support';
 	@override String get rateDriveTrack => 'Rate DriveTrack';
 	@override String get shareExperience => 'Share your experience';
 	@override String get helpSupport => 'Help & Support';
@@ -319,11 +343,31 @@ class _TranslationsProfileEn extends TranslationsProfileEs {
 	@override String get systemOfUnits => 'Unit System';
 	@override String get metric => 'Metric';
 	@override String get imperial => 'Imperial';
+	@override String get editProfile => 'Edit Profile';
+	@override String get editProfileName => 'Full Name';
+	@override String get editProfileSave => 'Save Changes';
+	@override String get editProfileSuccess => 'Profile updated successfully';
+	@override String get changePassword => 'Change Password';
+	@override String get currentPassword => 'Current Password';
+	@override String get newPassword => 'New Password';
+	@override String get confirmNewPassword => 'Confirm New Password';
+	@override String get changePasswordSuccess => 'Password changed successfully';
+	@override String get changePasswordError => 'Current password is incorrect';
+	@override String get passwordsMismatch => 'Passwords don\'t match';
+	@override String get callSupport => 'Call Support';
+	@override String get supportPhone => '+52 664 536 7724';
+	@override String get loadingPreferences => 'Loading preferences...';
+	@override String get errorLoadingPreferences => 'Could not load preferences';
+	@override String get errorLoadingStats => 'Could not load statistics';
+	@override String get changePhoto => 'Change Photo';
+	@override String get camera => 'Camera';
+	@override String get gallery => 'Gallery';
+	@override String get uploadingPhoto => 'Uploading photo...';
 }
 
 // Path: notifications
-class _TranslationsNotificationsEn extends TranslationsNotificationsEs {
-	_TranslationsNotificationsEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsNotificationsEn implements TranslationsNotificationsEs {
+	_TranslationsNotificationsEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -352,12 +396,15 @@ class _TranslationsNotificationsEn extends TranslationsNotificationsEs {
 	@override String get typeSuccess => 'Success';
 	@override String get typeWeather => 'Weather';
 	@override String get typeInfo => 'Info';
+	@override String get typeError => 'Error';
+	@override String get filterInfo => 'Info';
+	@override String get summaryInfo => 'Info';
 	@override late final _TranslationsNotificationsMocksEn mocks = _TranslationsNotificationsMocksEn._(_root);
 }
 
 // Path: map
-class _TranslationsMapEn extends TranslationsMapEs {
-	_TranslationsMapEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsMapEn implements TranslationsMapEs {
+	_TranslationsMapEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -388,11 +435,12 @@ class _TranslationsMapEn extends TranslationsMapEs {
 	@override String get zoomOut => 'Zoom Out';
 	@override String get overpassError => 'The map server is overloaded. Please retry in a few seconds.';
 	@override String get searchThisArea => 'Search this area';
+	@override String get gpsSearching => 'Searching for GPS location... Make sure location is enabled on your device.';
 }
 
 // Path: weatherWidget
-class _TranslationsWeatherWidgetEn extends TranslationsWeatherWidgetEs {
-	_TranslationsWeatherWidgetEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsWeatherWidgetEn implements TranslationsWeatherWidgetEs {
+	_TranslationsWeatherWidgetEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -410,8 +458,8 @@ class _TranslationsWeatherWidgetEn extends TranslationsWeatherWidgetEs {
 }
 
 // Path: currency
-class _TranslationsCurrencyEn extends TranslationsCurrencyEs {
-	_TranslationsCurrencyEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsCurrencyEn implements TranslationsCurrencyEs {
+	_TranslationsCurrencyEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -432,8 +480,8 @@ class _TranslationsCurrencyEn extends TranslationsCurrencyEs {
 }
 
 // Path: validators
-class _TranslationsValidatorsEn extends TranslationsValidatorsEs {
-	_TranslationsValidatorsEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsValidatorsEn implements TranslationsValidatorsEs {
+	_TranslationsValidatorsEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -462,8 +510,8 @@ class _TranslationsValidatorsEn extends TranslationsValidatorsEs {
 }
 
 // Path: weather
-class _TranslationsWeatherEn extends TranslationsWeatherEs {
-	_TranslationsWeatherEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsWeatherEn implements TranslationsWeatherEs {
+	_TranslationsWeatherEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -473,11 +521,17 @@ class _TranslationsWeatherEn extends TranslationsWeatherEs {
 	@override String get tapToRetry => 'Tap to retry';
 	@override late final _TranslationsWeatherConditionsEn conditions = _TranslationsWeatherConditionsEn._(_root);
 	@override late final _TranslationsWeatherRecommendationsEn recommendations = _TranslationsWeatherRecommendationsEn._(_root);
+	@override String get changeCity => 'Change city';
+	@override String get changeCityHint => 'E.g. Houston, US';
+	@override String get changeCityTitle => 'Weather by city';
+	@override String get useGps => 'Use GPS';
+	@override String get search => 'Search';
+	@override String get cityNotFound => 'City not found. Try «City, Country»';
 }
 
 // Path: time
-class _TranslationsTimeEn extends TranslationsTimeEs {
-	_TranslationsTimeEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsTimeEn implements TranslationsTimeEs {
+	_TranslationsTimeEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -492,8 +546,8 @@ class _TranslationsTimeEn extends TranslationsTimeEs {
 }
 
 // Path: garage.addVehicleForm
-class _TranslationsGarageAddVehicleFormEn extends TranslationsGarageAddVehicleFormEs {
-	_TranslationsGarageAddVehicleFormEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsGarageAddVehicleFormEn implements TranslationsGarageAddVehicleFormEs {
+	_TranslationsGarageAddVehicleFormEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -515,15 +569,19 @@ class _TranslationsGarageAddVehicleFormEn extends TranslationsGarageAddVehicleFo
 	@override String get mileageHint => 'e.g., 25000';
 	@override String get mileageSubHint => 'Current odometer reading';
 	@override String get btnSave => 'Save Vehicle';
+	@override String get btnSaveCar => 'Save Car';
+	@override String get btnSaveMoto => 'Save Motorcycle';
 	@override String get btnUpdate => 'Update Vehicle';
 	@override String get btnSaved => 'Vehicle Saved';
+	@override String get btnSavedCar => 'Car Saved';
+	@override String get btnSavedMoto => 'Motorcycle Saved';
 	@override String get btnUpdated => 'Vehicle Updated';
 	@override String get btnCancel => 'Cancel';
 }
 
 // Path: garage.vehicleTypes
-class _TranslationsGarageVehicleTypesEn extends TranslationsGarageVehicleTypesEs {
-	_TranslationsGarageVehicleTypesEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsGarageVehicleTypesEn implements TranslationsGarageVehicleTypesEs {
+	_TranslationsGarageVehicleTypesEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -532,9 +590,24 @@ class _TranslationsGarageVehicleTypesEn extends TranslationsGarageVehicleTypesEs
 	@override String get motorcycle => 'Motorcycle';
 }
 
+// Path: maintenance.categories
+class _TranslationsMaintenanceCategoriesEn implements TranslationsMaintenanceCategoriesEs {
+	_TranslationsMaintenanceCategoriesEn._(this._root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get general => 'General';
+	@override String get fluidService => 'Fluid Service';
+	@override String get wearAndTear => 'Wear & Tear';
+	@override String get inspection => 'Inspection';
+	@override String get cosmetic => 'Cosmetic';
+	@override String get electrical => 'Electrical';
+}
+
 // Path: notifications.mocks
-class _TranslationsNotificationsMocksEn extends TranslationsNotificationsMocksEs {
-	_TranslationsNotificationsMocksEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsNotificationsMocksEn implements TranslationsNotificationsMocksEs {
+	_TranslationsNotificationsMocksEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -550,8 +623,8 @@ class _TranslationsNotificationsMocksEn extends TranslationsNotificationsMocksEs
 }
 
 // Path: weatherWidget.conditions
-class _TranslationsWeatherWidgetConditionsEn extends TranslationsWeatherWidgetConditionsEs {
-	_TranslationsWeatherWidgetConditionsEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsWeatherWidgetConditionsEn implements TranslationsWeatherWidgetConditionsEs {
+	_TranslationsWeatherWidgetConditionsEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -568,8 +641,8 @@ class _TranslationsWeatherWidgetConditionsEn extends TranslationsWeatherWidgetCo
 }
 
 // Path: weatherWidget.recommendations
-class _TranslationsWeatherWidgetRecommendationsEn extends TranslationsWeatherWidgetRecommendationsEs {
-	_TranslationsWeatherWidgetRecommendationsEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsWeatherWidgetRecommendationsEn implements TranslationsWeatherWidgetRecommendationsEs {
+	_TranslationsWeatherWidgetRecommendationsEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -588,8 +661,8 @@ class _TranslationsWeatherWidgetRecommendationsEn extends TranslationsWeatherWid
 }
 
 // Path: weather.conditions
-class _TranslationsWeatherConditionsEn extends TranslationsWeatherConditionsEs {
-	_TranslationsWeatherConditionsEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsWeatherConditionsEn implements TranslationsWeatherConditionsEs {
+	_TranslationsWeatherConditionsEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -606,8 +679,8 @@ class _TranslationsWeatherConditionsEn extends TranslationsWeatherConditionsEs {
 }
 
 // Path: weather.recommendations
-class _TranslationsWeatherRecommendationsEn extends TranslationsWeatherRecommendationsEs {
-	_TranslationsWeatherRecommendationsEn._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsWeatherRecommendationsEn implements TranslationsWeatherRecommendationsEs {
+	_TranslationsWeatherRecommendationsEn._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -626,8 +699,8 @@ class _TranslationsWeatherRecommendationsEn extends TranslationsWeatherRecommend
 }
 
 // Path: notifications.mocks.n1
-class _TranslationsNotificationsMocksN1En extends TranslationsNotificationsMocksN1Es {
-	_TranslationsNotificationsMocksN1En._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsNotificationsMocksN1En implements TranslationsNotificationsMocksN1Es {
+	_TranslationsNotificationsMocksN1En._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -639,8 +712,8 @@ class _TranslationsNotificationsMocksN1En extends TranslationsNotificationsMocks
 }
 
 // Path: notifications.mocks.n2
-class _TranslationsNotificationsMocksN2En extends TranslationsNotificationsMocksN2Es {
-	_TranslationsNotificationsMocksN2En._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsNotificationsMocksN2En implements TranslationsNotificationsMocksN2Es {
+	_TranslationsNotificationsMocksN2En._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -652,8 +725,8 @@ class _TranslationsNotificationsMocksN2En extends TranslationsNotificationsMocks
 }
 
 // Path: notifications.mocks.n3
-class _TranslationsNotificationsMocksN3En extends TranslationsNotificationsMocksN3Es {
-	_TranslationsNotificationsMocksN3En._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsNotificationsMocksN3En implements TranslationsNotificationsMocksN3Es {
+	_TranslationsNotificationsMocksN3En._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -665,8 +738,8 @@ class _TranslationsNotificationsMocksN3En extends TranslationsNotificationsMocks
 }
 
 // Path: notifications.mocks.n4
-class _TranslationsNotificationsMocksN4En extends TranslationsNotificationsMocksN4Es {
-	_TranslationsNotificationsMocksN4En._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsNotificationsMocksN4En implements TranslationsNotificationsMocksN4Es {
+	_TranslationsNotificationsMocksN4En._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -678,8 +751,8 @@ class _TranslationsNotificationsMocksN4En extends TranslationsNotificationsMocks
 }
 
 // Path: notifications.mocks.n5
-class _TranslationsNotificationsMocksN5En extends TranslationsNotificationsMocksN5Es {
-	_TranslationsNotificationsMocksN5En._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsNotificationsMocksN5En implements TranslationsNotificationsMocksN5Es {
+	_TranslationsNotificationsMocksN5En._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -690,8 +763,8 @@ class _TranslationsNotificationsMocksN5En extends TranslationsNotificationsMocks
 }
 
 // Path: notifications.mocks.n6
-class _TranslationsNotificationsMocksN6En extends TranslationsNotificationsMocksN6Es {
-	_TranslationsNotificationsMocksN6En._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsNotificationsMocksN6En implements TranslationsNotificationsMocksN6Es {
+	_TranslationsNotificationsMocksN6En._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -702,8 +775,8 @@ class _TranslationsNotificationsMocksN6En extends TranslationsNotificationsMocks
 }
 
 // Path: notifications.mocks.n7
-class _TranslationsNotificationsMocksN7En extends TranslationsNotificationsMocksN7Es {
-	_TranslationsNotificationsMocksN7En._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsNotificationsMocksN7En implements TranslationsNotificationsMocksN7Es {
+	_TranslationsNotificationsMocksN7En._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -715,8 +788,8 @@ class _TranslationsNotificationsMocksN7En extends TranslationsNotificationsMocks
 }
 
 // Path: notifications.mocks.n8
-class _TranslationsNotificationsMocksN8En extends TranslationsNotificationsMocksN8Es {
-	_TranslationsNotificationsMocksN8En._(TranslationsEn root) : this._root = root, super.internal(root);
+class _TranslationsNotificationsMocksN8En implements TranslationsNotificationsMocksN8Es {
+	_TranslationsNotificationsMocksN8En._(this._root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
@@ -748,6 +821,18 @@ extension on TranslationsEn {
 			'common.unknownVehicle' => 'Unknown Vehicle',
 			'common.free' => 'Free',
 			'common.none' => 'None',
+			'common.back' => 'Back',
+			'common.settingsAndUnits' => 'Settings & Units',
+			'common.realTimeExamples' => 'Real-time examples',
+			'common.totalDistance' => 'Total distance',
+			'common.operatingTemperature' => 'Operating temperature',
+			'common.networkError' => 'No connection. Check your internet and try again.',
+			'common.timeoutError' => 'The request took too long. Please try again.',
+			'common.unauthorizedError' => 'Incorrect email or password.',
+			'common.notFoundError' => 'The requested resource was not found.',
+			'common.validationError' => 'The data entered is not valid. Please review and try again.',
+			'common.serverError' => 'The server is unavailable. Please try again later.',
+			'common.requestError' => 'We could not complete the request. Please try again.',
 			'auth.welcomeBack' => 'Welcome Back',
 			'auth.signInSubtitle' => 'Sign in to continue tracking your vehicles',
 			'auth.emailAddress' => 'EMAIL ADDRESS',
@@ -757,6 +842,9 @@ extension on TranslationsEn {
 			'auth.signIn' => 'Sign In',
 			'auth.noAccount' => 'Don\'t have an account? ',
 			'auth.signUp' => 'Sign Up',
+			'auth.sessionExpiredTitle' => 'Session expired',
+			'auth.sessionExpiredMessage' => 'Your session expired. Please sign in again.',
+			'auth.sessionExpiredSnackbar' => 'Your session expired, please sign in again.',
 			'registration.title' => 'Create Account',
 			'registration.subtitle' => 'Fill in your details to get started',
 			'registration.appTagline' => 'Your intelligent vehicle companion',
@@ -786,9 +874,9 @@ extension on TranslationsEn {
 			'garage.vehicleAdded' => 'Vehicle added successfully',
 			'garage.vehicleUpdated' => 'Vehicle updated successfully',
 			'garage.vehicleRemoved' => 'Vehicle removed',
-			'garage.errorAddingVehicle' => 'Error adding vehicle: {error}',
-			'garage.errorUpdatingVehicle' => 'Error updating vehicle: {error}',
-			'garage.errorRemovingVehicle' => 'Error removing vehicle: {error}',
+			'garage.errorAddingVehicle' => 'Could not add vehicle. Please try again.',
+			'garage.errorUpdatingVehicle' => 'Could not update vehicle. Please try again.',
+			'garage.errorRemovingVehicle' => 'Could not remove vehicle. Please try again.',
 			'garage.serviceLogged' => 'Service logged for {vehicleName}',
 			'garage.serviceRecordUpdated' => 'Service record updated',
 			'garage.removeVehicleTitle' => 'Remove Vehicle',
@@ -835,8 +923,12 @@ extension on TranslationsEn {
 			'garage.addVehicleForm.mileageHint' => 'e.g., 25000',
 			'garage.addVehicleForm.mileageSubHint' => 'Current odometer reading',
 			'garage.addVehicleForm.btnSave' => 'Save Vehicle',
+			'garage.addVehicleForm.btnSaveCar' => 'Save Car',
+			'garage.addVehicleForm.btnSaveMoto' => 'Save Motorcycle',
 			'garage.addVehicleForm.btnUpdate' => 'Update Vehicle',
 			'garage.addVehicleForm.btnSaved' => 'Vehicle Saved',
+			'garage.addVehicleForm.btnSavedCar' => 'Car Saved',
+			'garage.addVehicleForm.btnSavedMoto' => 'Motorcycle Saved',
 			'garage.addVehicleForm.btnUpdated' => 'Vehicle Updated',
 			'garage.addVehicleForm.btnCancel' => 'Cancel',
 			'garage.vehicleTypes.car' => 'Car',
@@ -851,6 +943,13 @@ extension on TranslationsEn {
 			'garage.recordsCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '1 record', zero: '0 records', other: '{count} records', ), 
 			'garage.totalDistanceMiles' => 'Total Miles',
 			'garage.totalDistanceKm' => 'Total Kilometers',
+			'garage.unitKilometers' => 'Kilometers',
+			'garage.unitMiShort' => 'mi',
+			'garage.unitKmShort' => 'km',
+			'garage.notificationsUnread' => 'Notifications, {count} unread',
+			'garage.notificationsNone' => 'Notifications, no new updates',
+			'garage.goodAfternoon' => 'Good afternoon',
+			'garage.goodEvening' => 'Good evening',
 			'maintenance.title' => 'Maintenance',
 			'maintenance.logTitle' => 'Maintenance Log',
 			'maintenance.logSubtitle' => 'Full service history for your vehicles',
@@ -861,7 +960,7 @@ extension on TranslationsEn {
 			'maintenance.serviceRemoved' => 'Service record removed',
 			'maintenance.errorAddingService' => 'Error adding service: {error}',
 			'maintenance.errorUpdatingService' => 'Error updating record: {error}',
-			'maintenance.errorRemovingService' => 'Error removing record: {error}',
+			'maintenance.errorRemovingService' => 'Could not remove service. Please try again.',
 			'maintenance.removeEntryTitle' => 'Remove Entry?',
 			'maintenance.removeEntryMessage' => 'Are you sure you want to remove the record for "{title}"? This action cannot be undone.',
 			'maintenance.errorTitle' => 'Something went wrong',
@@ -902,6 +1001,15 @@ extension on TranslationsEn {
 			'maintenance.costLabel' => 'COST',
 			'maintenance.costFree' => 'Free',
 			'maintenance.mileageLabel' => 'MILEAGE',
+			'maintenance.serviceNotesLabel' => 'SERVICE NOTES',
+			'maintenance.categoryGeneral' => 'General',
+			'maintenance.historyLabel' => 'History',
+			'maintenance.categories.general' => 'General',
+			'maintenance.categories.fluidService' => 'Fluid Service',
+			'maintenance.categories.wearAndTear' => 'Wear & Tear',
+			'maintenance.categories.inspection' => 'Inspection',
+			'maintenance.categories.cosmetic' => 'Cosmetic',
+			'maintenance.categories.electrical' => 'Electrical',
 			'profile.vehiclePreferences' => 'Vehicle Preferences',
 			'profile.favoriteVehicles' => 'Favorite Vehicles',
 			'profile.favoritesSaved' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '1 favorite saved', zero: 'No favorites saved', other: '{n} favorites saved', ), 
@@ -913,7 +1021,7 @@ extension on TranslationsEn {
 			'profile.criticalAlerts' => 'Critical Alerts',
 			'profile.privacySecurity' => 'Privacy & Security',
 			'profile.securitySubtitleActive' => '2FA active · Protected',
-			'profile.securitySubtitleDefault' => 'Password, 2FA',
+			'profile.securitySubtitleDefault' => 'Password & privacy',
 			'profile.passwordReset' => 'Password Reset',
 			'profile.passwordLastChanged' => 'Last changed 30 days ago',
 			'profile.reset' => 'Reset',
@@ -926,7 +1034,7 @@ extension on TranslationsEn {
 			'profile.themeLight' => 'Light',
 			'profile.theme' => 'Theme',
 			'profile.language' => 'Language',
-			'profile.feedbackSupport' => 'Feedback & Support',
+			'profile.feedbackSupport' => 'Support',
 			'profile.rateDriveTrack' => 'Rate DriveTrack',
 			'profile.shareExperience' => 'Share your experience',
 			'profile.helpSupport' => 'Help & Support',
@@ -947,6 +1055,26 @@ extension on TranslationsEn {
 			'profile.systemOfUnits' => 'Unit System',
 			'profile.metric' => 'Metric',
 			'profile.imperial' => 'Imperial',
+			'profile.editProfile' => 'Edit Profile',
+			'profile.editProfileName' => 'Full Name',
+			'profile.editProfileSave' => 'Save Changes',
+			'profile.editProfileSuccess' => 'Profile updated successfully',
+			'profile.changePassword' => 'Change Password',
+			'profile.currentPassword' => 'Current Password',
+			'profile.newPassword' => 'New Password',
+			'profile.confirmNewPassword' => 'Confirm New Password',
+			'profile.changePasswordSuccess' => 'Password changed successfully',
+			'profile.changePasswordError' => 'Current password is incorrect',
+			'profile.passwordsMismatch' => 'Passwords don\'t match',
+			'profile.callSupport' => 'Call Support',
+			'profile.supportPhone' => '+52 664 536 7724',
+			'profile.loadingPreferences' => 'Loading preferences...',
+			'profile.errorLoadingPreferences' => 'Could not load preferences',
+			'profile.errorLoadingStats' => 'Could not load statistics',
+			'profile.changePhoto' => 'Change Photo',
+			'profile.camera' => 'Camera',
+			'profile.gallery' => 'Gallery',
+			'profile.uploadingPhoto' => 'Uploading photo...',
 			'notifications.title' => 'Notifications',
 			'notifications.unreadSummary' => '{unread} unread · {total} total',
 			'notifications.markAllRead' => 'Mark all read',
@@ -971,6 +1099,9 @@ extension on TranslationsEn {
 			'notifications.typeSuccess' => 'Success',
 			'notifications.typeWeather' => 'Weather',
 			'notifications.typeInfo' => 'Info',
+			'notifications.typeError' => 'Error',
+			'notifications.filterInfo' => 'Info',
+			'notifications.summaryInfo' => 'Info',
 			'notifications.mocks.n1.title' => 'Low tire pressure detected',
 			'notifications.mocks.n1.body' => 'Rear left tire is at 28 PSI. Recommended: 32 PSI.',
 			'notifications.mocks.n1.time' => '2 mins ago',
@@ -1026,6 +1157,7 @@ extension on TranslationsEn {
 			'map.zoomOut' => 'Zoom Out',
 			'map.overpassError' => 'The map server is overloaded. Please retry in a few seconds.',
 			'map.searchThisArea' => 'Search this area',
+			'map.gpsSearching' => 'Searching for GPS location... Make sure location is enabled on your device.',
 			'weatherWidget.alert' => 'WEATHER ALERT',
 			'weatherWidget.condition' => '{weather} · {temp}',
 			'weatherWidget.humidity' => '{value}%',
@@ -1111,6 +1243,12 @@ extension on TranslationsEn {
 			'weather.recommendations.strongWind' => 'Strong wind detected. Grip the wheel firmly, especially on bridges.',
 			'weather.recommendations.extremeWeather' => 'Extreme conditions. Avoid driving and seek safe shelter.',
 			'weather.recommendations.stable' => 'Stable driving conditions. Have a safe trip!',
+			'weather.changeCity' => 'Change city',
+			'weather.changeCityHint' => 'E.g. Houston, US',
+			'weather.changeCityTitle' => 'Weather by city',
+			'weather.useGps' => 'Use GPS',
+			'weather.search' => 'Search',
+			'weather.cityNotFound' => 'City not found. Try «City, Country»',
 			'time.now' => 'Now',
 			'time.today' => 'Today',
 			'time.minutesAgo' => '{n} min ago',

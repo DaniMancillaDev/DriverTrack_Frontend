@@ -4,6 +4,8 @@ class User {
   final String fullName;
   final bool isActive;
   final DateTime createdAt;
+  final DateTime? passwordChangedAt;
+  final String? photoUrl;
 
   /// JWT o token de sesión devuelto por el backend. Puede ser null
   /// si el backend usa cookies en vez de Bearer tokens.
@@ -15,6 +17,8 @@ class User {
     required this.fullName,
     required this.isActive,
     required this.createdAt,
+    this.passwordChangedAt,
+    this.photoUrl,
     this.token,
   });
 
@@ -26,8 +30,10 @@ class User {
       fullName: json['full_name'] as String,
       isActive: json['is_active'] as bool,
       createdAt: DateTime.parse(json['created_at'] as String),
-      // El token puede llegar embebido en el JSON o ser nulo
-      // si el backend usa cookies de sesión.
+      passwordChangedAt: json['password_changed_at'] != null 
+          ? DateTime.parse(json['password_changed_at'] as String).toLocal() 
+          : null,
+      photoUrl: json['photo_url'] as String?,
       token: json['token'] as String?,
     );
   }
@@ -38,6 +44,8 @@ class User {
     String? fullName,
     bool? isActive,
     DateTime? createdAt,
+    DateTime? passwordChangedAt,
+    String? photoUrl,
     String? token,
   }) {
     return User(
@@ -46,6 +54,8 @@ class User {
       fullName: fullName ?? this.fullName,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
+      passwordChangedAt: passwordChangedAt ?? this.passwordChangedAt,
+      photoUrl: photoUrl ?? this.photoUrl,
       token: token ?? this.token,
     );
   }
@@ -58,7 +68,8 @@ class User {
       'full_name': fullName,
       'is_active': isActive,
       'created_at': createdAt.toIso8601String(),
-      // token se persiste por separado en SharedPreferences por seguridad.
+      if (passwordChangedAt != null) 'password_changed_at': passwordChangedAt!.toUtc().toIso8601String(),
+      if (photoUrl != null) 'photo_url': photoUrl,
       if (token != null) 'token': token,
     };
   }

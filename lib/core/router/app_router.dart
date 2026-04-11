@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,16 +8,23 @@ import '../../pages/notifications_page.dart';
 import '../../layouts/main_layout.dart';
 import '../../providers/auth_provider.dart';
 
+/// Provider que solo emite `true`/`false` según si hay sesión activa.
+/// Esto evita que cambios en datos del perfil (nombre, foto)
+/// recreen el GoRouter y reseteen la navegación.
+final _isAuthenticatedProvider = Provider<bool>((ref) {
+  final user = ref.watch(authProvider);
+  return user != null;
+});
+
 /// Define the global router relying on the authProvider to redirect users
 /// proactively when authentication state changes.
 final goRouterProvider = Provider<GoRouter>((ref) {
-  final user = ref.watch(authProvider);
+  final isAuth = ref.watch(_isAuthenticatedProvider);
 
   return GoRouter(
     initialLocation: '/',
     // Redirect logic: evaluate where to redirect based on auth status
     redirect: (context, state) {
-      final isAuth = user != null;
       final isGoingToLogin = state.matchedLocation == '/login';
       final isGoingToRegister = state.matchedLocation == '/registration';
 

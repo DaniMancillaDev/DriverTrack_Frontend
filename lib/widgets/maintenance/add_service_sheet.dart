@@ -48,7 +48,7 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
   bool _isSaved = false;
   final Set<String> _dirtyFields = {};
   String _selectedCategory = 'General';
-  final List<String> _categories = [
+  static const List<String> _categoryKeys = [
     'General',
     'Fluid Service',
     'Wear & Tear',
@@ -56,6 +56,18 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
     'Cosmetic',
     'Electrical',
   ];
+
+  String _categoryLabel(String key, Translations t) {
+    switch (key) {
+      case 'General':      return t.maintenance.categories.general;
+      case 'Fluid Service': return t.maintenance.categories.fluidService;
+      case 'Wear & Tear':  return t.maintenance.categories.wearAndTear;
+      case 'Inspection':   return t.maintenance.categories.inspection;
+      case 'Cosmetic':     return t.maintenance.categories.cosmetic;
+      case 'Electrical':   return t.maintenance.categories.electrical;
+      default:             return key;
+    }
+  }
 
   // Validation state
   String? _serviceError;
@@ -263,10 +275,10 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
               1,
               CustomDropdown<String>(
                 value: _selectedCategory,
-                label: 'Category',
+                label: t.maintenance.category,
                 icon: Icons.category_rounded,
-                items: _categories,
-                itemLabelBuilder: (c) => c,
+                items: _categoryKeys,
+                itemLabelBuilder: (c) => _categoryLabel(c, t),
                 onChanged: (c) {
                   if (c != null) setState(() => _selectedCategory = c);
                 },
@@ -322,7 +334,7 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                 ],
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.lg),
 
             // Cost and Mileage on the same row
             Row(
@@ -373,7 +385,7 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.lg),
 
             _buildAnimatedItem(
               5,
@@ -385,6 +397,7 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                 onChanged: (_) => setState(() {}),
               ),
             ),
+            const SizedBox(height: AppSpacing.lg),
             if (_serviceController.text.isNotEmpty ||
                 _costController.text.isNotEmpty)
               _buildAnimatedItem(6, _buildRecordPreview(context)),
@@ -446,7 +459,9 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
         borderRadius: BorderRadius.circular(AppRadius.xxl),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: context.colors.isDark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -486,13 +501,13 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                 ? Translations.of(context).maintenance.untitledService
                 : _serviceController.text,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.white,
+              color: context.colors.textMain,
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(
-            '${_selectedVehicle?.displayName ?? Translations.of(context).maintenance.unknownVehicle} • ${DateFormat('MMM d, y').format(_selectedDate)}',
+            '${_selectedVehicle?.displayName ?? Translations.of(context).maintenance.unknownVehicle} • ${DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(_selectedDate)}',
             style: Theme.of(
               context,
             ).textTheme.bodySmall?.copyWith(color: context.colors.textMuted),
@@ -547,7 +562,7 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                       fractionDigits: 0,
                     ),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
+                      color: context.colors.textMain,
                       fontWeight: FontWeight.w800,
                     ),
                   ),

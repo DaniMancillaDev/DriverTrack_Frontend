@@ -34,23 +34,28 @@ class GeocodingService {
 
     // Determine the Overpass query
     String oqlQuery = '';
+    String nameFilter = query.isNotEmpty ? '["name"~"$query",i]' : '';
+
     if (type == 'gasstation') {
-      oqlQuery = 'nwr["amenity"="fuel"]($bBoxStr);';
+      oqlQuery = 'nwr["amenity"="fuel"]$nameFilter($bBoxStr);';
+      if (query.isNotEmpty) oqlQuery += 'nwr["brand"~"$query",i]["amenity"="fuel"]($bBoxStr);';
     } else if (type == 'workshop') {
       // Use regex in the key value to combine multiple lookups into one server pass
-      oqlQuery = 'nwr["shop"~"car_repair|motorcycle_repair"]($bBoxStr);';
-      oqlQuery += 'nwr["craft"="car_painter"]($bBoxStr);';
+      oqlQuery = 'nwr["shop"~"car_repair|motorcycle_repair"]$nameFilter($bBoxStr);';
+      oqlQuery += 'nwr["craft"="car_painter"]$nameFilter($bBoxStr);';
     } else if (type == 'all' && query.isEmpty) {
       // General map exploratory sweep - combined for efficiency
       oqlQuery = 'nwr["amenity"="fuel"]($bBoxStr);';
       oqlQuery += 'nwr["shop"~"car_repair|motorcycle_repair"]($bBoxStr);';
       oqlQuery += 'nwr["craft"="car_painter"]($bBoxStr);';
     } else if (query.isNotEmpty) {
-      // Search across name, brand, or amenity types
-      oqlQuery = 'nwr["name"~"$query",i]($bBoxStr);';
+      // Search across name, brand, or amenity types for automotive-related entities
+      oqlQuery = 'nwr["amenity"="fuel"]$nameFilter($bBoxStr);';
+      oqlQuery += 'nwr["shop"~"car_repair|motorcycle_repair"]$nameFilter($bBoxStr);';
+      oqlQuery += 'nwr["craft"="car_painter"]$nameFilter($bBoxStr);';
+      // Also allow pure name/brand matches if they didn't fall into the strict tags
+      oqlQuery += 'nwr["name"~"$query",i]($bBoxStr);';
       oqlQuery += 'nwr["brand"~"$query",i]($bBoxStr);';
-      oqlQuery += 'nwr["amenity"~"$query",i]($bBoxStr);';
-      oqlQuery += 'nwr["shop"~"$query",i]($bBoxStr);';
     } else {
       // Nothing selected and no query? Avoid server load.
       return [];

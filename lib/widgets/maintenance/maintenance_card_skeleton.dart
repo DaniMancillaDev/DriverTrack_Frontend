@@ -17,6 +17,19 @@ class MaintenanceCardSkeleton extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
+        border: Border.all(
+           color: context.colors.border.withValues(alpha: 0.3),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: context.colors.isDark
+                ? Colors.black.withValues(alpha: 0.15)
+                : Colors.black.withValues(alpha: 0.06),
+            blurRadius: r.dim(24),
+            offset: Offset(0, r.dim(8)),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

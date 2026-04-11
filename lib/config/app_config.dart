@@ -13,7 +13,7 @@ class AppConfig {
   factory AppConfig.dev() {
     return const AppConfig(
       baseUrl: 'http://127.0.0.1:8000',
-      openWeatherApiKey: 'REDACTED_API_KEY',
+      openWeatherApiKey: String.fromEnvironment('OWM_API_KEY'),
     );
   }
 

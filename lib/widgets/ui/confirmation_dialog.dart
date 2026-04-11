@@ -71,7 +71,7 @@ class ConfirmationDialog extends StatelessWidget {
               height: r.dim(4),
               margin: EdgeInsets.only(bottom: r.space(AppSpacing.lg)),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.12),
+                color: context.colors.borderLight,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -97,7 +97,7 @@ class ConfirmationDialog extends StatelessWidget {
             title,
             style: AppTextStyles.sheetTitle(
               context,
-            ).copyWith(color: Colors.white),
+            ).copyWith(color: context.colors.textMain),
           ),
           SizedBox(height: r.space(AppSpacing.xs)),
           Text(

@@ -89,7 +89,7 @@ class VehicleTypeToggle extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: isActive ? Colors.white : context.colors.textDark,
+              color: isActive ? context.colors.textMain : context.colors.textDark,
               size: AppIconSizes.md(context),
             ),
             SizedBox(width: r.space(AppSpacing.xs)),
@@ -103,7 +103,7 @@ class VehicleTypeToggle extends StatelessWidget {
                           ? Translations.of(context).garage.vehicleTypes.car
                           : type.label),
                 style: AppTextStyles.bodyMedium(context).copyWith(
-                  color: isActive ? Colors.white : context.colors.textDark,
+                  color: isActive ? context.colors.textMain : context.colors.textDark,
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                 ),
                 overflow: TextOverflow.ellipsis,

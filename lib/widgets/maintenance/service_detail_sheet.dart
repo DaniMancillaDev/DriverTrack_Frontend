@@ -22,8 +22,6 @@ class ServiceDetailSheet extends ConsumerWidget {
   final String? notes;
   final Color accentColor;
   final String category;
-  final bool isExpanded;
-  final VoidCallback onToggle;
   final VoidCallback onClose;
   final VoidCallback? onEdit;
   final VoidCallback? onRemove;
@@ -38,8 +36,6 @@ class ServiceDetailSheet extends ConsumerWidget {
     required this.accentColor,
     required this.category,
     this.notes,
-    required this.isExpanded,
-    required this.onToggle,
     required this.onClose,
     this.onEdit,
     this.onRemove,
@@ -51,35 +47,18 @@ class ServiceDetailSheet extends ConsumerWidget {
     final r = context.responsive;
 
     return SheetContainer(
-      height: isExpanded
-          ? MediaQuery.of(context).size.height * 0.85
-          : r.dim(450),
-      showDragHandle: false,
-      child: Column(
-        children: [
-          // Custom Handle for Toggle
-          GestureDetector(
-            onVerticalDragUpdate: (details) {
-              if (details.delta.dy < -10 && !isExpanded) onToggle();
-              if (details.delta.dy > 10 && isExpanded) onToggle();
-            },
-            onTap: onToggle,
-            child: _buildHandle(context),
-          ),
-
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                r.space(AppSpacing.lg),
-                0,
-                r.space(AppSpacing.lg),
-                r.space(AppSpacing.xl),
-              ),
-              physics: isExpanded
-                  ? const BouncingScrollPhysics()
-                  : const NeverScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      showDragHandle: true,
+      onClose: onClose,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          r.space(AppSpacing.lg),
+          0,
+          r.space(AppSpacing.lg),
+          r.space(AppSpacing.xl),
+        ),
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SheetHeader(
                     title: serviceTitle,
@@ -116,9 +95,6 @@ class ServiceDetailSheet extends ConsumerWidget {
                 ],
               ),
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -273,7 +249,7 @@ class ServiceDetailSheet extends ConsumerWidget {
       ),
       StatItem(
         label: Translations.of(context).maintenance.date,
-        value: DateFormat('MMM d, y').format(date),
+        value: DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(date),
         accent: AppColors.cyan,
       ),
       StatItem(
@@ -292,7 +268,7 @@ class ServiceDetailSheet extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'SERVICE NOTES',
+          Translations.of(context).maintenance.serviceNotesLabel,
           style: AppTextStyles.label(context).copyWith(
             color: context.colors.textMuted,
             fontWeight: FontWeight.w800,

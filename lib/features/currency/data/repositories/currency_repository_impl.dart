@@ -59,7 +59,7 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
         return Result.failure(e);
       }
     } catch (e) {
-      return Result.failure(ServerFailure(e.toString()));
+      return Result.failure(ServerFailure());
     }
   }
 

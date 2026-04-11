@@ -51,17 +51,21 @@ class SheetHeader extends StatelessWidget {
               trailing!,
               SizedBox(width: r.space(AppSpacing.xs)),
             ],
-            IconButton(
-              onPressed: onClose,
-              icon: Icon(
-                Icons.close,
-                color: context.colors.textMuted,
-                size: AppIconSizes.md(context),
-              ),
-              style: IconButton.styleFrom(
-                backgroundColor: context.colors.surfaceLight,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
+            Semantics(
+              button: true,
+              label: 'Cerrar',
+              child: IconButton(
+                onPressed: onClose,
+                icon: Icon(
+                  Icons.close,
+                  color: context.colors.textMuted,
+                  size: AppIconSizes.md(context),
+                ),
+                style: IconButton.styleFrom(
+                  backgroundColor: context.colors.surfaceLight,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
+                  ),
                 ),
               ),
             ),

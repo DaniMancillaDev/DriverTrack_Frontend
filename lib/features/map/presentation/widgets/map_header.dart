@@ -1,3 +1,4 @@
+// Removed dart:ui
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,17 +9,37 @@ import '../../../../../core/responsive/responsive.dart';
 import '../providers/map_providers.dart';
 import '../../../../theme/app_color_scheme.dart';
 
-class MapHeaderWidget extends ConsumerWidget {
+class MapHeaderWidget extends ConsumerStatefulWidget {
   final VoidCallback onFilterChanged;
 
   const MapHeaderWidget({super.key, required this.onFilterChanged});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MapHeaderWidget> createState() => _MapHeaderWidgetState();
+}
+
+class _MapHeaderWidgetState extends ConsumerState<MapHeaderWidget> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _searchController.text = ref.read(mapSearchProvider);
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final r = context.responsive;
     final activeFilter = ref.watch(mapFilterProvider);
     final searchQuery = ref.watch(mapSearchProvider);
-    final isSearching = ref.watch(nearbyLocationsProvider).isLoading;
 
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -28,16 +49,7 @@ class MapHeaderWidget extends ConsumerWidget {
         r.space(AppSpacing.s),
       ),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: const [0.0, 0.6, 1.0],
-          colors: [
-            context.colors.background.withValues(alpha: 0.97),
-            context.colors.background.withValues(alpha: 0.7),
-            Colors.transparent,
-          ],
-        ),
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,7 +65,6 @@ class MapHeaderWidget extends ConsumerWidget {
                   ).copyWith(color: context.colors.textMain, fontWeight: FontWeight.w900),
                 ),
               ),
-              const _LiveBadge(),
             ],
           ),
           SizedBox(height: r.space(AppSpacing.md)),
@@ -65,6 +76,7 @@ class MapHeaderWidget extends ConsumerWidget {
               borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
             ),
             child: TextField(
+              controller: _searchController,
               onChanged: (val) =>
                   ref.read(mapSearchProvider.notifier).setSearch(val),
               style: AppTextStyles.bodyMedium(
@@ -80,32 +92,21 @@ class MapHeaderWidget extends ConsumerWidget {
                   color: context.colors.textMuted,
                   size: AppIconSizes.md(context),
                 ),
-                suffixIcon: isSearching
-                    ? Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.cyan,
-                          ),
+                suffixIcon: searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.close,
+                          color: context.colors.textMuted,
+                          size: AppIconSizes.sm(context),
                         ),
+                        onPressed: () {
+                          _searchController.clear();
+                          ref
+                              .read(mapSearchProvider.notifier)
+                              .setSearch('');
+                        },
                       )
-                    : (searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(
-                                Icons.close,
-                                color: context.colors.textMuted,
-                                size: AppIconSizes.sm(context),
-                              ),
-                              onPressed: () {
-                                ref
-                                    .read(mapSearchProvider.notifier)
-                                    .setSearch('');
-                              },
-                            )
-                          : null),
+                    : null,
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(
                   vertical: r.space(AppSpacing.s),
@@ -176,7 +177,7 @@ class MapHeaderWidget extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         ref.read(mapFilterProvider.notifier).setFilter(key);
-        onFilterChanged();
+        widget.onFilterChanged();
       },
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -210,84 +211,6 @@ class MapHeaderWidget extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ── Badge animado "En vivo" ─────────────────────────────────────────────────
-// Un puntito naranja que pulsa con escala 0.4→1.0 en loop infinito.
-// Patrón usado por Google Maps, Uber, apps de live streaming.
-class _LiveBadge extends StatefulWidget {
-  const _LiveBadge();
-
-  @override
-  State<_LiveBadge> createState() => _LiveBadgeState();
-}
-
-class _LiveBadgeState extends State<_LiveBadge>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-  late final Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    _scale = Tween<double>(begin: 0.4, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final r = context.responsive;
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: r.space(AppSpacing.s),
-        vertical: r.space(6),
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.orangePrimary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(r.r(AppRadius.lg)),
-        border: Border.all(
-          color: AppColors.orangePrimary.withValues(alpha: 0.25),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ScaleTransition(
-            scale: _scale,
-            child: Container(
-              width: r.dim(7),
-              height: r.dim(7),
-              decoration: const BoxDecoration(
-                color: AppColors.orangePrimary,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          SizedBox(width: r.space(6)),
-          Text(
-            Translations.of(context).map.live,
-            style: AppTextStyles.caption(context).copyWith(
-              color: AppColors.orangePrimary,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.3,
-            ),
-          ),
-        ],
       ),
     );
   }

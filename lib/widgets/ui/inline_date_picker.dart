@@ -74,7 +74,7 @@ class _InlineDatePickerState extends State<InlineDatePicker> {
               Text(
                 value,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
+                  color: context.colors.textMain,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -104,10 +104,20 @@ class _InlineDatePickerState extends State<InlineDatePicker> {
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             children: [
+              // Drag handle
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: context.colors.borderLight,
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                ),
+              ),
               Text(
                 title,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
+                  color: context.colors.textMain,
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
@@ -162,7 +172,7 @@ class _InlineDatePickerState extends State<InlineDatePicker> {
         const SizedBox(width: AppSpacing.s),
         _buildField(
           label: 'Mes',
-          value: DateFormat('MMM').format(DateTime(2020, _selectedMonth)),
+          value: DateFormat.MMM(Localizations.localeOf(context).languageCode).format(DateTime(2020, _selectedMonth)),
           onTap: () => _showSelector('Mes', _months, _selectedMonth, (v) {
             _selectedMonth = v;
             _updateDate();

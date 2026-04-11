@@ -29,10 +29,59 @@ class ProfileStatsDashboard extends ConsumerWidget {
           return _buildDashboard(context, viewModel);
         },
         loading: () => const ProfileStatsSkeleton(),
-        error: (_, __) => const ProfileStatsSkeleton(),
+        error: (_, __) => _buildErrorState(context, ref),
       ),
       loading: () => const ProfileStatsSkeleton(),
-      error: (_, __) => const ProfileStatsSkeleton(),
+      error: (_, __) => _buildErrorState(context, ref),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, WidgetRef ref) {
+    final r = context.responsive;
+    final t = Translations.of(context);
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.lg)),
+      child: Container(
+        padding: EdgeInsets.all(r.space(AppSpacing.md)),
+        decoration: BoxDecoration(
+          color: context.colors.surfaceLight,
+          border: Border.all(color: context.colors.borderLight, width: 1.0),
+          borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_off_outlined,
+              color: context.colors.textMuted,
+              size: AppIconSizes.lg(context),
+            ),
+            SizedBox(height: r.space(AppSpacing.xs)),
+            Text(
+              t.profile.errorLoadingStats,
+              style: AppTextStyles.caption(context).copyWith(
+                color: context.colors.textMuted,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: r.space(AppSpacing.s)),
+            TextButton.icon(
+              onPressed: () {
+                ref.invalidate(vehiclesProvider);
+                ref.invalidate(
+                  maintenanceDocsProvider(const MaintenanceParams()),
+                );
+              },
+              icon: Icon(Icons.refresh, size: AppIconSizes.xs(context)),
+              label: Text(t.common.retry),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.orangePrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -61,7 +110,7 @@ class ProfileStatsDashboard extends ConsumerWidget {
                     margin: EdgeInsets.symmetric(
                       vertical: r.space(AppSpacing.md),
                     ),
-                    color: Colors.white.withValues(alpha: 0.07),
+                    color: context.colors.borderLight,
                   ),
                 );
               }

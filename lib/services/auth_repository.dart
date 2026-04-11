@@ -7,7 +7,7 @@ class AuthRepository {
   AuthRepository(this._apiClient);
 
   /// Registra un nuevo usuario en la base de datos
-  Future<User> register({
+  Future<AuthTokens> register({
     required String email,
     required String password,
     required String fullName,
@@ -18,22 +18,50 @@ class AuthRepository {
       'full_name': fullName,
     });
 
-    // El endpoint /auth/register responde con el objeto UserResponse directamente
-    return User.fromJson(response);
+    // Responde: { "access_token": "...", "refresh_token": "...", "user": { ... } }
+    final accessToken = response['access_token'] as String;
+    final refreshToken = response['refresh_token'] as String;
+    final userData = response['user'] ?? response;
+    final user = User.fromJson(userData).copyWith(token: accessToken);
+    return AuthTokens(user: user, refreshToken: refreshToken);
   }
 
   /// Inicia sesión con credenciales existentes
-  Future<User> login({required String email, required String password}) async {
+  Future<AuthTokens> login({required String email, required String password}) async {
     final response = await _apiClient.post('/auth/login', {
       'email': email,
       'password': password,
     });
 
-    // El endpoint /auth/login devuelve { "message": "...", "user": { ... } }
-    if (response['user'] != null) {
-      return User.fromJson(response['user']);
-    } else {
+    // Responde: { "access_token": "...", "refresh_token": "...", "user": { ... } }
+    final accessToken = response['access_token'] as String;
+    final refreshToken = response['refresh_token'] as String;
+    final userData = response['user'];
+    if (userData == null) {
       throw Exception('Estructura de respuesta inválida desde el backend.');
     }
+    final user = User.fromJson(userData).copyWith(token: accessToken);
+    return AuthTokens(user: user, refreshToken: refreshToken);
   }
+
+  /// Solicita un nuevo access token usando el refresh token guardado.
+  /// Devuelve el nuevo access token, o null si el refresh token también expiró.
+  Future<String?> refreshAccessToken(String refreshToken) async {
+    try {
+      final response = await _apiClient.post('/auth/refresh', {
+        'refresh_token': refreshToken,
+      });
+      return response['access_token'] as String?;
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+/// Contenedor de tokens devueltos por login/register.
+class AuthTokens {
+  final User user;
+  final String refreshToken;
+
+  const AuthTokens({required this.user, required this.refreshToken});
 }

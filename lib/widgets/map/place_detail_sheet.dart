@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_theme.dart';
 import '../../features/map/domain/entities/map_location.dart';
 import '../ui/star_rating.dart';
@@ -9,15 +10,11 @@ import '../../theme/app_color_scheme.dart';
 
 class PlaceDetailSheet extends StatelessWidget {
   final MapLocation location;
-  final bool isExpanded;
-  final VoidCallback onToggle;
   final VoidCallback onClose;
 
   const PlaceDetailSheet({
     super.key,
     required this.location,
-    required this.isExpanded,
-    required this.onToggle,
     required this.onClose,
   });
 
@@ -32,7 +29,7 @@ class PlaceDetailSheet extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: r.value(mobile: 600, tablet: 700),
-          maxHeight: MediaQuery.of(context).size.height * 0.5,
+          maxHeight: MediaQuery.of(context).size.height * 0.90,
         ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
@@ -51,73 +48,30 @@ class PlaceDetailSheet extends StatelessWidget {
               ),
             ],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Handle
-              GestureDetector(
-                onVerticalDragUpdate: (details) {
-                  if (details.delta.dy < -10 && !isExpanded) {
-                    onToggle();
-                  } else if (details.delta.dy > 10 && isExpanded) {
-                    onToggle();
-                  }
-                },
-                onTap: onToggle,
-                child: Container(
-                  width: double.infinity,
-                  color: Colors.transparent,
-                  padding: EdgeInsets.symmetric(
-                    vertical: r.space(AppSpacing.s),
-                  ),
-                  child: Center(
-                    child: Container(
-                      width: r.dim(36),
-                      height: r.dim(4),
-                      decoration: BoxDecoration(
-                        color: context.colors.borderLight,
-                        borderRadius: BorderRadius.circular(r.r(AppRadius.xs)),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              Flexible(
-                child: SingleChildScrollView(
-                  physics: isExpanded
-                      ? const BouncingScrollPhysics()
-                      : const NeverScrollableScrollPhysics(),
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      r.space(AppSpacing.lg),
-                      0,
-                      r.space(AppSpacing.lg),
-                      r.space(AppSpacing.lg),
-                    ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.all(r.space(AppSpacing.lg)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildHeader(context, accent, isWorkshop),
                         SizedBox(height: r.space(AppSpacing.md)),
-                        _buildQuickStats(context),
+                        _buildQuickStats(context, accent),
                         SizedBox(height: r.space(AppSpacing.md)),
                         _buildInfoGrid(context),
                         if (location.specialties != null) ...[
                           SizedBox(height: r.space(AppSpacing.md)),
-                          _buildSpecialties(context),
+                          _buildSpecialties(context, accent),
                         ],
                         SizedBox(height: r.space(AppSpacing.lg)),
-                        _buildActionButtons(context),
+                        _buildActionButtons(context, accent, isWorkshop),
                       ],
                     ),
                   ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-      ),
     );
   }
 
@@ -148,7 +102,7 @@ class PlaceDetailSheet extends StatelessWidget {
                 location.name,
                 style: AppTextStyles.sheetTitle(
                   context,
-                ).copyWith(color: Colors.white),
+                ).copyWith(color: context.colors.textMain),
               ),
               SizedBox(height: r.space(4)),
               Row(
@@ -197,7 +151,7 @@ class PlaceDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickStats(BuildContext context) {
+  Widget _buildQuickStats(BuildContext context, Color accent) {
     final r = context.responsive;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -219,24 +173,26 @@ class PlaceDetailSheet extends StatelessWidget {
               context,
             ).copyWith(color: context.colors.textSecondary),
           ),
+          if (location.distance.isNotEmpty) ...[
+            SizedBox(width: r.space(AppSpacing.s)),
+            Container(
+              width: 1,
+              height: r.dim(14),
+              color: context.colors.borderLight,
+            ),
+            SizedBox(width: r.space(AppSpacing.s)),
+            Text(
+              location.distance,
+              style: AppTextStyles.bodySmall(
+                context,
+              ).copyWith(color: accent, fontWeight: FontWeight.w600),
+            ),
+          ],
           SizedBox(width: r.space(AppSpacing.s)),
           Container(
             width: 1,
             height: r.dim(14),
-            color: Colors.white.withValues(alpha: 0.08),
-          ),
-          SizedBox(width: r.space(AppSpacing.s)),
-          Text(
-            location.distance,
-            style: AppTextStyles.bodySmall(
-              context,
-            ).copyWith(color: AppColors.cyan, fontWeight: FontWeight.w600),
-          ),
-          SizedBox(width: r.space(AppSpacing.s)),
-          Container(
-            width: 1,
-            height: r.dim(14),
-            color: Colors.white.withValues(alpha: 0.08),
+            color: context.colors.borderLight,
           ),
           SizedBox(width: r.space(AppSpacing.s)),
           Container(
@@ -257,13 +213,6 @@ class PlaceDetailSheet extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(width: r.space(AppSpacing.s)),
-          Text(
-            location.priceLevel,
-            style: AppTextStyles.bodySmall(
-              context,
-            ).copyWith(color: context.colors.textSecondary),
-          ),
         ],
       ),
     );
@@ -271,19 +220,27 @@ class PlaceDetailSheet extends StatelessWidget {
 
   Widget _buildInfoGrid(BuildContext context) {
     final r = context.responsive;
+    final bool hasPhone = location.phone.trim().isNotEmpty && location.phone != 'Unknown';
+    final bool hasHours = location.hours.trim().isNotEmpty && location.hours != 'Horario no especificado';
+    
+    // Si no tiene horas ni teléfono, no mostramos la cuadrícula
+    if (!hasHours && !hasPhone) return const SizedBox.shrink();
+
     return Row(
       children: [
-        Expanded(
-          child: _buildInfoTag(
-            context,
-            Icons.access_time_filled_rounded,
-            location.hours,
+        if (hasHours)
+          Expanded(
+            child: _buildInfoTag(
+              context,
+              Icons.access_time_filled_rounded,
+              location.hours,
+            ),
           ),
-        ),
-        SizedBox(width: r.space(AppSpacing.xs)),
-        Expanded(
-          child: _buildInfoTag(context, Icons.phone_rounded, location.phone),
-        ),
+        if (hasHours && hasPhone) SizedBox(width: r.space(AppSpacing.xs)),
+        if (hasPhone)
+          Expanded(
+            child: _buildInfoTag(context, Icons.phone_rounded, location.phone),
+          ),
       ],
     );
   }
@@ -318,7 +275,7 @@ class PlaceDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildSpecialties(BuildContext context) {
+  Widget _buildSpecialties(BuildContext context, Color accent) {
     final r = context.responsive;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,13 +298,13 @@ class PlaceDetailSheet extends StatelessWidget {
                     vertical: r.space(AppSpacing.xxs),
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.orangePrimary.withValues(alpha: 0.08),
+                    color: accent.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
                   ),
                   child: Text(
                     s,
                     style: AppTextStyles.caption(context).copyWith(
-                      color: AppColors.orangeSecondary,
+                      color: accent,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -359,26 +316,37 @@ class PlaceDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, Color accent, bool isWorkshop) {
     final r = context.responsive;
+    final bool hasPhone = location.phone.trim().isNotEmpty && location.phone != 'Unknown';
+    
     return Row(
       children: [
         Expanded(
           child: CustomButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    Translations.of(
-                      context,
-                    ).map.navigatingTo.replaceAll('{name}', location.name),
-                  ),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: context.colors.surface,
-                ),
-              );
+            onPressed: () async {
+              final url = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${location.latitude},${location.longitude}');
+              try {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        Translations.of(
+                          context,
+                        ).map.navigatingTo.replaceAll('{name}', location.name),
+                        style: TextStyle(color: context.colors.surface),
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: context.colors.textMain,
+                    ),
+                  );
+                }
+              }
             },
             variant: ButtonVariant.gradient,
+            gradientColors: isWorkshop ? null : [accent, accent],
             size: ButtonSize.lg,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -403,19 +371,30 @@ class PlaceDetailSheet extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(width: r.space(AppSpacing.s)),
-        _buildCircularAction(context, Icons.call_rounded, () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                Translations.of(
-                  context,
-                ).map.calling.replaceAll('{phone}', location.phone),
-              ),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }),
+        if (hasPhone) ...[
+          SizedBox(width: r.space(AppSpacing.s)),
+          _buildCircularAction(context, Icons.call_rounded, accent, () async {
+            final url = Uri.parse('tel:${location.phone}');
+            try {
+              await launchUrl(url);
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      Translations.of(
+                        context,
+                      ).map.calling.replaceAll('{phone}', location.phone),
+                      style: TextStyle(color: context.colors.surface),
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: context.colors.textMain,
+                  ),
+                );
+              }
+            }
+          }),
+        ],
       ],
     );
   }
@@ -423,6 +402,7 @@ class PlaceDetailSheet extends StatelessWidget {
   Widget _buildCircularAction(
     BuildContext context,
     IconData icon,
+    Color accent,
     VoidCallback onTap,
   ) {
     final r = context.responsive;
@@ -444,7 +424,7 @@ class PlaceDetailSheet extends StatelessWidget {
         ),
         child: Icon(
           icon,
-          color: AppColors.cyan,
+          color: accent,
           size: AppIconSizes.lg(context),
         ),
       ),

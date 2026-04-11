@@ -103,12 +103,14 @@ class _VehicleCardState extends ConsumerState<VehicleCard> {
             color: context.colors.surface,
             borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.05),
+               color: context.colors.border.withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
+                color: context.colors.isDark
+                    ? Colors.black.withValues(alpha: 0.15)
+                    : Colors.black.withValues(alpha: 0.06),
                 blurRadius: r.dim(24),
                 offset: Offset(0, r.dim(8)),
               ),
@@ -165,9 +167,7 @@ class _VehicleCardState extends ConsumerState<VehicleCard> {
                                 errorBuilder: (context, error, stackTrace) {
                                   return Center(
                                     child: Icon(
-                                      v.type.toLowerCase().contains('moto')
-                                          ? Icons.motorcycle
-                                          : Icons.directions_car,
+                                      v.typeIcon,
                                       color: context.colors.borderLight,
                                       size: r.dim(32),
                                     ),
@@ -247,9 +247,7 @@ class _VehicleCardState extends ConsumerState<VehicleCard> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Flexible(
-                                      child: Tooltip(
-                                        message: statusText,
-                                        child: Container(
+                                      child: Container(
                                           padding: EdgeInsets.symmetric(
                                             horizontal: r.space(8),
                                             vertical: r.space(4),
@@ -283,7 +281,6 @@ class _VehicleCardState extends ConsumerState<VehicleCard> {
                                               ),
                                             ],
                                           ),
-                                        ),
                                       ),
                                     ),
                                     SizedBox(width: r.space(8)),
@@ -321,7 +318,7 @@ class _VehicleCardState extends ConsumerState<VehicleCard> {
                                       )
                                     else
                                       Icon(
-                                        Icons.arrow_forward_ios_rounded,
+                                        Icons.arrow_forward_ios,
                                         color: context.colors.borderLight,
                                         size: r.dim(12),
                                       ),

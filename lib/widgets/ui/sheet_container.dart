@@ -1,3 +1,4 @@
+// Removed dart:ui
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_color_scheme.dart';
@@ -8,6 +9,8 @@ class SheetContainer extends StatelessWidget {
   final double maxWidth;
   final double? height;
   final BoxBorder? border;
+  final VoidCallback? onClose;
+  final VoidCallback? onToggle;
 
   const SheetContainer({
     super.key,
@@ -16,6 +19,8 @@ class SheetContainer extends StatelessWidget {
     this.maxWidth = 600,
     this.height,
     this.border,
+    this.onClose,
+    this.onToggle,
   });
 
   @override
@@ -23,7 +28,10 @@ class SheetContainer extends StatelessWidget {
     return Align(
       alignment: Alignment.bottomCenter,
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
+        constraints: BoxConstraints(
+          maxWidth: maxWidth,
+          maxHeight: MediaQuery.of(context).size.height * 0.90,
+        ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 400),
           curve: Curves.fastOutSlowIn,
@@ -46,22 +54,22 @@ class SheetContainer extends StatelessWidget {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Column(
-            mainAxisSize: height == null ? MainAxisSize.min : MainAxisSize.max,
-            children: [
-              if (showDragHandle)
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: AppSpacing.s),
-                  width: 48,
-                  height: 6, // Bigger thumb target (Tip 1)
-                  decoration: BoxDecoration(
-                    color: context.colors.surfaceLight2,
-                    borderRadius: BorderRadius.circular(AppRadius.xs),
-                  ),
+                child: Column(
+                  mainAxisSize: height == null ? MainAxisSize.min : MainAxisSize.max,
+                  children: [
+                    if (showDragHandle)
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: AppSpacing.s),
+                        width: 48,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: context.colors.surfaceLight2,
+                          borderRadius: BorderRadius.circular(AppRadius.xs),
+                        ),
+                      ),
+                    Flexible(child: child),
+                  ],
                 ),
-              Flexible(child: child),
-            ],
-          ),
         ),
       ),
     );

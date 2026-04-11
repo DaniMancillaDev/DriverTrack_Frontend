@@ -218,59 +218,9 @@ class WeatherWidget extends ConsumerWidget {
   }
 
   void _showCityInputDialog(BuildContext context, WidgetRef ref) {
-    final controller = TextEditingController();
-    final r = context.responsive;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: context.colors.surface,
-        title: Text(
-          'Change City',
-          style: AppTextStyles.title(context).copyWith(color: context.colors.textMain),
-        ),
-        content: TextField(
-          controller: controller,
-          style: AppTextStyles.body(context).copyWith(color: context.colors.textMain),
-          decoration: InputDecoration(
-            hintText: 'Ej. Monterrey, MX',
-            hintStyle: AppTextStyles.body(
-              context,
-            ).copyWith(color: context.colors.textMuted),
-            filled: true,
-            fillColor: context.colors.surfaceLight,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              ref.read(weatherProvider.notifier).setManualCity('');
-              Navigator.pop(context);
-            },
-            child: Text(
-              'Use GPS',
-              style: TextStyle(color: context.colors.textMuted),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              if (controller.text.isNotEmpty) {
-                ref
-                    .read(weatherProvider.notifier)
-                    .setManualCity(controller.text);
-              }
-              Navigator.pop(context);
-            },
-            child: Text(
-              'Search',
-              style: TextStyle(color: AppColors.orangePrimary),
-            ),
-          ),
-        ],
-      ),
+      builder: (context) => _CityInputDialog(ref: ref),
     );
   }
 
@@ -480,5 +430,178 @@ class WeatherWidget extends ConsumerWidget {
       'extremeWeather' => t.weather.recommendations.extremeWeather,
       _ => t.weather.recommendations.stable,
     };
+  }
+}
+
+// ─── City Input Dialog ───────────────────────────────────────
+
+/// Dialog para cambiar la ciudad del clima manualmente.
+///
+/// Incluye:
+/// - Validación en tiempo real (ciudad no encontrada → muestra error inline)
+/// - Indicador de carga mientras busca
+/// - Botón "Usar GPS" para volver al modo automático
+class _CityInputDialog extends StatefulWidget {
+  final WidgetRef ref;
+
+  const _CityInputDialog({required this.ref});
+
+  @override
+  State<_CityInputDialog> createState() => _CityInputDialogState();
+}
+
+class _CityInputDialogState extends State<_CityInputDialog> {
+  final _controller = TextEditingController();
+  bool _isLoading = false;
+  String? _errorText;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _search() async {
+    final city = _controller.text.trim();
+    if (city.isEmpty) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorText = null;
+    });
+
+    try {
+      await widget.ref.read(weatherProvider.notifier).setManualCity(city);
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          // Detecta si el error fue 404 (ciudad no encontrada)
+          final msg = e.toString().toLowerCase();
+          if (msg.contains('404') || msg.contains('not found') || msg.contains('ciudad')) {
+            _errorText = Translations.of(context).weather.cityNotFound;
+          } else {
+            _errorText = Translations.of(context).weather.cityNotFound;
+          }
+        });
+      }
+    }
+  }
+
+  void _useGps() {
+    widget.ref.read(weatherProvider.notifier).setManualCity('');
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    final r = context.responsive;
+
+    return AlertDialog(
+      backgroundColor: context.colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
+      ),
+      title: Row(
+        children: [
+          Icon(
+            Icons.location_city_rounded,
+            color: AppColors.orangePrimary,
+            size: AppIconSizes.md(context),
+          ),
+          SizedBox(width: r.space(AppSpacing.s)),
+          Text(
+            t.weather.changeCityTitle,
+            style: AppTextStyles.title(context).copyWith(
+              color: context.colors.textMain,
+            ),
+          ),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _controller,
+            autofocus: true,
+            textInputAction: TextInputAction.search,
+            onSubmitted: (_) => _search(),
+            style: AppTextStyles.body(context).copyWith(
+              color: context.colors.textMain,
+            ),
+            decoration: InputDecoration(
+              hintText: t.weather.changeCityHint,
+              hintStyle: AppTextStyles.body(context).copyWith(
+                color: context.colors.textMuted,
+              ),
+              prefixIcon: Icon(
+                Icons.search_rounded,
+                color: context.colors.textMuted,
+                size: AppIconSizes.sm(context),
+              ),
+              filled: true,
+              fillColor: context.colors.surfaceLight,
+              errorText: _errorText,
+              errorStyle: TextStyle(
+                color: AppColors.red,
+                fontSize: 11,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+                borderSide: BorderSide(
+                  color: AppColors.orangePrimary.withValues(alpha: 0.6),
+                ),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+                borderSide: BorderSide(color: AppColors.red, width: 1),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        // Botón GPS (regresa a detección automática)
+        TextButton.icon(
+          onPressed: _isLoading ? null : _useGps,
+          icon: Icon(
+            Icons.gps_fixed_rounded,
+            size: AppIconSizes.xs(context),
+            color: context.colors.textMuted,
+          ),
+          label: Text(
+            t.weather.useGps,
+            style: TextStyle(color: context.colors.textMuted),
+          ),
+        ),
+        // Botón Buscar
+        FilledButton(
+          onPressed: _isLoading ? null : _search,
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.orangePrimary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+            ),
+          ),
+          child: _isLoading
+              ? SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(t.weather.search),
+        ),
+      ],
+    );
   }
 }

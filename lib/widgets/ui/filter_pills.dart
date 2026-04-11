@@ -25,9 +25,9 @@ class FilterPills extends StatelessWidget {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [
-            Colors.white,
-            Colors.white,
-            Colors.white.withValues(alpha: 0.0),
+            context.colors.textMain,
+            context.colors.textMain,
+            Colors.transparent,
           ],
           stops: const [0.0, 0.75, 1.0],
         ).createShader(bounds);

@@ -40,25 +40,25 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
-	late final TranslationsCommonEs common = TranslationsCommonEs.internal(_root);
-	late final TranslationsAuthEs auth = TranslationsAuthEs.internal(_root);
-	late final TranslationsRegistrationEs registration = TranslationsRegistrationEs.internal(_root);
-	late final TranslationsNavEs nav = TranslationsNavEs.internal(_root);
-	late final TranslationsGarageEs garage = TranslationsGarageEs.internal(_root);
-	late final TranslationsMaintenanceEs maintenance = TranslationsMaintenanceEs.internal(_root);
-	late final TranslationsProfileEs profile = TranslationsProfileEs.internal(_root);
-	late final TranslationsNotificationsEs notifications = TranslationsNotificationsEs.internal(_root);
-	late final TranslationsMapEs map = TranslationsMapEs.internal(_root);
-	late final TranslationsWeatherWidgetEs weatherWidget = TranslationsWeatherWidgetEs.internal(_root);
-	late final TranslationsCurrencyEs currency = TranslationsCurrencyEs.internal(_root);
-	late final TranslationsValidatorsEs validators = TranslationsValidatorsEs.internal(_root);
-	late final TranslationsWeatherEs weather = TranslationsWeatherEs.internal(_root);
-	late final TranslationsTimeEs time = TranslationsTimeEs.internal(_root);
+	late final TranslationsCommonEs common = TranslationsCommonEs._(_root);
+	late final TranslationsAuthEs auth = TranslationsAuthEs._(_root);
+	late final TranslationsRegistrationEs registration = TranslationsRegistrationEs._(_root);
+	late final TranslationsNavEs nav = TranslationsNavEs._(_root);
+	late final TranslationsGarageEs garage = TranslationsGarageEs._(_root);
+	late final TranslationsMaintenanceEs maintenance = TranslationsMaintenanceEs._(_root);
+	late final TranslationsProfileEs profile = TranslationsProfileEs._(_root);
+	late final TranslationsNotificationsEs notifications = TranslationsNotificationsEs._(_root);
+	late final TranslationsMapEs map = TranslationsMapEs._(_root);
+	late final TranslationsWeatherWidgetEs weatherWidget = TranslationsWeatherWidgetEs._(_root);
+	late final TranslationsCurrencyEs currency = TranslationsCurrencyEs._(_root);
+	late final TranslationsValidatorsEs validators = TranslationsValidatorsEs._(_root);
+	late final TranslationsWeatherEs weather = TranslationsWeatherEs._(_root);
+	late final TranslationsTimeEs time = TranslationsTimeEs._(_root);
 }
 
 // Path: common
 class TranslationsCommonEs {
-	TranslationsCommonEs.internal(this._root);
+	TranslationsCommonEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -105,11 +105,47 @@ class TranslationsCommonEs {
 
 	/// es: 'Ninguno'
 	String get none => 'Ninguno';
+
+	/// es: 'Volver'
+	String get back => 'Volver';
+
+	/// es: 'Configuración y Unidades'
+	String get settingsAndUnits => 'Configuración y Unidades';
+
+	/// es: 'Ejemplos en tiempo real'
+	String get realTimeExamples => 'Ejemplos en tiempo real';
+
+	/// es: 'Distancia total'
+	String get totalDistance => 'Distancia total';
+
+	/// es: 'Temperatura de operación'
+	String get operatingTemperature => 'Temperatura de operación';
+
+	/// es: 'Sin conexión. Verifica tu internet e intenta de nuevo.'
+	String get networkError => 'Sin conexión. Verifica tu internet e intenta de nuevo.';
+
+	/// es: 'La solicitud tardó demasiado. Intenta de nuevo.'
+	String get timeoutError => 'La solicitud tardó demasiado. Intenta de nuevo.';
+
+	/// es: 'Correo o contraseña incorrectos.'
+	String get unauthorizedError => 'Correo o contraseña incorrectos.';
+
+	/// es: 'El recurso solicitado no fue encontrado.'
+	String get notFoundError => 'El recurso solicitado no fue encontrado.';
+
+	/// es: 'Los datos ingresados no son válidos. Revísalos e intenta de nuevo.'
+	String get validationError => 'Los datos ingresados no son válidos. Revísalos e intenta de nuevo.';
+
+	/// es: 'El servidor no está disponible. Intenta más tarde.'
+	String get serverError => 'El servidor no está disponible. Intenta más tarde.';
+
+	/// es: 'No pudimos completar la solicitud. Intenta de nuevo.'
+	String get requestError => 'No pudimos completar la solicitud. Intenta de nuevo.';
 }
 
 // Path: auth
 class TranslationsAuthEs {
-	TranslationsAuthEs.internal(this._root);
+	TranslationsAuthEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -141,11 +177,20 @@ class TranslationsAuthEs {
 
 	/// es: 'Regístrate'
 	String get signUp => 'Regístrate';
+
+	/// es: 'Sesión expirada'
+	String get sessionExpiredTitle => 'Sesión expirada';
+
+	/// es: 'Tu sesión expiró. Por favor inicia sesión de nuevo.'
+	String get sessionExpiredMessage => 'Tu sesión expiró. Por favor inicia sesión de nuevo.';
+
+	/// es: 'Tu sesión expiró, inicia sesión de nuevo.'
+	String get sessionExpiredSnackbar => 'Tu sesión expiró, inicia sesión de nuevo.';
 }
 
 // Path: registration
 class TranslationsRegistrationEs {
-	TranslationsRegistrationEs.internal(this._root);
+	TranslationsRegistrationEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -214,7 +259,7 @@ class TranslationsRegistrationEs {
 
 // Path: nav
 class TranslationsNavEs {
-	TranslationsNavEs.internal(this._root);
+	TranslationsNavEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -235,7 +280,7 @@ class TranslationsNavEs {
 
 // Path: garage
 class TranslationsGarageEs {
-	TranslationsGarageEs.internal(this._root);
+	TranslationsGarageEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -256,14 +301,14 @@ class TranslationsGarageEs {
 	/// es: 'Vehículo eliminado'
 	String get vehicleRemoved => 'Vehículo eliminado';
 
-	/// es: 'Error al agregar vehículo: {error}'
-	String get errorAddingVehicle => 'Error al agregar vehículo: {error}';
+	/// es: 'No se pudo agregar el vehículo. Intenta de nuevo.'
+	String get errorAddingVehicle => 'No se pudo agregar el vehículo. Intenta de nuevo.';
 
-	/// es: 'Error al actualizar vehículo: {error}'
-	String get errorUpdatingVehicle => 'Error al actualizar vehículo: {error}';
+	/// es: 'No se pudo actualizar el vehículo. Intenta de nuevo.'
+	String get errorUpdatingVehicle => 'No se pudo actualizar el vehículo. Intenta de nuevo.';
 
-	/// es: 'Error al eliminar vehículo: {error}'
-	String get errorRemovingVehicle => 'Error al eliminar vehículo: {error}';
+	/// es: 'No se pudo eliminar el vehículo. Intenta de nuevo.'
+	String get errorRemovingVehicle => 'No se pudo eliminar el vehículo. Intenta de nuevo.';
 
 	/// es: 'Servicio registrado para {vehicleName}'
 	String get serviceLogged => 'Servicio registrado para {vehicleName}';
@@ -355,8 +400,8 @@ class TranslationsGarageEs {
 	/// es: 'Alertas'
 	String get alerts => 'Alertas';
 
-	late final TranslationsGarageAddVehicleFormEs addVehicleForm = TranslationsGarageAddVehicleFormEs.internal(_root);
-	late final TranslationsGarageVehicleTypesEs vehicleTypes = TranslationsGarageVehicleTypesEs.internal(_root);
+	late final TranslationsGarageAddVehicleFormEs addVehicleForm = TranslationsGarageAddVehicleFormEs._(_root);
+	late final TranslationsGarageVehicleTypesEs vehicleTypes = TranslationsGarageVehicleTypesEs._(_root);
 
 	/// es: 'Salud del Vehículo'
 	String get vehicleHealth => 'Salud del Vehículo';
@@ -400,11 +445,23 @@ class TranslationsGarageEs {
 
 	/// es: 'km'
 	String get unitKmShort => 'km';
+
+	/// es: 'Notificaciones, {count} no leídas'
+	String get notificationsUnread => 'Notificaciones, {count} no leídas';
+
+	/// es: 'Notificaciones, sin novedades'
+	String get notificationsNone => 'Notificaciones, sin novedades';
+
+	/// es: 'Buenas tardes'
+	String get goodAfternoon => 'Buenas tardes';
+
+	/// es: 'Buenas noches'
+	String get goodEvening => 'Buenas noches';
 }
 
 // Path: maintenance
 class TranslationsMaintenanceEs {
-	TranslationsMaintenanceEs.internal(this._root);
+	TranslationsMaintenanceEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -440,8 +497,8 @@ class TranslationsMaintenanceEs {
 	/// es: 'Error al actualizar registro: {error}'
 	String get errorUpdatingService => 'Error al actualizar registro: {error}';
 
-	/// es: 'Error al eliminar registro: {error}'
-	String get errorRemovingService => 'Error al eliminar registro: {error}';
+	/// es: 'No se pudo eliminar el servicio. Intenta de nuevo.'
+	String get errorRemovingService => 'No se pudo eliminar el servicio. Intenta de nuevo.';
 
 	/// es: '¿Eliminar registro?'
 	String get removeEntryTitle => '¿Eliminar registro?';
@@ -562,11 +619,22 @@ class TranslationsMaintenanceEs {
 
 	/// es: 'KILOMETRAJE'
 	String get mileageLabel => 'KILOMETRAJE';
+
+	/// es: 'NOTAS DEL SERVICIO'
+	String get serviceNotesLabel => 'NOTAS DEL SERVICIO';
+
+	/// es: 'General'
+	String get categoryGeneral => 'General';
+
+	/// es: 'Historial'
+	String get historyLabel => 'Historial';
+
+	late final TranslationsMaintenanceCategoriesEs categories = TranslationsMaintenanceCategoriesEs._(_root);
 }
 
 // Path: profile
 class TranslationsProfileEs {
-	TranslationsProfileEs.internal(this._root);
+	TranslationsProfileEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -609,8 +677,8 @@ class TranslationsProfileEs {
 	/// es: '2FA activo · Protegido'
 	String get securitySubtitleActive => '2FA activo · Protegido';
 
-	/// es: 'Contraseña, 2FA'
-	String get securitySubtitleDefault => 'Contraseña, 2FA';
+	/// es: 'Contraseña y privacidad'
+	String get securitySubtitleDefault => 'Contraseña y privacidad';
 
 	/// es: 'Restablecer contraseña'
 	String get passwordReset => 'Restablecer contraseña';
@@ -648,8 +716,8 @@ class TranslationsProfileEs {
 	/// es: 'Idioma'
 	String get language => 'Idioma';
 
-	/// es: 'Comentarios y soporte'
-	String get feedbackSupport => 'Comentarios y soporte';
+	/// es: 'Soporte'
+	String get feedbackSupport => 'Soporte';
 
 	/// es: 'Calificar DriveTrack'
 	String get rateDriveTrack => 'Calificar DriveTrack';
@@ -710,11 +778,71 @@ class TranslationsProfileEs {
 
 	/// es: 'Imperial'
 	String get imperial => 'Imperial';
+
+	/// es: 'Editar Perfil'
+	String get editProfile => 'Editar Perfil';
+
+	/// es: 'Nombre Completo'
+	String get editProfileName => 'Nombre Completo';
+
+	/// es: 'Guardar Cambios'
+	String get editProfileSave => 'Guardar Cambios';
+
+	/// es: 'Perfil actualizado exitosamente'
+	String get editProfileSuccess => 'Perfil actualizado exitosamente';
+
+	/// es: 'Cambiar Contraseña'
+	String get changePassword => 'Cambiar Contraseña';
+
+	/// es: 'Contraseña Actual'
+	String get currentPassword => 'Contraseña Actual';
+
+	/// es: 'Nueva Contraseña'
+	String get newPassword => 'Nueva Contraseña';
+
+	/// es: 'Confirmar Contraseña'
+	String get confirmNewPassword => 'Confirmar Contraseña';
+
+	/// es: 'Contraseña actualizada exitosamente'
+	String get changePasswordSuccess => 'Contraseña actualizada exitosamente';
+
+	/// es: 'La contraseña actual es incorrecta'
+	String get changePasswordError => 'La contraseña actual es incorrecta';
+
+	/// es: 'Las contraseñas no coinciden'
+	String get passwordsMismatch => 'Las contraseñas no coinciden';
+
+	/// es: 'Llamar a Soporte'
+	String get callSupport => 'Llamar a Soporte';
+
+	/// es: '+52 664 536 7724'
+	String get supportPhone => '+52 664 536 7724';
+
+	/// es: 'Cargando preferencias...'
+	String get loadingPreferences => 'Cargando preferencias...';
+
+	/// es: 'No se pudieron cargar las preferencias'
+	String get errorLoadingPreferences => 'No se pudieron cargar las preferencias';
+
+	/// es: 'No se pudieron cargar las estadísticas'
+	String get errorLoadingStats => 'No se pudieron cargar las estadísticas';
+
+	/// es: 'Cambiar foto'
+	String get changePhoto => 'Cambiar foto';
+
+	/// es: 'Cámara'
+	String get camera => 'Cámara';
+
+	/// es: 'Galería'
+	String get gallery => 'Galería';
+
+	/// es: 'Subiendo foto...'
+	String get uploadingPhoto => 'Subiendo foto...';
 }
 
 // Path: notifications
 class TranslationsNotificationsEs {
-	TranslationsNotificationsEs.internal(this._root);
+	TranslationsNotificationsEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -792,12 +920,21 @@ class TranslationsNotificationsEs {
 	/// es: 'Información'
 	String get typeInfo => 'Información';
 
-	late final TranslationsNotificationsMocksEs mocks = TranslationsNotificationsMocksEs.internal(_root);
+	/// es: 'Error'
+	String get typeError => 'Error';
+
+	/// es: 'Info'
+	String get filterInfo => 'Info';
+
+	/// es: 'Info'
+	String get summaryInfo => 'Info';
+
+	late final TranslationsNotificationsMocksEs mocks = TranslationsNotificationsMocksEs._(_root);
 }
 
 // Path: map
 class TranslationsMapEs {
-	TranslationsMapEs.internal(this._root);
+	TranslationsMapEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -880,11 +1017,14 @@ class TranslationsMapEs {
 
 	/// es: 'Buscar en esta zona'
 	String get searchThisArea => 'Buscar en esta zona';
+
+	/// es: 'Buscando ubicación GPS... Asegúrate de tener la ubicación activada en tu dispositivo.'
+	String get gpsSearching => 'Buscando ubicación GPS... Asegúrate de tener la ubicación activada en tu dispositivo.';
 }
 
 // Path: weatherWidget
 class TranslationsWeatherWidgetEs {
-	TranslationsWeatherWidgetEs.internal(this._root);
+	TranslationsWeatherWidgetEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -914,13 +1054,13 @@ class TranslationsWeatherWidgetEs {
 	/// es: 'Actualizado {time}'
 	String get lastUpdated => 'Actualizado {time}';
 
-	late final TranslationsWeatherWidgetConditionsEs conditions = TranslationsWeatherWidgetConditionsEs.internal(_root);
-	late final TranslationsWeatherWidgetRecommendationsEs recommendations = TranslationsWeatherWidgetRecommendationsEs.internal(_root);
+	late final TranslationsWeatherWidgetConditionsEs conditions = TranslationsWeatherWidgetConditionsEs._(_root);
+	late final TranslationsWeatherWidgetRecommendationsEs recommendations = TranslationsWeatherWidgetRecommendationsEs._(_root);
 }
 
 // Path: currency
 class TranslationsCurrencyEs {
-	TranslationsCurrencyEs.internal(this._root);
+	TranslationsCurrencyEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -968,7 +1108,7 @@ class TranslationsCurrencyEs {
 
 // Path: validators
 class TranslationsValidatorsEs {
-	TranslationsValidatorsEs.internal(this._root);
+	TranslationsValidatorsEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1040,7 +1180,7 @@ class TranslationsValidatorsEs {
 
 // Path: weather
 class TranslationsWeatherEs {
-	TranslationsWeatherEs.internal(this._root);
+	TranslationsWeatherEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1055,13 +1195,31 @@ class TranslationsWeatherEs {
 	/// es: 'Toca para reintentar'
 	String get tapToRetry => 'Toca para reintentar';
 
-	late final TranslationsWeatherConditionsEs conditions = TranslationsWeatherConditionsEs.internal(_root);
-	late final TranslationsWeatherRecommendationsEs recommendations = TranslationsWeatherRecommendationsEs.internal(_root);
+	late final TranslationsWeatherConditionsEs conditions = TranslationsWeatherConditionsEs._(_root);
+	late final TranslationsWeatherRecommendationsEs recommendations = TranslationsWeatherRecommendationsEs._(_root);
+
+	/// es: 'Cambiar ciudad'
+	String get changeCity => 'Cambiar ciudad';
+
+	/// es: 'Ej. Monterrey, MX'
+	String get changeCityHint => 'Ej. Monterrey, MX';
+
+	/// es: 'Clima por ciudad'
+	String get changeCityTitle => 'Clima por ciudad';
+
+	/// es: 'Usar GPS'
+	String get useGps => 'Usar GPS';
+
+	/// es: 'Buscar'
+	String get search => 'Buscar';
+
+	/// es: 'Ciudad no encontrada. Intenta con «Ciudad, País»'
+	String get cityNotFound => 'Ciudad no encontrada. Intenta con «Ciudad, País»';
 }
 
 // Path: time
 class TranslationsTimeEs {
-	TranslationsTimeEs.internal(this._root);
+	TranslationsTimeEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1091,7 +1249,7 @@ class TranslationsTimeEs {
 
 // Path: garage.addVehicleForm
 class TranslationsGarageAddVehicleFormEs {
-	TranslationsGarageAddVehicleFormEs.internal(this._root);
+	TranslationsGarageAddVehicleFormEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1175,7 +1333,7 @@ class TranslationsGarageAddVehicleFormEs {
 
 // Path: garage.vehicleTypes
 class TranslationsGarageVehicleTypesEs {
-	TranslationsGarageVehicleTypesEs.internal(this._root);
+	TranslationsGarageVehicleTypesEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1188,26 +1346,53 @@ class TranslationsGarageVehicleTypesEs {
 	String get motorcycle => 'Motocicleta';
 }
 
-// Path: notifications.mocks
-class TranslationsNotificationsMocksEs {
-	TranslationsNotificationsMocksEs.internal(this._root);
+// Path: maintenance.categories
+class TranslationsMaintenanceCategoriesEs {
+	TranslationsMaintenanceCategoriesEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final TranslationsNotificationsMocksN1Es n1 = TranslationsNotificationsMocksN1Es.internal(_root);
-	late final TranslationsNotificationsMocksN2Es n2 = TranslationsNotificationsMocksN2Es.internal(_root);
-	late final TranslationsNotificationsMocksN3Es n3 = TranslationsNotificationsMocksN3Es.internal(_root);
-	late final TranslationsNotificationsMocksN4Es n4 = TranslationsNotificationsMocksN4Es.internal(_root);
-	late final TranslationsNotificationsMocksN5Es n5 = TranslationsNotificationsMocksN5Es.internal(_root);
-	late final TranslationsNotificationsMocksN6Es n6 = TranslationsNotificationsMocksN6Es.internal(_root);
-	late final TranslationsNotificationsMocksN7Es n7 = TranslationsNotificationsMocksN7Es.internal(_root);
-	late final TranslationsNotificationsMocksN8Es n8 = TranslationsNotificationsMocksN8Es.internal(_root);
+
+	/// es: 'General'
+	String get general => 'General';
+
+	/// es: 'Fluidos'
+	String get fluidService => 'Fluidos';
+
+	/// es: 'Desgaste'
+	String get wearAndTear => 'Desgaste';
+
+	/// es: 'Inspección'
+	String get inspection => 'Inspección';
+
+	/// es: 'Estética'
+	String get cosmetic => 'Estética';
+
+	/// es: 'Eléctrico'
+	String get electrical => 'Eléctrico';
+}
+
+// Path: notifications.mocks
+class TranslationsNotificationsMocksEs {
+	TranslationsNotificationsMocksEs._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsNotificationsMocksN1Es n1 = TranslationsNotificationsMocksN1Es._(_root);
+	late final TranslationsNotificationsMocksN2Es n2 = TranslationsNotificationsMocksN2Es._(_root);
+	late final TranslationsNotificationsMocksN3Es n3 = TranslationsNotificationsMocksN3Es._(_root);
+	late final TranslationsNotificationsMocksN4Es n4 = TranslationsNotificationsMocksN4Es._(_root);
+	late final TranslationsNotificationsMocksN5Es n5 = TranslationsNotificationsMocksN5Es._(_root);
+	late final TranslationsNotificationsMocksN6Es n6 = TranslationsNotificationsMocksN6Es._(_root);
+	late final TranslationsNotificationsMocksN7Es n7 = TranslationsNotificationsMocksN7Es._(_root);
+	late final TranslationsNotificationsMocksN8Es n8 = TranslationsNotificationsMocksN8Es._(_root);
 }
 
 // Path: weatherWidget.conditions
 class TranslationsWeatherWidgetConditionsEs {
-	TranslationsWeatherWidgetConditionsEs.internal(this._root);
+	TranslationsWeatherWidgetConditionsEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1243,7 +1428,7 @@ class TranslationsWeatherWidgetConditionsEs {
 
 // Path: weatherWidget.recommendations
 class TranslationsWeatherWidgetRecommendationsEs {
-	TranslationsWeatherWidgetRecommendationsEs.internal(this._root);
+	TranslationsWeatherWidgetRecommendationsEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1285,7 +1470,7 @@ class TranslationsWeatherWidgetRecommendationsEs {
 
 // Path: weather.conditions
 class TranslationsWeatherConditionsEs {
-	TranslationsWeatherConditionsEs.internal(this._root);
+	TranslationsWeatherConditionsEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1321,7 +1506,7 @@ class TranslationsWeatherConditionsEs {
 
 // Path: weather.recommendations
 class TranslationsWeatherRecommendationsEs {
-	TranslationsWeatherRecommendationsEs.internal(this._root);
+	TranslationsWeatherRecommendationsEs._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1363,7 +1548,7 @@ class TranslationsWeatherRecommendationsEs {
 
 // Path: notifications.mocks.n1
 class TranslationsNotificationsMocksN1Es {
-	TranslationsNotificationsMocksN1Es.internal(this._root);
+	TranslationsNotificationsMocksN1Es._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1384,7 +1569,7 @@ class TranslationsNotificationsMocksN1Es {
 
 // Path: notifications.mocks.n2
 class TranslationsNotificationsMocksN2Es {
-	TranslationsNotificationsMocksN2Es.internal(this._root);
+	TranslationsNotificationsMocksN2Es._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1405,7 +1590,7 @@ class TranslationsNotificationsMocksN2Es {
 
 // Path: notifications.mocks.n3
 class TranslationsNotificationsMocksN3Es {
-	TranslationsNotificationsMocksN3Es.internal(this._root);
+	TranslationsNotificationsMocksN3Es._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1426,7 +1611,7 @@ class TranslationsNotificationsMocksN3Es {
 
 // Path: notifications.mocks.n4
 class TranslationsNotificationsMocksN4Es {
-	TranslationsNotificationsMocksN4Es.internal(this._root);
+	TranslationsNotificationsMocksN4Es._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1447,7 +1632,7 @@ class TranslationsNotificationsMocksN4Es {
 
 // Path: notifications.mocks.n5
 class TranslationsNotificationsMocksN5Es {
-	TranslationsNotificationsMocksN5Es.internal(this._root);
+	TranslationsNotificationsMocksN5Es._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1465,7 +1650,7 @@ class TranslationsNotificationsMocksN5Es {
 
 // Path: notifications.mocks.n6
 class TranslationsNotificationsMocksN6Es {
-	TranslationsNotificationsMocksN6Es.internal(this._root);
+	TranslationsNotificationsMocksN6Es._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1483,7 +1668,7 @@ class TranslationsNotificationsMocksN6Es {
 
 // Path: notifications.mocks.n7
 class TranslationsNotificationsMocksN7Es {
-	TranslationsNotificationsMocksN7Es.internal(this._root);
+	TranslationsNotificationsMocksN7Es._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1504,7 +1689,7 @@ class TranslationsNotificationsMocksN7Es {
 
 // Path: notifications.mocks.n8
 class TranslationsNotificationsMocksN8Es {
-	TranslationsNotificationsMocksN8Es.internal(this._root);
+	TranslationsNotificationsMocksN8Es._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1542,6 +1727,18 @@ extension on Translations {
 			'common.unknownVehicle' => 'Vehículo desconocido',
 			'common.free' => 'Gratis',
 			'common.none' => 'Ninguno',
+			'common.back' => 'Volver',
+			'common.settingsAndUnits' => 'Configuración y Unidades',
+			'common.realTimeExamples' => 'Ejemplos en tiempo real',
+			'common.totalDistance' => 'Distancia total',
+			'common.operatingTemperature' => 'Temperatura de operación',
+			'common.networkError' => 'Sin conexión. Verifica tu internet e intenta de nuevo.',
+			'common.timeoutError' => 'La solicitud tardó demasiado. Intenta de nuevo.',
+			'common.unauthorizedError' => 'Correo o contraseña incorrectos.',
+			'common.notFoundError' => 'El recurso solicitado no fue encontrado.',
+			'common.validationError' => 'Los datos ingresados no son válidos. Revísalos e intenta de nuevo.',
+			'common.serverError' => 'El servidor no está disponible. Intenta más tarde.',
+			'common.requestError' => 'No pudimos completar la solicitud. Intenta de nuevo.',
 			'auth.welcomeBack' => 'Bienvenido de vuelta',
 			'auth.signInSubtitle' => 'Inicia sesión para continuar rastreando tus vehículos',
 			'auth.emailAddress' => 'CORREO ELECTRÓNICO',
@@ -1551,6 +1748,9 @@ extension on Translations {
 			'auth.signIn' => 'Iniciar sesión',
 			'auth.noAccount' => '¿No tienes una cuenta? ',
 			'auth.signUp' => 'Regístrate',
+			'auth.sessionExpiredTitle' => 'Sesión expirada',
+			'auth.sessionExpiredMessage' => 'Tu sesión expiró. Por favor inicia sesión de nuevo.',
+			'auth.sessionExpiredSnackbar' => 'Tu sesión expiró, inicia sesión de nuevo.',
 			'registration.title' => 'Crear cuenta',
 			'registration.subtitle' => 'Completa tus datos para comenzar',
 			'registration.appTagline' => 'Tu compañero inteligente de vehículos',
@@ -1580,9 +1780,9 @@ extension on Translations {
 			'garage.vehicleAdded' => 'Vehículo agregado exitosamente',
 			'garage.vehicleUpdated' => 'Vehículo actualizado exitosamente',
 			'garage.vehicleRemoved' => 'Vehículo eliminado',
-			'garage.errorAddingVehicle' => 'Error al agregar vehículo: {error}',
-			'garage.errorUpdatingVehicle' => 'Error al actualizar vehículo: {error}',
-			'garage.errorRemovingVehicle' => 'Error al eliminar vehículo: {error}',
+			'garage.errorAddingVehicle' => 'No se pudo agregar el vehículo. Intenta de nuevo.',
+			'garage.errorUpdatingVehicle' => 'No se pudo actualizar el vehículo. Intenta de nuevo.',
+			'garage.errorRemovingVehicle' => 'No se pudo eliminar el vehículo. Intenta de nuevo.',
 			'garage.serviceLogged' => 'Servicio registrado para {vehicleName}',
 			'garage.serviceRecordUpdated' => 'Registro de servicio actualizado',
 			'garage.removeVehicleTitle' => '¿Eliminar vehículo?',
@@ -1652,6 +1852,10 @@ extension on Translations {
 			'garage.unitKilometers' => 'Kilómetros',
 			'garage.unitMiShort' => 'mi',
 			'garage.unitKmShort' => 'km',
+			'garage.notificationsUnread' => 'Notificaciones, {count} no leídas',
+			'garage.notificationsNone' => 'Notificaciones, sin novedades',
+			'garage.goodAfternoon' => 'Buenas tardes',
+			'garage.goodEvening' => 'Buenas noches',
 			'maintenance.title' => 'Mantenimiento',
 			'maintenance.logTitle' => 'Registro de mantenimiento',
 			'maintenance.logSubtitle' => 'Historial completo de servicio para tus vehículos',
@@ -1662,7 +1866,7 @@ extension on Translations {
 			'maintenance.serviceRemoved' => 'Registro de servicio eliminado',
 			'maintenance.errorAddingService' => 'Error al agregar servicio: {error}',
 			'maintenance.errorUpdatingService' => 'Error al actualizar registro: {error}',
-			'maintenance.errorRemovingService' => 'Error al eliminar registro: {error}',
+			'maintenance.errorRemovingService' => 'No se pudo eliminar el servicio. Intenta de nuevo.',
 			'maintenance.removeEntryTitle' => '¿Eliminar registro?',
 			'maintenance.removeEntryMessage' => '¿Estás seguro de que quieres eliminar el registro de "{title}"? Esta acción no se puede deshacer.',
 			'maintenance.errorTitle' => 'Algo salió mal',
@@ -1703,6 +1907,15 @@ extension on Translations {
 			'maintenance.costLabel' => 'COSTO',
 			'maintenance.costFree' => 'Gratis',
 			'maintenance.mileageLabel' => 'KILOMETRAJE',
+			'maintenance.serviceNotesLabel' => 'NOTAS DEL SERVICIO',
+			'maintenance.categoryGeneral' => 'General',
+			'maintenance.historyLabel' => 'Historial',
+			'maintenance.categories.general' => 'General',
+			'maintenance.categories.fluidService' => 'Fluidos',
+			'maintenance.categories.wearAndTear' => 'Desgaste',
+			'maintenance.categories.inspection' => 'Inspección',
+			'maintenance.categories.cosmetic' => 'Estética',
+			'maintenance.categories.electrical' => 'Eléctrico',
 			'profile.vehiclePreferences' => 'Preferencias de vehículo',
 			'profile.favoriteVehicles' => 'Vehículos favoritos',
 			'profile.favoritesSaved' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(n, one: '1 favorito guardado', zero: 'Sin favoritos guardados', other: '{n} favoritos guardados', ), 
@@ -1714,7 +1927,7 @@ extension on Translations {
 			'profile.criticalAlerts' => 'Alertas críticas',
 			'profile.privacySecurity' => 'Privacidad y seguridad',
 			'profile.securitySubtitleActive' => '2FA activo · Protegido',
-			'profile.securitySubtitleDefault' => 'Contraseña, 2FA',
+			'profile.securitySubtitleDefault' => 'Contraseña y privacidad',
 			'profile.passwordReset' => 'Restablecer contraseña',
 			'profile.passwordLastChanged' => 'Último cambio hace 30 días',
 			'profile.reset' => 'Restablecer',
@@ -1727,7 +1940,7 @@ extension on Translations {
 			'profile.themeLight' => 'Claro',
 			'profile.theme' => 'Tema',
 			'profile.language' => 'Idioma',
-			'profile.feedbackSupport' => 'Comentarios y soporte',
+			'profile.feedbackSupport' => 'Soporte',
 			'profile.rateDriveTrack' => 'Calificar DriveTrack',
 			'profile.shareExperience' => 'Comparte tu experiencia',
 			'profile.helpSupport' => 'Ayuda y soporte',
@@ -1748,6 +1961,26 @@ extension on Translations {
 			'profile.systemOfUnits' => 'Sistema de Unidades',
 			'profile.metric' => 'Métrico',
 			'profile.imperial' => 'Imperial',
+			'profile.editProfile' => 'Editar Perfil',
+			'profile.editProfileName' => 'Nombre Completo',
+			'profile.editProfileSave' => 'Guardar Cambios',
+			'profile.editProfileSuccess' => 'Perfil actualizado exitosamente',
+			'profile.changePassword' => 'Cambiar Contraseña',
+			'profile.currentPassword' => 'Contraseña Actual',
+			'profile.newPassword' => 'Nueva Contraseña',
+			'profile.confirmNewPassword' => 'Confirmar Contraseña',
+			'profile.changePasswordSuccess' => 'Contraseña actualizada exitosamente',
+			'profile.changePasswordError' => 'La contraseña actual es incorrecta',
+			'profile.passwordsMismatch' => 'Las contraseñas no coinciden',
+			'profile.callSupport' => 'Llamar a Soporte',
+			'profile.supportPhone' => '+52 664 536 7724',
+			'profile.loadingPreferences' => 'Cargando preferencias...',
+			'profile.errorLoadingPreferences' => 'No se pudieron cargar las preferencias',
+			'profile.errorLoadingStats' => 'No se pudieron cargar las estadísticas',
+			'profile.changePhoto' => 'Cambiar foto',
+			'profile.camera' => 'Cámara',
+			'profile.gallery' => 'Galería',
+			'profile.uploadingPhoto' => 'Subiendo foto...',
 			'notifications.title' => 'Notificaciones',
 			'notifications.unreadSummary' => '{unread} sin leer · {total} en total',
 			'notifications.markAllRead' => 'Marcar todo como leído',
@@ -1772,6 +2005,9 @@ extension on Translations {
 			'notifications.typeSuccess' => 'Exitoso',
 			'notifications.typeWeather' => 'Clima',
 			'notifications.typeInfo' => 'Información',
+			'notifications.typeError' => 'Error',
+			'notifications.filterInfo' => 'Info',
+			'notifications.summaryInfo' => 'Info',
 			'notifications.mocks.n1.title' => 'Presión de neumáticos baja',
 			'notifications.mocks.n1.body' => 'El neumático trasero izquierdo está a 28 PSI. Recomendado: 32 PSI.',
 			'notifications.mocks.n1.time' => 'hace 2 min',
@@ -1827,6 +2063,7 @@ extension on Translations {
 			'map.zoomOut' => 'Alejar',
 			'map.overpassError' => 'El servidor de mapas está saturado. Reintenta en unos segundos.',
 			'map.searchThisArea' => 'Buscar en esta zona',
+			'map.gpsSearching' => 'Buscando ubicación GPS... Asegúrate de tener la ubicación activada en tu dispositivo.',
 			'weatherWidget.alert' => 'ALERTA DEL CLIMA',
 			'weatherWidget.condition' => '{weather} · {temp}',
 			'weatherWidget.humidity' => '{value}%',
@@ -1912,6 +2149,12 @@ extension on Translations {
 			'weather.recommendations.strongWind' => 'Vientos fuertes detectados. Sujeta el volante con firmeza, especialmente en puentes.',
 			'weather.recommendations.extremeWeather' => 'Condiciones extremas. Evita conducir y busca un refugio seguro.',
 			'weather.recommendations.stable' => 'Condiciones de conducción estables. ¡Buen viaje!',
+			'weather.changeCity' => 'Cambiar ciudad',
+			'weather.changeCityHint' => 'Ej. Monterrey, MX',
+			'weather.changeCityTitle' => 'Clima por ciudad',
+			'weather.useGps' => 'Usar GPS',
+			'weather.search' => 'Buscar',
+			'weather.cityNotFound' => 'Ciudad no encontrada. Intenta con «Ciudad, País»',
 			'time.now' => 'Ahora',
 			'time.today' => 'Hoy',
 			'time.minutesAgo' => 'Hace {n} min',

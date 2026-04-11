@@ -33,7 +33,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
   late Tween<double> _latTween;
   late Tween<double> _lngTween;
   late Tween<double> _zoomTween;
-  bool _sheetExpanded = false;
+
   bool _mapMovedSinceSearch = false;
   bool _hasSearched = false;
   LatLng? _lastSearchCenter;
@@ -92,15 +92,18 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
 
   void _onLocationSelected(MapLocation loc) {
     ref.read(selectedLocationProvider.notifier).setLocation(loc);
-    setState(() => _sheetExpanded = false);
 
     // Animate map to location
     _animatedMapMove(LatLng(loc.latitude, loc.longitude), 15.0);
   }
 
   void _unselectLocation() {
-    ref.read(selectedLocationProvider.notifier).setLocation(null);
-    setState(() => _sheetExpanded = false);
+    final selectedLocation = ref.read(selectedLocationProvider);
+    if (selectedLocation != null) {
+      ref.read(selectedLocationProvider.notifier).setLocation(null);
+    } else if (_hasSearched) {
+      if (mounted) setState(() => _hasSearched = false);
+    }
   }
 
   void _centerOnUser() {
@@ -110,9 +113,9 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
         _animatedMapMove(loc, 15.0);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Buscando ubicación GPS... Asegúrate de tener la ubicación activada en tu dispositivo.',
+              Translations.of(context).map.gpsSearching,
             ),
           ),
         );
@@ -137,18 +140,31 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
     final locationsAsync = ref.watch(nearbyLocationsProvider);
     final selectedLocation = ref.watch(selectedLocationProvider);
     final userLocationAsync = ref.watch(userLocationProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mapStyle = isDark ? 'dark_all' : 'light_all';
 
-    // Show errors (e.g. 429/504 from Overpass)
+    // Empty state feedback (No results found)
     ref.listen(nearbyLocationsProvider, (previous, next) {
-      if (next.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(Translations.of(context).map.overpassError),
-            backgroundColor: AppColors.red,
-          ),
-        );
+      if (!next.isLoading && next.hasValue && next.value!.isEmpty && _hasSearched) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                Translations.of(context).map.noResults,
+                style: TextStyle(color: context.colors.textMain),
+              ),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: context.colors.surfaceLight,
+            ),
+          );
+          setState(() => _hasSearched = false);
+        }
       }
     });
+
+    // Errors from Overpass API (429/504) are now handled silently 
+    // to prevent spamming the user with red snackbars. The map will gracefully
+    // retain the previously loaded points if a request fails.
 
     // Auto-fly removed to prevent "returning to previous zone" annoyance.
     // The user will now stay where they panned.
@@ -183,7 +199,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
             children: [
               TileLayer(
                 urlTemplate:
-                    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+                    'https://{s}.basemaps.cartocdn.com/$mapStyle/{z}/{x}/{y}{r}.png',
                 subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.example.drivetrack',
                 tileProvider: CancellableNetworkTileProvider(),
@@ -257,7 +273,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
           // 2.5 "Search this area" — bottom floating pill (Google Maps pattern)
           if (_mapMovedSinceSearch)
             Positioned(
-              bottom: 24,
+              top: MediaQuery.of(context).padding.top + r.dim(190),
               left: 0,
               right: 0,
               child: Center(
@@ -276,6 +292,9 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
                     ),
                     decoration: BoxDecoration(
                       color: context.colors.surface,
+                      border: Border.all(
+                        color: context.colors.borderLight,
+                      ),
                       borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
                       boxShadow: [
                         BoxShadow(
@@ -297,7 +316,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
                         Text(
                           Translations.of(context).map.searchThisArea,
                           style: AppTextStyles.bodySmall(context).copyWith(
-                            color: Colors.white,
+                            color: context.colors.textMain,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -327,13 +346,11 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
               bottom: 0,
               child: PlaceDetailSheet(
                 location: selectedLocation,
-                isExpanded: _sheetExpanded,
-                onToggle: () =>
-                    setState(() => _sheetExpanded = !_sheetExpanded),
                 onClose: _unselectLocation,
               ),
             )
           else if (_hasSearched &&
+              !locationsAsync.isLoading &&
               locationsAsync.hasValue &&
               locationsAsync.value!.isNotEmpty)
             Positioned(
@@ -342,19 +359,26 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
               bottom: 0,
               child: PlacesListSheet(
                 locations: locationsAsync.value!,
-                isExpanded: _sheetExpanded,
-                onToggle: () =>
-                    setState(() => _sheetExpanded = !_sheetExpanded),
                 onLocationSelected: _onLocationSelected,
+                onClose: () {
+                  if (mounted) setState(() => _hasSearched = false);
+                },
               ),
             ),
 
-          // Loading Overlay if fetching first time
-          if (locationsAsync.isLoading && !locationsAsync.hasValue)
-            Container(
-              color: Colors.black.withValues(alpha: 0.5),
-              child: const Center(
-                child: CircularProgressIndicator(color: AppColors.cyan),
+          // 5. Non-Blocking Loading Bar
+          if (locationsAsync.isLoading)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + r.dim(165),
+              left: r.space(AppSpacing.xxl),
+              right: r.space(AppSpacing.xxl),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(r.r(AppRadius.xs)),
+                child: const LinearProgressIndicator(
+                  color: AppColors.cyan,
+                  backgroundColor: Colors.transparent,
+                  minHeight: 4,
+                ),
               ),
             ),
         ],

@@ -4,6 +4,7 @@ import '../core/units/domain/unit_formatter.dart';
 import '../core/units/presentation/unit_system_provider.dart';
 import '../core/units/presentation/widgets/unit_toggle_widget.dart';
 import '../features/currency/presentation/widgets/currency_converter_widget.dart';
+import '../core/i18n/translations.g.dart';
 
 class DemoSettingsPage extends ConsumerWidget {
   const DemoSettingsPage({super.key});
@@ -18,7 +19,7 @@ class DemoSettingsPage extends ConsumerWidget {
     const double tempCelsius = 25.0;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Configuración y Unidades')),
+      appBar: AppBar(title: Text(Translations.of(context).common.settingsAndUnits)),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -28,7 +29,7 @@ class DemoSettingsPage extends ConsumerWidget {
           const Divider(height: 32),
 
           Text(
-            'Ejemplos en tiempo real',
+            Translations.of(context).common.realTimeExamples,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
@@ -37,7 +38,7 @@ class DemoSettingsPage extends ConsumerWidget {
           Card(
             child: ListTile(
               leading: const Icon(Icons.route),
-              title: const Text('Distancia total'),
+              title: Text(Translations.of(context).common.totalDistance),
               trailing: Text(
                 UnitFormatter.formatDistance(
                   distanceKm,
@@ -58,7 +59,7 @@ class DemoSettingsPage extends ConsumerWidget {
           Card(
             child: ListTile(
               leading: const Icon(Icons.thermostat),
-              title: const Text('Temperatura de operación'),
+              title: Text(Translations.of(context).common.operatingTemperature),
               trailing: Text(
                 UnitFormatter.formatTemperature(
                   tempCelsius,

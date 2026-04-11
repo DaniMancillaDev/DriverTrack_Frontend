@@ -11,6 +11,7 @@ class ProfileToggleRow extends StatelessWidget {
   final Color accent;
   final String? subtitle;
   final bool showBottomBorder;
+  final bool enabled;
 
   const ProfileToggleRow({
     super.key,
@@ -20,43 +21,49 @@ class ProfileToggleRow extends StatelessWidget {
     required this.accent,
     this.subtitle,
     this.showBottomBorder = true,
+    this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final r = context.responsive;
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: r.space(AppSpacing.md),
-        vertical: r.space(AppSpacing.s),
-      ),
-      decoration: const BoxDecoration(
-        color: Colors
-            .transparent, // Replaced explicit background and borders to maintain whitespace flow (Tip 1)
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: AppTextStyles.bodyMedium(
-                    context,
-                  ).copyWith(color: context.colors.textSecondary),
-                ),
-                if (subtitle != null)
+    return Opacity(
+      opacity: enabled ? 1.0 : 0.5,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: r.space(AppSpacing.md),
+          vertical: r.space(AppSpacing.s),
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    subtitle!,
-                    style: AppTextStyles.label(context).copyWith(color: accent),
+                    label,
+                    style: AppTextStyles.bodyMedium(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                   ),
-              ],
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: AppTextStyles.label(context).copyWith(color: accent),
+                    ),
+                ],
+              ),
             ),
-          ),
-          CustomSwitch(value: value, onChanged: onChanged),
-        ],
+            IgnorePointer(
+              ignoring: !enabled,
+              child: CustomSwitch(value: value, onChanged: onChanged),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -91,8 +98,7 @@ class ProfileSelectionRow extends StatelessWidget {
         vertical: r.space(AppSpacing.s),
       ),
       decoration: const BoxDecoration(
-        color: Colors
-            .transparent, // Cleaner UI flow without slicing borders (Tip 1)
+        color: Colors.transparent,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -115,23 +121,29 @@ class ProfileSelectionRow extends StatelessWidget {
                   ? displayLabels![idx]
                   : opt;
               final isSelected = opt == currentValue;
-              return GestureDetector(
-                onTap: () => onChanged(opt),
-                child: Container(
-                  margin: EdgeInsets.only(left: r.space(AppSpacing.xs)),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: r.space(10),
-                    vertical: r.space(4),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.transparent, // Simplified background (Tip 2)
+              return Padding(
+                padding: EdgeInsets.only(left: r.space(AppSpacing.xs)),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => onChanged(opt),
                     borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
-                  ),
-                  child: Text(
-                    displayLabel,
-                    style: AppTextStyles.label(context).copyWith(
-                      color: isSelected ? accent : context.colors.textMuted,
-                      fontWeight: FontWeight.w700,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: r.space(10),
+                        vertical: r.space(4),
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
+                      ),
+                      child: Text(
+                        displayLabel,
+                        style: AppTextStyles.label(context).copyWith(
+                          color: isSelected ? accent : context.colors.textMuted,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -179,7 +191,7 @@ class ProfileSecurityButton extends StatelessWidget {
                   width: r.dim(34),
                   height: r.dim(34),
                   decoration: BoxDecoration(
-                    color: Colors.transparent, // Flattened icon container
+                    color: Colors.transparent,
                     borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
                   ),
                   child: Icon(
@@ -227,7 +239,7 @@ class ProfileSecurityButton extends StatelessWidget {
               actionLabel,
               style: AppTextStyles.caption(
                 context,
-              ).copyWith(color: Colors.white, fontWeight: FontWeight.w600),
+              ).copyWith(color: context.colors.textMain, fontWeight: FontWeight.w600),
             ),
           ),
         ],

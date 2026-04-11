@@ -39,7 +39,7 @@ class GarageEmptyState extends StatelessWidget {
           Text(
             Translations.of(context).garage.emptyGarageTitle,
             style: textTheme.headlineSmall?.copyWith(
-              color: Colors.white,
+              color: context.colors.textMain,
               fontWeight: FontWeight.w800,
             ),
           ),

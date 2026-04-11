@@ -1,0 +1,10 @@
+input_directory: assets/i18n
+output_directory: lib/core/i18n
+output_file_name: translations.g.dart
+base_locale: es
+# This matches the existing naming convention in lib/core/i18n
+# where translations_es is part of translations.g.dart
+# and translations_en is a separate file (though ideally both should be part or separate)
+# slang defaults to 'multiple_files' if not specified, but let's be explicit if needed.
+# However, the existing set seems to be a mix.
+# Let's try the default first with the correct path.

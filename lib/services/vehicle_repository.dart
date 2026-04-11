@@ -41,4 +41,21 @@ class VehicleRepository {
   Future<void> deleteVehicle(int id) async {
     await _apiClient.delete('/vehicles/$id');
   }
+
+  /// Pide la URL pre-firmada para subir foto del vehículo
+  Future<Map<String, dynamic>> getVehiclePhotoPresignedUrl(int id) async {
+    final response = await _apiClient.post('/vehicles/$id/photo/presigned-url', {});
+    return response as Map<String, dynamic>;
+  }
+
+  /// Confirma la subida y guarda la URL en el vehículo
+  Future<Vehicle> confirmVehiclePhotoUpload(int id, String photoUrl) async {
+    final response = await _apiClient.put(
+      '/vehicles/$id/photo/confirm?photo_url=${Uri.encodeComponent(photoUrl)}',
+      {},
+    );
+    // Podría venir un wrapper o el objeto directo
+    final vehicleData = response['vehicle'] ?? response;
+    return Vehicle.fromJson(vehicleData);
+  }
 }

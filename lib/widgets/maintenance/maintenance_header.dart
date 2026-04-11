@@ -1,4 +1,4 @@
-import 'dart:ui' as ui;
+// Removed dart:ui
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/i18n/translations.g.dart';
@@ -16,13 +16,10 @@ class MaintenanceHeader extends StatelessWidget {
     final textTheme = theme.textTheme;
     final r = context.responsive;
 
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          decoration: BoxDecoration(
-            color: theme.scaffoldBackgroundColor.withValues(alpha: 0.4),
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+      ),
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(
@@ -60,21 +57,30 @@ class MaintenanceHeader extends StatelessWidget {
                     ),
 
                     // Ícono decorativo de historial (espejo del badge de notificaciones)
-                    Container(
-                      width: r.dim(42),
-                      height: r.dim(42),
-                      decoration: BoxDecoration(
-                        color: AppColors.orangePrimary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
-                        border: Border.all(
-                          color: AppColors.orangePrimary.withValues(alpha: 0.2),
-                          width: 1,
+                    Semantics(
+                      label: Translations.of(context).maintenance.historyLabel,
+                      header: true,
+                      child: Container(
+                        width: r.dim(48),
+                        height: r.dim(48),
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: r.dim(42),
+                          height: r.dim(42),
+                          decoration: BoxDecoration(
+                            color: AppColors.orangePrimary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+                            border: Border.all(
+                              color: AppColors.orangePrimary.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.history_rounded,
+                            color: AppColors.orangePrimary,
+                            size: AppIconSizes.lg(context),
+                          ),
                         ),
-                      ),
-                      child: Icon(
-                        Icons.history_rounded,
-                        color: AppColors.orangePrimary,
-                        size: AppIconSizes.lg(context),
                       ),
                     ),
                   ],
@@ -82,8 +88,6 @@ class MaintenanceHeader extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ),
     );
   }
 }

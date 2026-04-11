@@ -98,7 +98,7 @@ class NotificationCard extends StatelessWidget {
                                 SizedBox(width: r.space(4)),
                               ],
                               Text(
-                                _formatTimestamp(notif.createdAt),
+                                _formatTimestamp(notif.createdAt, context),
                                 style: AppTextStyles.label(context).copyWith(
                                   color: context.colors.textMuted,
                                   fontWeight: FontWeight.w400,
@@ -141,12 +141,12 @@ class NotificationCard extends StatelessWidget {
     );
   }
 
-  String _formatTimestamp(DateTime timestamp) {
+  String _formatTimestamp(DateTime timestamp, BuildContext context) {
     final now = DateTime.now();
     final diff = now.difference(timestamp);
     // #7 fix: timestamp strings are locale-neutral (numbers + short units).
     // Full i18n would require plural keys in slang — using compact format as fallback.
-    if (diff.inMinutes < 1) return 'Now';
+    if (diff.inMinutes < 1) return Translations.of(context).time.now;
     if (diff.inMinutes < 60) return '${diff.inMinutes}m';
     if (diff.inHours < 24) return '${diff.inHours}h';
     if (diff.inDays < 7) return '${diff.inDays}d';
@@ -175,7 +175,7 @@ class NotificationCard extends StatelessWidget {
           t.notifications.typeInfo,
         );
       case NotificationType.error:
-        return _TypeConfig(Icons.error_outline_rounded, AppColors.red, 'Error');
+        return _TypeConfig(Icons.error_outline_rounded, AppColors.red, t.notifications.typeError);
       case NotificationType.weather:
         return _TypeConfig(
           Icons.thermostat_rounded,

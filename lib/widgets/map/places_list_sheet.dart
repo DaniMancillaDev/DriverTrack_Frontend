@@ -6,29 +6,39 @@ import '../../core/i18n/translations.g.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 
-class PlacesListSheet extends StatelessWidget {
+class PlacesListSheet extends StatefulWidget {
   final List<MapLocation> locations;
-  final bool isExpanded;
-  final VoidCallback onToggle;
+
   final Function(MapLocation) onLocationSelected;
+  final VoidCallback onClose;
 
   const PlacesListSheet({
     super.key,
     required this.locations,
-    required this.isExpanded,
-    required this.onToggle,
     required this.onLocationSelected,
+    required this.onClose,
   });
 
   @override
+  State<PlacesListSheet> createState() => _PlacesListSheetState();
+}
+
+class _PlacesListSheetState extends State<PlacesListSheet> {
+  bool _isExpanded = false;
+
+  @override
   Widget build(BuildContext context) {
+    final locations = widget.locations;
+    final onLocationSelected = widget.onLocationSelected;
     final r = context.responsive;
     return Align(
       alignment: Alignment.bottomCenter,
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: r.value(mobile: 600, tablet: 700),
-          maxHeight: MediaQuery.of(context).size.height * 0.45,
+          maxHeight: _isExpanded
+              ? MediaQuery.of(context).size.height * 0.90
+              : MediaQuery.of(context).size.height * 0.40,
         ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
@@ -50,21 +60,9 @@ class PlacesListSheet extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Handle / Initial Strip
-              GestureDetector(
-                onVerticalDragUpdate: (details) {
-                  if (details.delta.dy < -10 && !isExpanded) {
-                    onToggle();
-                  } else if (details.delta.dy > 10 && isExpanded) {
-                    onToggle();
-                  }
-                },
-                onTap: onToggle,
-                child: _buildHandleStrip(context),
-              ),
-
-              if (isExpanded)
-                Flexible(
-                  child: ListView.builder(
+              _buildHandleStrip(context, locations),
+              Flexible(
+                child: ListView.builder(
                     padding: EdgeInsets.fromLTRB(
                       r.space(AppSpacing.lg),
                       0,
@@ -151,7 +149,7 @@ class PlacesListSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildHandleStrip(BuildContext context) {
+  Widget _buildHandleStrip(BuildContext context, List<MapLocation> locations) {
     final r = context.responsive;
     return Container(
       width: double.infinity,
@@ -165,12 +163,23 @@ class PlacesListSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: r.dim(36),
-            height: r.dim(4),
-            decoration: BoxDecoration(
-              color: context.colors.borderLight,
-              borderRadius: BorderRadius.circular(r.r(AppRadius.xs)),
+          GestureDetector(
+            onTap: () => setState(() => _isExpanded = !_isExpanded),
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              width: double.infinity,
+              height: r.dim(16),
+              color: Colors.transparent,
+              child: Center(
+                child: Container(
+                  width: r.dim(36),
+                  height: r.dim(4),
+                  decoration: BoxDecoration(
+                    color: context.colors.borderLight,
+                    borderRadius: BorderRadius.circular(r.r(AppRadius.xs)),
+                  ),
+                ),
+              ),
             ),
           ),
           SizedBox(height: r.space(AppSpacing.md)),
@@ -221,22 +230,31 @@ class PlacesListSheet extends StatelessWidget {
                         .length
                         .toString(),
                   ),
+                  SizedBox(width: r.space(AppSpacing.s)),
+                  IconButton(
+                    onPressed: widget.onClose,
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: context.colors.textMuted,
+                      size: AppIconSizes.md(context),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: r.dim(32),
+                      minHeight: r.dim(32),
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: context.colors.surfaceLight,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+                      ),
+                      padding: EdgeInsets.zero,
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
-          if (!isExpanded) ...[
-            SizedBox(height: r.space(AppSpacing.s)),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                Translations.of(context).map.swipeUp,
-                style: AppTextStyles.caption(
-                  context,
-                ).copyWith(color: context.colors.textSecondary),
-              ),
-            ),
-          ],
+
         ],
       ),
     );

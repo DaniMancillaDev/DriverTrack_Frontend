@@ -8,6 +8,7 @@ import '../widgets/ui/password_strength_indicator.dart';
 import '../utils/form_validators.dart';
 import '../utils/snackbar_helper.dart';
 import 'package:go_router/go_router.dart';
+import '../core/error/error_mapper.dart';
 import '../core/i18n/translations.g.dart';
 import '../core/responsive/responsive.dart';
 import '../theme/app_color_scheme.dart';
@@ -86,7 +87,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
         if (mounted) {
           SnackBarHelper.error(
             context,
-            e.toString().replaceAll('Exception: ', ''),
+            ErrorMapper.toUserMessage(e, context),
           );
         }
       } finally {

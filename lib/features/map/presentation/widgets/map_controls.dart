@@ -66,7 +66,7 @@ class MapControls extends StatelessWidget {
               Container(
                 height: 1,
                 width: r.dim(24),
-                color: Colors.white.withValues(alpha: 0.07),
+                color: context.colors.borderLight,
               ),
               IconButton(
                 onPressed: onZoomOut,

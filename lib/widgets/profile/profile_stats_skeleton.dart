@@ -32,7 +32,7 @@ class ProfileStatsSkeleton extends StatelessWidget {
                       margin: EdgeInsets.symmetric(
                         vertical: r.space(AppSpacing.md),
                       ),
-                      color: Colors.white.withValues(alpha: 0.07),
+                      color: context.colors.borderLight,
                     ),
                   Expanded(
                     child: Padding(

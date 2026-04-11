@@ -14,11 +14,11 @@ import '../../models/maintenance_model.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../features/currency/presentation/widgets/currency_display.dart';
 import '../../theme/app_color_scheme.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../core/responsive/responsive.dart';
 
 class VehicleDetailSheet extends ConsumerStatefulWidget {
   final VehicleViewModel vehicle;
-  final bool isExpanded;
-  final VoidCallback onToggle;
   final VoidCallback onClose;
   final VoidCallback? onLogService;
   final VoidCallback? onEdit;
@@ -29,8 +29,6 @@ class VehicleDetailSheet extends ConsumerStatefulWidget {
   const VehicleDetailSheet({
     super.key,
     required this.vehicle,
-    required this.isExpanded,
-    required this.onToggle,
     required this.onClose,
     this.onLogService,
     this.onEdit,
@@ -46,6 +44,157 @@ class VehicleDetailSheet extends ConsumerStatefulWidget {
 class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
   int? _selectedServiceId;
   bool _serviceDetailExpanded = false;
+  bool _isUploading = false;
+
+  void _showPhotoSourcePicker() {
+    final t = Translations.of(context);
+    final r = context.responsive;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: EdgeInsets.all(r.space(AppSpacing.lg)),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(r.r(AppRadius.xl)),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: r.dim(40),
+              height: r.dim(4),
+              margin: EdgeInsets.only(bottom: r.space(AppSpacing.md)),
+              decoration: BoxDecoration(
+                color: context.colors.borderLight,
+                borderRadius: BorderRadius.circular(AppRadius.full),
+              ),
+            ),
+            Text(
+              t.profile.changePhoto,
+              style: AppTextStyles.headline(context).copyWith(
+                color: context.colors.textMain,
+                fontSize: r.sp(18),
+              ),
+            ),
+            SizedBox(height: r.space(AppSpacing.lg)),
+            _buildSourceOption(
+              icon: Icons.camera_alt,
+              label: t.profile.camera,
+              color: AppColors.orangePrimary,
+              onTap: () {
+                Navigator.pop(ctx);
+                _uploadPhoto(ImageSource.camera);
+              },
+            ),
+            SizedBox(height: r.space(AppSpacing.s)),
+            _buildSourceOption(
+              icon: Icons.photo_library,
+              label: t.profile.gallery,
+              color: AppColors.cyan,
+              onTap: () {
+                Navigator.pop(ctx);
+                _uploadPhoto(ImageSource.gallery);
+              },
+            ),
+            SizedBox(height: r.space(AppSpacing.md)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSourceOption({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    final r = context.responsive;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            horizontal: r.space(AppSpacing.md),
+            vertical: r.space(AppSpacing.s),
+          ),
+          decoration: BoxDecoration(
+            color: context.colors.surfaceLight,
+            borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: r.dim(42),
+                height: r.dim(42),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
+                ),
+                child: Icon(icon, color: color, size: AppIconSizes.md(context)),
+              ),
+              SizedBox(width: r.space(AppSpacing.md)),
+              Text(
+                label,
+                style: AppTextStyles.bodyMedium(context).copyWith(
+                  color: context.colors.textMain,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              Icon(
+                Icons.chevron_right,
+                color: context.colors.textMuted,
+                size: AppIconSizes.sm(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _uploadPhoto(ImageSource source) async {
+    if (_isUploading) return;
+    setState(() => _isUploading = true);
+
+    try {
+      final service = ref.read(vehiclePhotoUploadProvider);
+      final updatedVehicle = await service.pickAndUpload(
+        vehicleId: widget.vehicle.id,
+        source: source,
+      );
+
+      if (updatedVehicle != null && mounted) {
+        // Actualizamos localmente para no hacer full refresh del garaje entero
+        ref.read(vehiclesProvider.notifier).updateVehicleLocally(updatedVehicle);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(Translations.of(context).profile.editProfileSuccess),
+            backgroundColor: AppColors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppColors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,9 +216,16 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
           }
         }
 
+        // Obtener el vehículo más actualizado desde vehiclesProvider para reflejar subida de foto sin cerrar el sheet
+        final vehiclesState = ref.watch(vehiclesProvider).value ?? [];
+        final latestCoreVehicle = vehiclesState.firstWhere(
+          (v) => v.id == widget.vehicle.id,
+          orElse: () => widget.vehicle.vehicle,
+        );
+
         // Create a synchronized ViewModel with the real mileage
         final syncedVehicle = VehicleViewModel(
-          widget.vehicle.vehicle,
+          latestCoreVehicle,
           realMileage,
         );
         return _buildSheet(context, syncedVehicle, records);
@@ -90,44 +246,25 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
         .toList();
 
     return SheetContainer(
-      height: widget.isExpanded
-          ? MediaQuery.of(context).size.height * 0.85
-          : 420,
-      showDragHandle: false,
+      showDragHandle: true,
+      onClose: widget.onClose,
       child: Stack(
         children: [
-          Column(
-            children: [
-              GestureDetector(
-                onVerticalDragUpdate: (details) {
-                  if (details.delta.dy < -10 && !widget.isExpanded) {
-                    widget.onToggle();
-                  }
-                  if (details.delta.dy > 10 && widget.isExpanded) {
-                    widget.onToggle();
-                  }
-                },
-                onTap: widget.onToggle,
-                child: _buildHandle(context),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    0,
-                    AppSpacing.lg,
-                    AppSpacing.xl,
-                  ),
-                  physics: widget.isExpanded
-                      ? const BouncingScrollPhysics()
-                      : const NeverScrollableScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              0,
+              AppSpacing.lg,
+              AppSpacing.xl,
+            ),
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SheetHeader(
                         title: vehicle.displayName,
                         subtitle:
-                            '${(vehicle.type.toLowerCase().contains('moto') ? Translations.of(context).garage.vehicleTypes.motorcycle : (vehicle.type.toLowerCase().contains('car') ? Translations.of(context).garage.vehicleTypes.car : vehicle.type)).toUpperCase()} • ${vehicle.plate}',
+                            '${(vehicle.typeIcon == Icons.motorcycle || vehicle.typeIcon == Icons.motorcycle ? Translations.of(context).garage.vehicleTypes.motorcycle : Translations.of(context).garage.vehicleTypes.car).toUpperCase()} • ${vehicle.plate}',
                         onClose: widget.onClose,
                       ),
                       const SizedBox(height: AppSpacing.md),
@@ -139,9 +276,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
+
           if (_selectedServiceId != null)
             _buildServiceDetailOverlay(vehicle, maintenanceViewModels),
         ],
@@ -175,10 +310,6 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
               accentColor: vm.computedAccent,
               category: vm.category,
               notes: vm.notes,
-              isExpanded: _serviceDetailExpanded,
-              onToggle: () => setState(
-                () => _serviceDetailExpanded = !_serviceDetailExpanded,
-              ),
               onClose: () => setState(() => _selectedServiceId = null),
               onEdit: () => widget.onEditService?.call(vm.maintenance),
               onRemove: () {
@@ -244,7 +375,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       icon: Icon(
-        Icons.more_vert_rounded,
+        Icons.more_vert,
         color: isOverlay ? Colors.white : context.colors.textMuted,
         size: isOverlay ? 20 : 24,
       ),
@@ -255,7 +386,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
             child: Row(
               children: [
                 Icon(
-                  Icons.edit_outlined,
+                  Icons.edit,
                   size: 18,
                   color: context.colors.textSecondary,
                 ),
@@ -275,7 +406,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
             child: Row(
               children: [
                 Icon(
-                  Icons.delete_outline_rounded,
+                  Icons.delete_outline,
                   size: 18,
                   color: AppColors.red,
                 ),
@@ -309,21 +440,32 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
             height: 220, // Increased height for better hero presence
             width: double.infinity,
             fit: BoxFit.cover,
+            alignment: const Alignment(0.0, -0.6), // Encuadre ligeramente hacia arriba para ilustraciones
             errorBuilder: (context, error, stackTrace) => Container(
               height: 220,
+              width: double.infinity,
               color: context.colors.surfaceLight,
               child: Icon(
-                vehicle.type.toLowerCase().contains('moto')
-                    ? Icons.motorcycle
-                    : Icons.directions_car,
+                vehicle.typeIcon,
                 size: 64,
                 color: context.colors.borderLight,
               ),
             ),
           ),
+          // Loading overlay si está subiendo
+          if (_isUploading)
+            Container(
+              height: 220,
+              width: double.infinity,
+              color: Colors.black.withValues(alpha: 0.5),
+              child: const Center(
+                child: CircularProgressIndicator(color: AppColors.orangePrimary),
+              ),
+            ),
           // Gradient: subtle bottom-only fade for readability
           Container(
             height: 220,
+            width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.center,
@@ -332,6 +474,31 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                   Colors.transparent,
                   Colors.black.withValues(alpha: 0.65),
                 ],
+              ),
+            ),
+          ),
+          // Edit Photo Button (Center overlay)
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: _showPhotoSourcePicker,
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                    ),
+                    child: Icon(
+                      Icons.camera_alt,
+                      color: Colors.white.withValues(alpha: 0.8),
+                      size: 28,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -344,27 +511,87 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
               children: [
                 GestureDetector(
                   onTap: () async {
+                    if (vehicle.isFavorite) {
+                      final notifier = ref.read(vehiclesProvider.notifier);
+                      await notifier.toggleFavorite(vehicle.id, false);
+                      return;
+                    }
+                    final currentFavs = ref.read(vehiclesProvider).value
+                            ?.where((v) => v.isFavorite).length ??
+                        0;
+                    if (currentFavs >= VehiclesNotifier.maxFavorites) {
+                      if (mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            backgroundColor: context.colors.surface,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppRadius.xl),
+                            ),
+                            icon: Icon(
+                              Icons.favorite_border,
+                              color: AppColors.orangeSecondary,
+                              size: 36,
+                            ),
+                            title: Text(
+                              'Límite de favoritos',
+                              style: AppTextStyles.sheetTitle(context),
+                              textAlign: TextAlign.center,
+                            ),
+                            content: Text(
+                              'Ya tienes ${VehiclesNotifier.maxFavorites} favoritos guardados. Quita uno para poder agregar este vehículo.',
+                              style: AppTextStyles.bodySmall(context).copyWith(
+                                color: context.colors.textMuted,
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            actionsAlignment: MainAxisAlignment.center,
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.orangePrimary,
+                                  textStyle: AppTextStyles.bodyMedium(context).copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                child: const Text('Entendido'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return;
+
+                    }
                     final notifier = ref.read(vehiclesProvider.notifier);
-                    await notifier.toggleFavorite(
-                      vehicle.id,
-                      !vehicle.isFavorite,
-                    );
+                    await notifier.toggleFavorite(vehicle.id, true);
                   },
-                  child: Container(
-                    padding: const EdgeInsets.all(AppSpacing.xs),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.3), // Glassy feel
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.1),
+                  child: Opacity(
+                    opacity: () {
+                      if (vehicle.isFavorite) return 1.0;
+                      final favs = ref.watch(vehiclesProvider).value
+                              ?.where((v) => v.isFavorite).length ??
+                          0;
+                      return favs >= VehiclesNotifier.maxFavorites ? 0.4 : 1.0;
+                    }(),
+                    child: Container(
+                      padding: const EdgeInsets.all(AppSpacing.xs),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
                       ),
-                    ),
-                    child: Icon(
-                      vehicle.isFavorite
-                          ? Icons.favorite_rounded
-                          : Icons.favorite_outline_rounded,
-                      color: vehicle.isFavorite ? AppColors.red : Colors.white,
-                      size: 20,
+                      child: Icon(
+                        vehicle.isFavorite
+                            ? Icons.favorite
+                            : Icons.favorite_outline,
+                        color: vehicle.isFavorite ? AppColors.red : Colors.white,
+                        size: 20,
+                      ),
                     ),
                   ),
                 ),
@@ -378,7 +605,6 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                         color: Colors.white.withValues(alpha: 0.1),
                       ),
                     ),
-                    // Use a wrapper to prevent the native PopupMenu from breaking the circular shape visually
                     child: _buildTrailingActions(vehicle, isOverlay: true),
                   ),
                 ],
@@ -475,7 +701,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
             ),
             if (records.isNotEmpty)
               Text(
-                Translations.of(context).garage.recordsCount(n: records.length),
+                Translations.of(context).garage.recordsCount(n: records.length).replaceAll('{count}', records.length.toString()),
                 style: TextStyle(
                   color: context.colors.textMain,
                   fontSize: 10,
@@ -491,7 +717,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
           ...records.take(5).map((vm) {
             return _buildHistoryItem(
               vm.title,
-              DateFormat('dd MMM yyyy').format(vm.date),
+              DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(vm.date),
               vm.cost,
               vm.computedIcon,
               vm.computedAccent,
@@ -515,7 +741,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
       child: Column(
         children: [
           Icon(
-            Icons.history_outlined,
+            Icons.history,
             size: 40,
             color: context.colors.textSecondary,
           ),

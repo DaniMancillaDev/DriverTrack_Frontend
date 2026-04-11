@@ -13,7 +13,19 @@
     "confirm": "Confirm",
     "unknownVehicle": "Unknown Vehicle",
     "free": "Free",
-    "none": "None"
+    "none": "None",
+    "back": "Back",
+    "settingsAndUnits": "Settings & Units",
+    "realTimeExamples": "Real-time examples",
+    "totalDistance": "Total distance",
+    "operatingTemperature": "Operating temperature",
+    "networkError": "No connection. Check your internet and try again.",
+    "timeoutError": "The request took too long. Please try again.",
+    "unauthorizedError": "Incorrect email or password.",
+    "notFoundError": "The requested resource was not found.",
+    "validationError": "The data entered is not valid. Please review and try again.",
+    "serverError": "The server is unavailable. Please try again later.",
+    "requestError": "We could not complete the request. Please try again."
   },
   "auth": {
     "welcomeBack": "Welcome Back",
@@ -24,7 +36,10 @@
     "forgotPassword": "Forgot Password?",
     "signIn": "Sign In",
     "noAccount": "Don't have an account? ",
-    "signUp": "Sign Up"
+    "signUp": "Sign Up",
+    "sessionExpiredTitle": "Session expired",
+    "sessionExpiredMessage": "Your session expired. Please sign in again.",
+    "sessionExpiredSnackbar": "Your session expired, please sign in again."
   },
   "registration": {
     "title": "Create Account",
@@ -60,9 +75,9 @@
     "vehicleAdded": "Vehicle added successfully",
     "vehicleUpdated": "Vehicle updated successfully",
     "vehicleRemoved": "Vehicle removed",
-    "errorAddingVehicle": "Error adding vehicle: {error}",
-    "errorUpdatingVehicle": "Error updating vehicle: {error}",
-    "errorRemovingVehicle": "Error removing vehicle: {error}",
+    "errorAddingVehicle": "Could not add vehicle. Please try again.",
+    "errorUpdatingVehicle": "Could not update vehicle. Please try again.",
+    "errorRemovingVehicle": "Could not remove vehicle. Please try again.",
     "serviceLogged": "Service logged for {vehicleName}",
     "serviceRecordUpdated": "Service record updated",
     "removeVehicleTitle": "Remove Vehicle",
@@ -113,8 +128,12 @@
       "mileageHint": "e.g., 25000",
       "mileageSubHint": "Current odometer reading",
       "btnSave": "Save Vehicle",
+      "btnSaveCar": "Save Car",
+      "btnSaveMoto": "Save Motorcycle",
       "btnUpdate": "Update Vehicle",
       "btnSaved": "Vehicle Saved",
+      "btnSavedCar": "Car Saved",
+      "btnSavedMoto": "Motorcycle Saved",
       "btnUpdated": "Vehicle Updated",
       "btnCancel": "Cancel"
     },
@@ -135,7 +154,14 @@
       "other": "{count} records"
     },
     "totalDistanceMiles": "Total Miles",
-    "totalDistanceKm": "Total Kilometers"
+    "totalDistanceKm": "Total Kilometers",
+    "unitKilometers": "Kilometers",
+    "unitMiShort": "mi",
+    "unitKmShort": "km",
+    "notificationsUnread": "Notifications, {count} unread",
+    "notificationsNone": "Notifications, no new updates",
+    "goodAfternoon": "Good afternoon",
+    "goodEvening": "Good evening"
   },
   "maintenance": {
     "title": "Maintenance",
@@ -148,7 +174,7 @@
     "serviceRemoved": "Service record removed",
     "errorAddingService": "Error adding service: {error}",
     "errorUpdatingService": "Error updating record: {error}",
-    "errorRemovingService": "Error removing record: {error}",
+    "errorRemovingService": "Could not remove service. Please try again.",
     "removeEntryTitle": "Remove Entry?",
     "removeEntryMessage": "Are you sure you want to remove the record for \"{title}\"? This action cannot be undone.",
     "errorTitle": "Something went wrong",
@@ -188,7 +214,18 @@
     "unknownVehicle": "Unknown",
     "costLabel": "COST",
     "costFree": "Free",
-    "mileageLabel": "MILEAGE"
+    "mileageLabel": "MILEAGE",
+    "serviceNotesLabel": "SERVICE NOTES",
+    "categoryGeneral": "General",
+    "historyLabel": "History",
+    "categories": {
+      "general": "General",
+      "fluidService": "Fluid Service",
+      "wearAndTear": "Wear & Tear",
+      "inspection": "Inspection",
+      "cosmetic": "Cosmetic",
+      "electrical": "Electrical"
+    }
   },
   "profile": {
     "vehiclePreferences": "Vehicle Preferences",
@@ -206,7 +243,7 @@
     "criticalAlerts": "Critical Alerts",
     "privacySecurity": "Privacy & Security",
     "securitySubtitleActive": "2FA active · Protected",
-    "securitySubtitleDefault": "Password, 2FA",
+    "securitySubtitleDefault": "Password & privacy",
     "passwordReset": "Password Reset",
     "passwordLastChanged": "Last changed 30 days ago",
     "reset": "Reset",
@@ -219,7 +256,7 @@
     "themeLight": "Light",
     "theme": "Theme",
     "language": "Language",
-    "feedbackSupport": "Feedback & Support",
+    "feedbackSupport": "Support",
     "rateDriveTrack": "Rate DriveTrack",
     "shareExperience": "Share your experience",
     "helpSupport": "Help & Support",
@@ -239,7 +276,27 @@
     "statsSavedSub": "in costs",
     "systemOfUnits": "Unit System",
     "metric": "Metric",
-    "imperial": "Imperial"
+    "imperial": "Imperial",
+    "editProfile": "Edit Profile",
+    "editProfileName": "Full Name",
+    "editProfileSave": "Save Changes",
+    "editProfileSuccess": "Profile updated successfully",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "changePasswordSuccess": "Password changed successfully",
+    "changePasswordError": "Current password is incorrect",
+    "passwordsMismatch": "Passwords don't match",
+    "callSupport": "Call Support",
+    "supportPhone": "+52 664 536 7724",
+    "loadingPreferences": "Loading preferences...",
+    "errorLoadingPreferences": "Could not load preferences",
+    "errorLoadingStats": "Could not load statistics",
+    "changePhoto": "Change Photo",
+    "camera": "Camera",
+    "gallery": "Gallery",
+    "uploadingPhoto": "Uploading photo..."
   },
   "notifications": {
     "title": "Notifications",
@@ -266,6 +323,9 @@
     "typeSuccess": "Success",
     "typeWeather": "Weather",
     "typeInfo": "Info",
+    "typeError": "Error",
+    "filterInfo": "Info",
+    "summaryInfo": "Info",
     "mocks": {
       "n1": {
         "title": "Low tire pressure detected",
@@ -340,7 +400,8 @@
     "zoomIn": "Zoom In",
     "zoomOut": "Zoom Out",
     "overpassError": "The map server is overloaded. Please retry in a few seconds.",
-    "searchThisArea": "Search this area"
+    "searchThisArea": "Search this area",
+    "gpsSearching": "Searching for GPS location... Make sure location is enabled on your device."
   },
   "weatherWidget": {
     "alert": "WEATHER ALERT",
@@ -441,7 +502,13 @@
       "strongWind": "Strong wind detected. Grip the wheel firmly, especially on bridges.",
       "extremeWeather": "Extreme conditions. Avoid driving and seek safe shelter.",
       "stable": "Stable driving conditions. Have a safe trip!"
-    }
+    },
+    "changeCity": "Change city",
+    "changeCityHint": "E.g. Houston, US",
+    "changeCityTitle": "Weather by city",
+    "useGps": "Use GPS",
+    "search": "Search",
+    "cityNotFound": "City not found. Try «City, Country»"
   },
   "time": {
     "now": "Now",

@@ -78,7 +78,7 @@ class _CurrencyConverterWidgetState
                     Text(
                       Translations.of(context).currency.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
+                        color: context.colors.textMain,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -115,7 +115,7 @@ class _CurrencyConverterWidgetState
                       decimal: true,
                     ),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
+                      color: context.colors.textMain,
                       fontWeight: FontWeight.w800,
                     ),
                     decoration: InputDecoration(
@@ -143,7 +143,7 @@ class _CurrencyConverterWidgetState
                       Expanded(
                         child: Container(
                           height: 1,
-                          color: Colors.white.withValues(alpha: 0.06),
+                          color: context.colors.borderLight,
                         ),
                       ),
                       GestureDetector(
@@ -174,7 +174,7 @@ class _CurrencyConverterWidgetState
                       Expanded(
                         child: Container(
                           height: 1,
-                          color: Colors.white.withValues(alpha: 0.06),
+                          color: context.colors.borderLight,
                         ),
                       ),
                     ],
@@ -264,7 +264,7 @@ class _CurrencyConverterWidgetState
                   child: Text(
                     Translations.of(context).currency.tryAgain,
                     style: AppTextStyles.bodyMedium(context).copyWith(
-                      color: Colors.white,
+                      color: Colors.white, // Safe: background is orange primary which needs white text
                       fontWeight: FontWeight.w700,
                     ),
                   ),

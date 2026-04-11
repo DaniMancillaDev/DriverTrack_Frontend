@@ -18,7 +18,7 @@ class VehicleCardSkeleton extends StatelessWidget {
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.05),
+           color: context.colors.border.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
