@@ -9,7 +9,13 @@ import '../../core/i18n/translations.g.dart';
 import '../../core/units/presentation/unit_system_provider.dart';
 import '../../core/units/domain/unit_system.dart';
 
+/// Panel de resumen estadístico para el garaje del usuario.
+/// 
+/// Calcula métricas agregadas de toda la flota, incluyendo el kilometraje 
+/// acumulado total (considerando registros de mantenimiento) y el número 
+/// de vehículos que requieren atención inmediata ('services due').
 class GarageStats extends ConsumerWidget {
+  /// Lista de vehículos sobre los cuales calcular las estadísticas.
   final List<Vehicle> vehicles;
 
   const GarageStats({super.key, required this.vehicles});

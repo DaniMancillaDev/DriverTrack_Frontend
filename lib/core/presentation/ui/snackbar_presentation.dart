@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import '../../../theme/app_theme.dart';
 
 /// Helper estático para mostrar SnackBars consistentes en toda la app.
 /// Centraliza el patrón ScaffoldMessenger para eliminan la duplicación.

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import '../../../../theme/app_theme.dart';
 
+/// Utilidad para transformar datos crudos de mantenimiento en elementos visuales.
+///
+/// Ayuda a desacoplar la representación en el servidor (strings simples)
+/// de la rica interfaz de usuario de DriverTrack (iconos, colores, segmentación).
 class MaintenanceMapper {
-  /// Parses the raw description to extract a main title for the UI.
-  /// (e.g., "Oil Change | Used synthetic" -> "Oil Change")
+  /// Extrae el título principal de una descripción.
+  /// 
+  /// Utiliza el carácter '|' para separar el título de las notas adicionales.
+  /// Ej: "Cambio de Aceite | Sintético 5W30" -> "Cambio de Aceite"
   static String getTitle(String description) {
     if (description.contains('|')) {
       return description.split('|')[0].trim();
@@ -11,8 +17,10 @@ class MaintenanceMapper {
     return description;
   }
 
-  /// Parses the raw description to extract the secondary notes.
-  /// (e.g., "Oil Change | Used synthetic" -> "Used synthetic")
+  /// Extrae las notas secundarias de una descripción.
+  /// 
+  /// Si existe el carácter '|', retorna lo que está después de él.
+  /// Ej: "Cambio de Aceite | Sintético 5W30" -> "Sintético 5W30"
   static String? getNotes(String description) {
     if (description.contains('|')) {
       final parts = description.split('|');
@@ -23,7 +31,10 @@ class MaintenanceMapper {
     return null;
   }
 
-  /// Infers a UI category from the maintenance description.
+  /// Infiere una categoría de UI basada en palabras clave en la descripción.
+  ///
+  /// Clasifica los servicios en grupos como 'Fluid Service', 'Wear & Tear', etc.
+  /// para facilitar la organización visual.
   static String getCategory(String description) {
     final lowerDesc = description.toLowerCase();
     if (lowerDesc.contains('oil') || lowerDesc.contains('filter')) {
@@ -43,7 +54,7 @@ class MaintenanceMapper {
     return 'General';
   }
 
-  /// Returns a specific UI icon based on the inferred category.
+  /// Retorna un icono de Flutter específico para la categoría de mantenimiento.
   static IconData getIcon(String category) {
     if (category == 'Fluid Service') return Icons.opacity;
     if (category == 'Wear & Tear') return Icons.build_circle_outlined;
@@ -53,7 +64,7 @@ class MaintenanceMapper {
     return Icons.settings_outlined;
   }
 
-  /// Returns a specific UI color accent based on the inferred category.
+  /// Retorna un color de énfasis para la categoría de mantenimiento.
   static Color getAccent(String category) {
     if (category == 'Fluid Service') return AppColors.orangePrimary;
     if (category == 'Wear & Tear') return AppColors.cyan;

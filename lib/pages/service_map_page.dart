@@ -19,6 +19,16 @@ import '../widgets/map/place_detail_sheet.dart';
 import '../widgets/map/places_list_sheet.dart';
 import '../theme/app_color_scheme.dart';
 
+/// Explorador geoespacial de servicios automotrices.
+/// 
+/// Provee una interfaz cartográfica interactiva para localizar infraestructura de 
+/// apoyo al conductor. Implementa:
+/// * **Búsqueda Dinámica**: Localización de talleres, gasolineras y refaccionarias 
+///   basada en el área visible del mapa (Bounding Box).
+/// * **Integración Overpass**: Consulta en tiempo real a OpenStreetMap para 
+///   obtener datos actualizados de servicios.
+/// * **Navegación Intuitiva**: Fly-to animado a locaciones seleccionadas y 
+///   seguimiento GPS de la posición del usuario.
 class ServiceMapPage extends ConsumerStatefulWidget {
   const ServiceMapPage({super.key});
 

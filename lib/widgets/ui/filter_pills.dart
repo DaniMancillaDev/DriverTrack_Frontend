@@ -3,9 +3,17 @@ import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Una lista de píldoras de filtro con scroll horizontal y efecto de desvanecimiento.
+/// 
+/// Permite al usuario seleccionar una opción entre múltiples categorías. 
+/// Utiliza un [ShaderMask] para crear un gradiente de transparencia en los 
+/// bordes, indicando visualmente que hay más elementos para desplazar.
 class FilterPills extends StatelessWidget {
+  /// Lista de etiquetas de texto para los filtros.
   final List<String> filters;
+  /// Filtro seleccionado actualmente (activado visualmente).
   final String activeFilter;
+  /// Callback disparado al seleccionar una nueva píldora.
   final Function(String) onFilterChanged;
 
   const FilterPills({

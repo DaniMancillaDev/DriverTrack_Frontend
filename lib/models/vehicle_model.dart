@@ -1,18 +1,47 @@
 import 'vehicle_type_model.dart';
 
+/// Representa un vehículo registrado en la plataforma DriverTrack.
+/// 
+/// Contiene toda la información técnica, de kilometraje y estado 
+/// necesaria para gestionar el mantenimiento y las alertas del conductor.
 class Vehicle {
+  /// Identificador único del vehículo en la base de datos.
   final int id;
+
+  /// ID del usuario propietario del vehículo.
   final int userId;
+
+  /// ID de la categoría de vehículo ([VehicleType]).
   final int typeId;
+
+  /// Marca del vehículo (ej. Toyota, Ford).
   final String brand;
+
+  /// Modelo o línea del vehículo (ej. Corolla, F-150).
   final String model;
+
+  /// Placa o matrícula del vehículo.
   final String plate;
+
+  /// Año de fabricación.
   final int year;
+
+  /// Kilometraje actual acumulado.
   final int mileage;
+
+  /// Kilometraje máximo de vida útil útil o umbral para alertas críticas.
   final int maxMileage;
+
+  /// URL de la imagen del vehículo almacenada en el servidor (ej. MinIO).
   final String? imageUrl;
+
+  /// Fecha sugerida o calculada para el próximo servicio de mantenimiento.
   final String? nextService;
+
+  /// Indica si el vehículo ha sido marcado como favorito por el usuario.
   final bool isFavorite;
+
+  /// Objeto detallado de la categoría del vehículo.
   final VehicleType vehicleType;
 
   Vehicle({
@@ -31,6 +60,7 @@ class Vehicle {
     required this.vehicleType,
   });
 
+  /// Crea una instancia de [Vehicle] a partir de un mapa JSON del backend.
   factory Vehicle.fromJson(Map<String, dynamic> json) {
     return Vehicle(
       id: json['id'] as int,
@@ -49,6 +79,7 @@ class Vehicle {
     );
   }
 
+  /// Convierte la instancia de [Vehicle] a un mapa JSON para enviar al servidor.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -67,6 +98,7 @@ class Vehicle {
     };
   }
 
+  /// Crea una copia de este objeto con los campos proporcionados sobrescritos.
   Vehicle copyWith({
     int? id,
     int? userId,
@@ -99,5 +131,6 @@ class Vehicle {
     );
   }
 
+  /// Nombre legible del vehículo combinando Marca y Modelo.
   String get displayName => '$brand $model';
 }

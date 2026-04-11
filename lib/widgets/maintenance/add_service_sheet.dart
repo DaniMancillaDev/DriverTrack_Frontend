@@ -7,10 +7,10 @@ import '../ui/sheet_header.dart';
 import '../ui/sheet_action_button.dart';
 import '../ui/inline_date_picker.dart';
 import '../../theme/app_theme.dart';
-import '../../utils/form_validators.dart';
+import '../../core/validation/form_validators.dart';
 import '../../models/vehicle_model.dart';
 import '../../models/maintenance_model.dart';
-import '../../utils/maintenance_mapper.dart';
+import '../../features/maintenance/domain/mappers/maintenance_mapper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../core/units/domain/unit_formatter.dart';
@@ -20,9 +20,17 @@ import '../../features/currency/presentation/providers/currency_provider.dart';
 import '../../features/currency/domain/entities/currency.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Formulario para el registro y edición de actividades de mantenimiento.
+/// 
+/// Permite capturar detalles técnicos (kilometraje, categoría), económicos 
+/// (costo con conversión transparente de divisas) y temporales. Gestiona 
+/// la persistencia de datos vinculándolos a un vehículo específico de la flota.
 class AddServiceSheet extends ConsumerStatefulWidget {
+  /// Lista de vehículos disponibles para asociar al servicio.
   final List<Vehicle> vehicles;
+  /// Callback de persistencia que recibe los datos normalizados.
   final Future<void> Function(Map<String, dynamic>) onSave;
+  /// Registro opcional para modo edición.
   final Maintenance? initialMaintenance;
 
   const AddServiceSheet({

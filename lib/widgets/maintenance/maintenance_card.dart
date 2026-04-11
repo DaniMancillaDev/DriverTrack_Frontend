@@ -11,9 +11,17 @@ import '../../core/responsive/responsive.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Una tarjeta de resumen para registros de mantenimiento en listas.
+/// 
+/// Provee una previsualización compacta de una intervención, resaltando el 
+/// costo y la categoría mediante colores de acento. Incluye micro-interacciones 
+/// táctiles ([AnimatedScale]) para mejorar el feedback visual al presionar.
 class MaintenanceCard extends ConsumerStatefulWidget {
+  /// ViewModel con la lógica de presentación del registro.
   final MaintenanceViewModel vm;
+  /// Nombre legible del vehículo asociado (para contexto en listas globales).
   final String vehicleName;
+  /// Callback al presionar para ver detalles completos.
   final VoidCallback onTap;
 
   const MaintenanceCard({

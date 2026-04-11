@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/api_client.dart';
+import '../../core/network/api_client.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 import '../../core/i18n/translations.g.dart';

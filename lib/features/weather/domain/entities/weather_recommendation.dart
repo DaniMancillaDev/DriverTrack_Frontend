@@ -1,21 +1,27 @@
-/// Entidad de recomendación de conducción basada en clima.
-///
-/// Generada por el motor de reglas, no acoplada a la UI.
-
 import 'package:flutter/material.dart';
 
-/// Severidad de la recomendación.
-enum RecommendationSeverity { info, warning, critical }
+/// Define la gravedad de un aviso o recomendación.
+enum RecommendationSeverity { 
+  /// Información general o sugerencia leve.
+  info, 
+  /// Advertencia sobre condiciones que requieren atención.
+  warning, 
+  /// Emergencia o condición climática peligrosa para conducir.
+  critical 
+}
 
-/// Recomendación inmutable para el conductor.
+/// Representa un consejo de seguridad generado automáticamente según el clima.
+///
+/// Estas recomendaciones ayudan al conductor a ajustar su comportamiento
+/// (ej: reducir velocidad ante lluvia, encender luces en neblina).
 class WeatherRecommendation {
-  /// Clave i18n para el mensaje (ej: "weather.rec.hydration").
+  /// Identificador para la localización del mensaje.
   final String messageKey;
 
-  /// Severidad del aviso.
+  /// Nivel de importancia de la recomendación.
   final RecommendationSeverity severity;
 
-  /// Icono representativo.
+  /// Icono visual sugerido para la alerta.
   final IconData icon;
 
   const WeatherRecommendation({

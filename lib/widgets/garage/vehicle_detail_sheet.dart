@@ -17,14 +17,26 @@ import '../../theme/app_color_scheme.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../core/responsive/responsive.dart';
 
+/// Orquestador visual del perfil detallado de un vehículo.
+/// 
+/// Consolida estados de salud, estadísticas financieras de mantenimiento y el 
+/// historial cronológico de servicios. Permite realizar acciones de gestión 
+/// como editar el vehículo, marcarlo como favorito o actualizar su fotografía.
 class VehicleDetailSheet extends ConsumerStatefulWidget {
+  /// ViewModel que encapsula la lógica de presentación del vehículo.
   final VehicleViewModel vehicle;
+  /// Callback para cerrar la hoja detallada.
   final VoidCallback onClose;
+  /// Callback opcional para navegar al formulario de nuevo servicio.
   final VoidCallback? onLogService;
+  /// Callback opcional para editar los datos básicos del vehículo.
   final VoidCallback? onEdit;
+  /// Callback opcional para eliminar el vehículo de la flota.
   final VoidCallback? onRemove;
+  /// Callback para eliminar un registro de mantenimiento específico.
   final Function(int)? onRemoveService;
-  final Function(Maintenance)? onEditService; // Added
+  /// Callback para editar un registro de mantenimiento existente.
+  final Function(Maintenance)? onEditService;
 
   const VehicleDetailSheet({
     super.key,
@@ -34,7 +46,7 @@ class VehicleDetailSheet extends ConsumerStatefulWidget {
     this.onEdit,
     this.onRemove,
     this.onRemoveService,
-    this.onEditService, // Added
+    this.onEditService,
   });
 
   @override
@@ -435,23 +447,31 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
       ), // Updated to xl for consistency
       child: Stack(
         children: [
-          Image.network(
-            vehicle.displayImageUrl,
-            height: 220, // Increased height for better hero presence
-            width: double.infinity,
-            fit: BoxFit.cover,
-            alignment: const Alignment(0.0, -0.6), // Encuadre ligeramente hacia arriba para ilustraciones
-            errorBuilder: (context, error, stackTrace) => Container(
-              height: 220,
-              width: double.infinity,
-              color: context.colors.surfaceLight,
-              child: Icon(
-                vehicle.typeIcon,
-                size: 64,
-                color: context.colors.borderLight,
-              ),
-            ),
-          ),
+          vehicle.displayImageUrl.startsWith('http')
+              ? Image.network(
+                  vehicle.displayImageUrl,
+                  height: 220, // Increased height for better hero presence
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  alignment: const Alignment(0.0, -0.6), // Encuadre ligeramente hacia arriba para ilustraciones
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 220,
+                    width: double.infinity,
+                    color: context.colors.surfaceLight,
+                    child: Icon(
+                      vehicle.typeIcon,
+                      size: 64,
+                      color: context.colors.borderLight,
+                    ),
+                  ),
+                )
+              : Image.asset(
+                  vehicle.displayImageUrl,
+                  height: 220,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  alignment: const Alignment(0.0, -0.6),
+                ),
           // Loading overlay si está subiendo
           if (_isUploading)
             Container(

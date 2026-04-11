@@ -2,10 +2,19 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Un marcador de posición animado (Shimmer) para estados de carga.
+/// 
+/// Utiliza un degradado lineal que se desplaza horizontalmente para simular 
+/// actividad mientras se cargan datos asíncronos. Es altamente personalizable 
+/// en dimensiones y redondeo.
 class SkeletonLoader extends StatefulWidget {
+  /// Ancho del bloque de carga.
   final double width;
+  /// Altura del bloque de carga.
   final double height;
+  /// Radio de los bordes (por defecto [AppRadius.s]).
   final double borderRadius;
+  /// Espaciado externo opcional.
   final EdgeInsetsGeometry? margin;
 
   const SkeletonLoader({

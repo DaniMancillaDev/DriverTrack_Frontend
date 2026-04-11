@@ -5,16 +5,19 @@ import '../../../../core/error/failures.dart';
 import '../../domain/entities/currency.dart';
 import '../models/exchange_rate_model.dart';
 
+/// Interfaz para la obtención de datos de divisas desde servicios externos.
 abstract class CurrencyRemoteDataSource {
-  /// Calls the ExchangeRate-API endpoint for the latest conversion rates.
-  /// Throws a [ServerFailure] for all error codes.
+  /// Solicita las últimas tasas de cambio para una moneda base.
+  /// 
+  /// Lanza un [ServerFailure] si la respuesta no es 200 o si hay errores de red.
   Future<ExchangeRateModel> getExchangeRate(Currency base, Currency target);
 }
 
+/// Implementación de la fuente de datos remota mediante [ExchangeRate-API].
 class CurrencyRemoteDataSourceImpl implements CurrencyRemoteDataSource {
   final http.Client client;
 
-  // API Key de la cuenta gratuita registrada
+  /// Clave de API registrada para el servicio ExchangeRate-API.
   static const String apiKey = 'a94251bcd965538d6428b6a6';
 
   CurrencyRemoteDataSourceImpl({required this.client});
@@ -24,7 +27,7 @@ class CurrencyRemoteDataSourceImpl implements CurrencyRemoteDataSource {
     Currency base,
     Currency target,
   ) async {
-    // URL de la Versión 6 que utiliza la API Key
+    // Endpoint oficial v6 para tasas 'latest'
     final urlStr =
         'https://v6.exchangerate-api.com/v6/$apiKey/latest/${base.code}';
 
@@ -40,12 +43,12 @@ class CurrencyRemoteDataSourceImpl implements CurrencyRemoteDataSource {
         return ExchangeRateModel.fromJson(jsonMap, target);
       } else {
         throw ServerFailure(
-          'Failed to fetch exchange rate: ${response.statusCode}',
+          'Error al obtener tasa: ${response.statusCode}',
         );
       }
     } catch (e) {
       if (e is ServerFailure) rethrow;
-      throw ServerFailure('Unable to connect to ExchangeRate-API');
+      throw ServerFailure('Error de conexión con ExchangeRate-API');
     }
   }
 }

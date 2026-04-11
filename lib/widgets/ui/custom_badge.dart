@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
-enum BadgeVariant { defaultVariant, secondary, destructive, outline }
+/// Variantes visuales soportadas por el sistema de etiquetas.
+enum BadgeVariant { 
+  /// Estilo principal basado en el color primario.
+  defaultVariant, 
+  /// Estilo neutral basado en el color secundario.
+  secondary, 
+  /// Estilo de alerta basado en el color de error.
+  destructive, 
+  /// Estilo con borde y fondo transparente.
+  outline 
+}
 
+/// Un componente de etiqueta (badge) para mostrar estados, categorías o contadores.
+/// 
+/// El [CustomBadge] adapta automáticamente su paleta de colores según la [variant]
+/// seleccionada, asegurando consistencia con el esquema de colores global.
 class CustomBadge extends StatelessWidget {
   final Widget label;
   final BadgeVariant variant;

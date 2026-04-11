@@ -3,10 +3,18 @@ import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Encabezado estandarizado para hojas modales (Bottom Sheets).
+/// 
+/// Provee una estructura clara que incluye un título prominente, una descripción 
+/// opcional de apoyo y un botón de cierre alineado a la parte superior derecha.
 class SheetHeader extends StatelessWidget {
+  /// Título principal de la hoja modal.
   final String title;
+  /// Texto de contexto adicional debajo del título.
   final String? subtitle;
+  /// Callback disparado al presionar el botón de cerrar.
   final VoidCallback onClose;
+  /// Widget opcional a la izquierda del botón de cierre.
   final Widget? trailing;
 
   const SheetHeader({

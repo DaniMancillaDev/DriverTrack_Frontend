@@ -3,10 +3,15 @@ import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Define un punto de dato individual para el componente de estadísticas.
 class StatItem {
+  /// Etiqueta descriptiva de la métrica.
   final String label;
+  /// Valor textual a mostrar (opcional si se provee [customValue]).
   final String? value;
+  /// Widget personalizado para representar el valor (ej: indicador de salud).
   final Widget? customValue;
+  /// Color semántico para resaltar la importancia del dato.
   final Color accent;
 
   StatItem({
@@ -17,7 +22,13 @@ class StatItem {
   }) : assert(value != null || customValue != null);
 }
 
+/// Un panel horizontal de métricas y estadísticas clave.
+/// 
+/// Organiza una lista de [StatItem] en una fila dividida por separadores 
+/// verticales sutíles. Es utilizado en dashboards para dar visibilidad rápida 
+/// a costos, kilometraje o salud de flota.
 class SummaryStats extends StatelessWidget {
+  /// Lista de métricas a mostrar.
   final List<StatItem> stats;
 
   const SummaryStats({super.key, required this.stats});

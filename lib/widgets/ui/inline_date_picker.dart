@@ -3,8 +3,15 @@ import '../../theme/app_theme.dart';
 import 'package:intl/intl.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Un selector de fecha integrado diseñado para formularios limpios.
+/// 
+/// A diferencia de los pickers nativos invasivos, este widget separa el 
+/// día, mes y año en tres campos seleccionables que abren hojas modales 
+/// para una entrada de datos rápida y táctil.
 class InlineDatePicker extends StatefulWidget {
+  /// Fecha seleccionada inicialmente.
   final DateTime initialDate;
+  /// Notifica cambios de fecha al widget padre.
   final ValueChanged<DateTime> onChanged;
 
   const InlineDatePicker({

@@ -3,13 +3,21 @@ import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 
-/// Mobile-native confirmation — uses bottom sheet instead of Dialog.
-/// Follows the design system: surface container, no borders, borderless buttons.
+/// Un diálogo de confirmación moderno adaptado para dispositivos móviles.
+/// 
+/// A diferencia de los diálogos centrales clásicos, este utiliza un 
+/// [showModalBottomSheet] para facilitar la interacción táctil en la parte 
+/// inferior de la pantalla. Ideal para validaciones de borrado o acciones críticas.
 class ConfirmationDialog extends StatelessWidget {
+  /// Título del diálogo (ej: "¿Eliminar vehículo?").
   final String title;
+  /// Descripción detallada de las consecuencias de la acción.
   final String message;
+  /// Etiqueta del botón de acción principal.
   final String confirmLabel;
+  /// Color semántico para el botón de confirmación (ej: [AppColors.red] para borrar).
   final Color confirmColor;
+  /// Callback ejecutado al confirmar la acción.
   final VoidCallback onConfirm;
 
   const ConfirmationDialog({
@@ -21,6 +29,7 @@ class ConfirmationDialog extends StatelessWidget {
     required this.onConfirm,
   });
 
+  /// Método estático para disparar el diálogo de forma declarativa.
   static Future<void> show(
     BuildContext context, {
     required String title,

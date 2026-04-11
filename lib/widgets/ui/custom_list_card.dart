@@ -2,23 +2,36 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Una tarjeta especializada para elementos de lista con interacción rica.
+/// 
+/// Provee un contenedor interactivo ([InkWell]) con soporte visual para 
+/// estados de selección, resaltando el borde y aplicando sombras sutiles. 
+/// Es ideal para listar vehículos, servicios o cualquier entidad con metadatos.
 class CustomListCard extends StatelessWidget {
+  /// Widget opcional en el extremo izquierdo (ej: icono o avatar).
   final Widget? leading;
+  /// Título principal de la entrada.
   final String? title;
+  /// Texto de apoyo debajo del título.
   final String? subtitle;
+  /// Widget opcional en el extremo derecho (ej: flecha o badge).
   final Widget? trailing;
+  /// Contenido personalizado que reemplaza la estructura Row por defecto.
   final Widget? child;
+  /// Callback al presionar la tarjeta.
   final VoidCallback? onTap;
+  /// Indica si la tarjeta debe mostrar el estilo visual de selección.
   final bool isSelected;
+  /// Espaciado interno de la tarjeta.
   final EdgeInsetsGeometry? padding;
 
   const CustomListCard({
     super.key,
+    required this.child, // Required by current implementation but optional in logic above
     this.leading,
     this.title,
     this.subtitle,
     this.trailing,
-    this.child,
     this.onTap,
     this.isSelected = false,
     this.padding,

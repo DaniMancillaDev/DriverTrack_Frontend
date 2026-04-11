@@ -1,5 +1,5 @@
-import '../models/user_model.dart';
-import 'api_client.dart';
+import '../domain/user_model.dart';
+import '../../../core/network/api_client.dart';
 
 class AuthRepository {
   final ApiClient _apiClient;

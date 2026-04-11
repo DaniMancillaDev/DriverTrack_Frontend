@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 
-import '../config/app_config.dart';
+import '../../config/app_config.dart';
 
 /// Devuelve el access token actual o null.
 typedef TokenProvider = String? Function();
@@ -15,14 +15,38 @@ typedef TokenRefresher = Future<String?> Function();
 /// Invocado cuando el refresh también falla: sesión definitivamente expirada.
 typedef SessionExpiredCallback = void Function();
 
+/// Cliente HTTP centralizado para la comunicación con el backend de DriveTrack.
+///
+/// Maneja automáticamente:
+/// * Inyección de tokens de autenticación Bearer.
+/// * Reintentos automáticos con backoff exponencial ante errores 5xx.
+/// * Refresco de tokens (JWT) de forma serializada para evitar condiciones de carrera.
+/// * Manejo global de errores y mapeo de respuestas JSON.
 class ApiClient {
+  /// Configuración global de la aplicación que incluye la URL base.
   final AppConfig config;
+
+  /// Cliente HTTP interno.
   final http.Client _client;
 
+  /// Proveedor de token de acceso. Debe retornar el JWT actual.
   final TokenProvider? getToken;
+
+  /// Lógica para intentar refrescar el token de acceso usando un refresh token.
+  /// Debe retornar el nuevo access token si es exitoso o null en caso contrario.
   final TokenRefresher? tryRefreshToken;
+
+  /// Callback invocado cuando la sesión ha expirado definitivamente
+  /// (el refresh token también falló o es inválido).
   final SessionExpiredCallback? onSessionExpired;
 
+  /// Mutex interno para el proceso de refresco de tokens.
+  ///
+  /// Evita que múltiples peticiones concurrentes disparen llamadas paralelas
+  /// al endpoint de refresh al mismo tiempo.
+  Completer<String?>? _refreshCompleter;
+
+  /// Crea una nueva instancia de [ApiClient].
   ApiClient(
     this.config, {
     http.Client? client,
@@ -31,10 +55,15 @@ class ApiClient {
     this.onSessionExpired,
   }) : _client = client ?? http.Client();
 
+  /// URL base para todas las peticiones.
   String get baseUrl => config.baseUrl;
 
-  // ─── Headers helpers ──────────────────────────────────────
+  // ─── Map de headers ──────────────────────────────────────
 
+  /// Construye los headers HTTP necesarios para una petición JSON.
+  ///
+  /// Si hay un token disponible (ya sea el actual o el [overrideToken]),
+  /// se incluye en el header 'Authorization' como Bearer.
   Map<String, String> _buildHeaders({String? overrideToken}) {
     final headers = <String, String>{'Content-Type': 'application/json'};
     final token = overrideToken ?? getToken?.call();
@@ -44,10 +73,15 @@ class ApiClient {
     return headers;
   }
 
-  // ─── Retry Handler with Exponential Backoff ──────────────────
+  // ─── Manejo de Reintentos ──────────────────
 
+  /// Número máximo de reintentos para errores transitorios (5xx).
   static const int _maxRetries = 3;
 
+  /// Envoltorio para peticiones que implementa reintentos con backoff exponencial.
+  ///
+  /// Si el servidor responde con un error >= 500 o hay una excepción de red,
+  /// la petición se reintenta hasta [_maxRetries] veces con esperas crecientes.
   Future<http.Response> _withRetry(Future<http.Response> Function() requestFn) async {
     int attempt = 0;
     while (true) {
@@ -69,10 +103,42 @@ class ApiClient {
     }
   }
 
-  // ─── Token Refresh Logic ──────────────────────────────────
+  // ─── Lógica de Refresh de Token ──────────────────────────────────
 
-  /// Intenta refrescar el token. Si lo logra, reintenta la request original.
-  /// Si no, invoca [onSessionExpired] y lanza [SessionExpiredException].
+  /// Serializa el proceso de refresco del token de acceso.
+  ///
+  /// Utiliza un [Completer] para asegurar que si múltiples peticiones reciben
+  /// un error 401 simultáneamente, solo la primera ejecute la lógica de refresh.
+  /// Las demás esperarán el resultado de la primera y reutilizarán el nuevo token.
+  Future<String?> _serializedRefresh() async {
+    // Si ya hay un refresh en curso, todas las peticiones paralelas se
+    // suscriben al mismo Future para recibir el resultado una sola vez.
+    if (_refreshCompleter != null) {
+      return _refreshCompleter!.future;
+    }
+
+    _refreshCompleter = Completer<String?>();
+    try {
+      final newToken = await tryRefreshToken!();
+      _refreshCompleter!.complete(newToken);
+      return newToken;
+    } catch (e) {
+      _refreshCompleter!.complete(null);
+      return null;
+    } finally {
+      // Liberar el completer para permitir futuros refrescos una vez
+      // que este ciclo ha terminado (exitoso o no).
+      _refreshCompleter = null;
+    }
+  }
+
+  /// Gestiona respuestas 401 (No autorizado) intentando refrescar la sesión.
+  ///
+  /// Implementa el diagrama de flujo:
+  /// 1. Recibe 401.
+  /// 2. Llama a [_serializedRefresh].
+  /// 3. Si obtiene un nuevo token, reintenta la petición original con [retryFn].
+  /// 4. Si el refresh falla, invoca [onSessionExpired] y lanza [SessionExpiredException].
   Future<dynamic> _handleUnauthorized(
     Future<http.Response> Function(String? token) retryFn,
   ) async {
@@ -81,19 +147,20 @@ class ApiClient {
       throw const SessionExpiredException();
     }
 
-    final newToken = await tryRefreshToken!();
+    final newToken = await _serializedRefresh();
     if (newToken == null || newToken.isEmpty) {
       onSessionExpired?.call();
       throw const SessionExpiredException();
     }
 
-    // Reintentar con el nuevo token
+    // Reintentar la petición original con el nuevo token obtenido.
     final retryResponse = await retryFn(newToken);
     return _processResponse(retryResponse, isRetry: true);
   }
 
-  // ─── HTTP Methods ─────────────────────────────────────────
+  // ─── Métodos HTTP Públicos ─────────────────────────────────────
 
+  /// Realiza una petición GET. Retorna el body parseado o lanza [ApiException].
   Future<dynamic> get(String endpoint) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final response = await _withRetry(() => _client.get(url, headers: _buildHeaders()));
@@ -105,6 +172,7 @@ class ApiClient {
     return _processResponse(response);
   }
 
+  /// Realiza una petición POST enviando un mapa JSON como body.
   Future<dynamic> post(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final encoded = json.encode(body);
@@ -119,6 +187,7 @@ class ApiClient {
     return _processResponse(response);
   }
 
+  /// Realiza una petición PUT enviando un mapa JSON como body.
   Future<dynamic> put(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final encoded = json.encode(body);
@@ -133,6 +202,7 @@ class ApiClient {
     return _processResponse(response);
   }
 
+  /// Realiza una petición PATCH enviando un mapa JSON como body.
   Future<dynamic> patch(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final encoded = json.encode(body);
@@ -147,6 +217,7 @@ class ApiClient {
     return _processResponse(response);
   }
 
+  /// Realiza una petición DELETE.
   Future<void> delete(String endpoint) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final response = await _withRetry(() => _client.delete(url, headers: _buildHeaders()));
@@ -159,15 +230,21 @@ class ApiClient {
     _processResponse(response);
   }
 
-  // ─── Response handler ─────────────────────────────────────
+  // ─── Procesamiento de Respuestas ────────────────────────────────
 
+  /// Procesa la respuesta HTTP, maneja errores y decodifica JSON.
+  ///
+  /// Si el status es 2xx, decodifica el body usando UTF-8.
+  /// Si el status es 401 y ya es un reintento, lanza [SessionExpiredException].
+  /// Para otros errores, lanza [ApiException] con el detalle del body.
   dynamic _processResponse(http.Response response, {bool isRetry = false}) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return null;
       return json.decode(utf8.decode(response.bodyBytes));
     } else {
       if (response.statusCode == 401 && isRetry) {
-        // El retry también falló → sesión definitivamente expirada
+        // Si incluso con el nuevo token tras el refresh recibimos 401,
+        // la sesión ha expirado definitivamente.
         onSessionExpired?.call();
         throw const SessionExpiredException();
       }
@@ -178,8 +255,10 @@ class ApiClient {
     }
   }
 
-  /// Extrae el mensaje de error del body de forma amigable.
-  /// Si el JSON tiene un campo 'detail', lo usa; si no, usa un mensaje genérico.
+  /// Extrae el mensaje de error del body de la respuesta.
+  ///
+  /// Busca preferentemente el campo 'detail' de FastAPI. Si no está disponible
+  /// o hay un error de parseo, retorna un mensaje genérico con el código HTTP.
   String _extractErrorMessage(http.Response response) {
     try {
       final body = json.decode(utf8.decode(response.bodyBytes));
@@ -191,23 +270,32 @@ class ApiClient {
   }
 }
 
-// ─── Exceptions ───────────────────────────────────────────────
+// ─── Excepciones ───────────────────────────────────────────────
 
+/// Excepción para errores genéricos de la API (status codes != 2xx, 401).
 class ApiException implements Exception {
+  /// Código de estado HTTP retornado por el servidor.
   final int statusCode;
+
+  /// Mensaje de error extraído del servidor o generado localmente.
   final String message;
 
+  /// Crea una nueva [ApiException].
   const ApiException({required this.statusCode, required this.message});
 
   @override
   String toString() => 'ApiException: [$statusCode] $message';
 }
 
-/// Lanzada cuando el token y el refresh token ambos fallaron.
-/// La UI debe mostrar un mensaje amigable y redirigir al login.
+/// Excepción lanzada cuando la sesión del usuario ha expirado definitivamente.
+///
+/// Ocurre cuando tanto el token de acceso como el de refresco fallan.
+/// La UI debería reaccionar a esta excepción redirigiendo al usuario al login.
 class SessionExpiredException implements Exception {
+  /// Crea una nueva [SessionExpiredException].
   const SessionExpiredException();
 
   @override
   String toString() => 'SessionExpiredException: La sesión ha expirado.';
 }
+

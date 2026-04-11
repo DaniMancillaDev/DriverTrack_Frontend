@@ -12,12 +12,20 @@ import '../ui/sheet_action_button.dart';
 import 'vehicle_type_toggle.dart';
 import 'vehicle_preview_card.dart';
 import '../../theme/app_theme.dart';
-import '../../utils/form_validators.dart';
+import '../../core/validation/form_validators.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Formulario interactivo para el registro y edición de vehículos.
+/// 
+/// Presentado como una hoja modal (Bottom Sheet), gestiona la captura de 
+/// datos técnicos (marca, modelo, placa) y operativos (kilometraje actual). 
+/// Incluye una previsualización dinámica que se actualiza conforme el usuario 
+/// completa los campos.
 class AddVehicleSheet extends ConsumerStatefulWidget {
+  /// Callback disparado al procesar exitosamente el formulario.
   final Function(Map<String, dynamic>) onSave;
+  /// Vehículo opcional para modo edición. Si es nulo, el widget opera en modo creación.
   final Vehicle? initialVehicle;
 
   const AddVehicleSheet({super.key, required this.onSave, this.initialVehicle});

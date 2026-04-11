@@ -5,14 +5,24 @@ import 'package:flutter_map/flutter_map.dart';
 import '../models/map_location_model.dart';
 import '../../domain/entities/map_location.dart';
 
+/// Servicio especializado en realizar consultas geográficas a OpenStreetMap mediante el motor Overpass.
+/// 
+/// Permite obtener infraestructuras automotrices (talleres, gasolineras) mediante
+/// lenguaje de consulta OQL, aplicando una optimización de "bounding box" estricta.
 class GeocodingService {
+  /// Ejecuta una búsqueda de lugares basada en una consulta textual y parámetros espaciales.
+  /// 
+  /// Soporta filtrado por [type] ('gasstation', 'workshop') y búsqueda reactiva
+  /// según los [bounds] visibles del mapa o la ubicación actual del usuario.
+  /// Retorna una lista de [MapLocation] inyectando metadatos de OSM (tags).
   Future<List<MapLocation>> searchAddress(
     String query, {
     LatLngBounds? bounds,
     LatLng? userLocation,
     String? type,
   }) async {
-    // Determine the boundary box prioritizing Map Bounds, falling back to an approximate 15km bounding box around user location
+    // Determinar la caja de límites (Bounding Box) priorizando los límites del mapa (Bounds),
+    // con un fallback de ~15km alrededor del usuario.
     String s = '', n = '', w = '', e = '';
 
     if (bounds != null) {
@@ -26,13 +36,13 @@ class GeocodingService {
       w = (userLocation.longitude - 0.05).toString();
       e = (userLocation.longitude + 0.05).toString();
     } else {
-      // Very strict fallback if neither are ready, won't search the whole planet.
+      // Evitar búsquedas globales accidentales retornando lista vacía.
       return [];
     }
 
-    String bBoxStr = '$s,$w,$n,$e'; // Overpass bBox is south,west,north,east
+    String bBoxStr = '$s,$w,$n,$e'; // Formato Overpass: sur, oeste, norte, este
 
-    // Determine the Overpass query
+    // Determinar la consulta Overpass OQL (Overpass Query Language)
     String oqlQuery = '';
     String nameFilter = query.isNotEmpty ? '["name"~"$query",i]' : '';
 
@@ -40,24 +50,22 @@ class GeocodingService {
       oqlQuery = 'nwr["amenity"="fuel"]$nameFilter($bBoxStr);';
       if (query.isNotEmpty) oqlQuery += 'nwr["brand"~"$query",i]["amenity"="fuel"]($bBoxStr);';
     } else if (type == 'workshop') {
-      // Use regex in the key value to combine multiple lookups into one server pass
+      // Combina talleres mecánicos, de motos y pintura en una sola pasada al servidor.
       oqlQuery = 'nwr["shop"~"car_repair|motorcycle_repair"]$nameFilter($bBoxStr);';
       oqlQuery += 'nwr["craft"="car_painter"]$nameFilter($bBoxStr);';
     } else if (type == 'all' && query.isEmpty) {
-      // General map exploratory sweep - combined for efficiency
+      // Barrido exploratorio general de POIs automotrices.
       oqlQuery = 'nwr["amenity"="fuel"]($bBoxStr);';
       oqlQuery += 'nwr["shop"~"car_repair|motorcycle_repair"]($bBoxStr);';
       oqlQuery += 'nwr["craft"="car_painter"]($bBoxStr);';
     } else if (query.isNotEmpty) {
-      // Search across name, brand, or amenity types for automotive-related entities
+      // Búsqueda cruzada por nombre, marca o tipo de establecimiento.
       oqlQuery = 'nwr["amenity"="fuel"]$nameFilter($bBoxStr);';
       oqlQuery += 'nwr["shop"~"car_repair|motorcycle_repair"]$nameFilter($bBoxStr);';
       oqlQuery += 'nwr["craft"="car_painter"]$nameFilter($bBoxStr);';
-      // Also allow pure name/brand matches if they didn't fall into the strict tags
       oqlQuery += 'nwr["name"~"$query",i]($bBoxStr);';
       oqlQuery += 'nwr["brand"~"$query",i]($bBoxStr);';
     } else {
-      // Nothing selected and no query? Avoid server load.
       return [];
     }
 
@@ -70,10 +78,8 @@ class GeocodingService {
     out center;
     ''';
 
-    print('DEBUG: Sending Overpass OQL (lz4 mirror): \n$overpassPayload');
-
     try {
-      // Switching to lz4 mirror which is typically faster/higher quota than the main .de one
+      // Se utiliza el mirror de lz4 (aprovecha mayor cuota y velocidad).
       final response = await http
           .post(
             Uri.parse('https://lz4.overpass-api.de/api/interpreter'),
@@ -81,18 +87,14 @@ class GeocodingService {
           )
           .timeout(const Duration(seconds: 12));
 
-      print('DEBUG: Overpass Status Code: ${response.statusCode}');
-
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final List elements = data['elements'] ?? [];
 
-        print('DEBUG: Overpass returned ${elements.length} elements.');
-
         return elements.take(25).map((json) {
           final tags = json['tags'] ?? {};
 
-          // Map correctly back to app filters
+          // Mapeo inverso de etiquetas OSM al sistema DriverTrack
           String mappedType = type ?? 'all';
           if (tags['amenity'] == 'fuel')
             mappedType = 'gasstation';
@@ -104,7 +106,7 @@ class GeocodingService {
           final displayNameRaw =
               tags['brand']?.toString() ?? 'Punto de Interés';
 
-          // For node types, coordinates are flat. For ways/relations, they are in 'center'
+          // Manejo de nodos vs vías/relaciones (usan 'center' para posición única)
           double lat = (json['lat'] ?? json['center']?['lat'] ?? 0.0) * 1.0;
           double lon = (json['lon'] ?? json['center']?['lon'] ?? 0.0) * 1.0;
 
@@ -116,7 +118,7 @@ class GeocodingService {
                 tags['addr:street']?.toString() ??
                 'Sin dirección exacta registrada',
             rating:
-                4.0, // Default mock rating since OSM doesn't hold Google Ratings naturally
+                4.0, // Calificación por defecto (OSM no incluye ratings de Google naturalmente)
             reviews: 1,
             distance: '',
             open: true,
@@ -129,13 +131,11 @@ class GeocodingService {
           );
         }).toList();
       } else {
-        print('DEBUG: Overpass Error Body: ${response.body}');
-        throw Exception('Overpass Error: ${response.statusCode}');
+        throw Exception('Error del servidor Overpass: ${response.statusCode}');
       }
     } catch (e) {
-      print('Overpass query error: $e');
-      rethrow; // Ensure AsyncValue is notified
+      // Se propaga el error para que Riverpod (AsyncValue) pueda manejarlo en la UI.
+      rethrow; 
     }
-    return [];
   }
 }

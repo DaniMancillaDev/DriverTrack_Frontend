@@ -1,13 +1,18 @@
 import '../models/vehicle_model.dart';
 import '../models/vehicle_type_model.dart';
-import 'api_client.dart';
+import '../core/network/api_client.dart';
 
+/// Repositorio encargado de la gestión de la flota de vehículos.
+/// 
+/// Actúa como mediador entre la capa de presentación y el backend, 
+/// facilitando operaciones de catálogo, CRUD de vehículos y procesos 
+/// de carga de contenido multimedia (fotos).
 class VehicleRepository {
   final ApiClient _apiClient;
 
   VehicleRepository(this._apiClient);
 
-  /// Fetch the catalogue of vehicle types
+  /// Recupera el catálogo maestro de tipos de vehículos soportados.
   Future<List<VehicleType>> getVehicleTypes() async {
     final response = await _apiClient.get('/vehicles/types');
     if (response is List) {
@@ -16,7 +21,7 @@ class VehicleRepository {
     return [];
   }
 
-  /// Fetch all vehicles from the API
+  /// Obtiene la lista completa de vehículos asociados al usuario actual.
   Future<List<Vehicle>> getVehicles() async {
     final response = await _apiClient.get('/vehicles/');
     if (response is List) {
@@ -25,36 +30,39 @@ class VehicleRepository {
     return [];
   }
 
-  /// Create a new vehicle
+  /// Registra un nuevo vehículo en el sistema.
   Future<Vehicle> createVehicle(Map<String, dynamic> data) async {
     final response = await _apiClient.post('/vehicles/', data);
     return Vehicle.fromJson(response);
   }
 
-  /// Update an existing vehicle
+  /// Actualiza los datos parciales o totales de un vehículo existente.
   Future<Vehicle> updateVehicle(int id, Map<String, dynamic> data) async {
     final response = await _apiClient.put('/vehicles/$id', data);
     return Vehicle.fromJson(response);
   }
 
-  /// Delete a vehicle and its maintenance records
+  /// Elimina un vehículo y todos sus registros históricos asociados (mantenimiento).
   Future<void> deleteVehicle(int id) async {
     await _apiClient.delete('/vehicles/$id');
   }
 
-  /// Pide la URL pre-firmada para subir foto del vehículo
+  /// Solicita una URL pre-firmada al servidor para subir una foto de forma segura.
+  /// 
+  /// Este flujo delega la carga directa al almacenamiento (ej. S3/MinIO) 
+  /// evitando saturar la memoria del servidor de aplicaciones.
   Future<Map<String, dynamic>> getVehiclePhotoPresignedUrl(int id) async {
     final response = await _apiClient.post('/vehicles/$id/photo/presigned-url', {});
     return response as Map<String, dynamic>;
   }
 
-  /// Confirma la subida y guarda la URL en el vehículo
+  /// Confirma la subida exitosa de la imagen y vincula la URL final al vehículo.
   Future<Vehicle> confirmVehiclePhotoUpload(int id, String photoUrl) async {
     final response = await _apiClient.put(
       '/vehicles/$id/photo/confirm?photo_url=${Uri.encodeComponent(photoUrl)}',
       {},
     );
-    // Podría venir un wrapper o el objeto directo
+    // El backend puede retornar el vehículo directamente o envuelto en un mapa
     final vehicleData = response['vehicle'] ?? response;
     return Vehicle.fromJson(vehicleData);
   }

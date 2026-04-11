@@ -4,22 +4,43 @@ import '../../theme/app_theme.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Un campo de entrada de texto estandarizado para formularios.
+/// 
+/// Integra soporte para etiquetas, textos de ayuda inferiores, iconos de 
+/// prefijo/sufijo y validaciones responsivas. Utiliza el esquema de colores 
+/// de la aplicación para resaltar estados de enfoque y error.
 class CustomInput extends StatelessWidget {
+  /// Controlador de texto opcional.
   final TextEditingController? controller;
+  /// Texto de ayuda dentro del campo.
   final String? placeholder;
+  /// Etiqueta superior del campo.
   final String? label;
+  /// Pequeño texto explicativo debajo del campo.
   final String? subHint;
+  /// Valor inicial si no se usa controlador.
   final String? initialValue;
+  /// Oculta el texto (útil para contraseñas).
   final bool obscureText;
+  /// Tipo de teclado a mostrar.
   final TextInputType keyboardType;
+  /// Texto de error manual.
   final String? errorText;
+  /// Controla la edición del campo.
   final bool enabled;
+  /// Cantidad de líneas permitidas.
   final int maxLines;
+  /// Callback de cambio de valor.
   final void Function(String)? onChanged;
+  /// Lógica de validación para formularios.
   final String? Function(String?)? validator;
+  /// Máscaras y restricciones de entrada.
   final List<TextInputFormatter>? inputFormatters;
+  /// Icono al inicio del campo.
   final Widget? prefixIcon;
+  /// Icono al final del campo.
   final Widget? suffixIcon;
+  /// Límite de caracteres.
   final int? maxLength;
 
   const CustomInput({

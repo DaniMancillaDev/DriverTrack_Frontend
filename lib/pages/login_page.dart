@@ -4,14 +4,24 @@ import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ui/custom_input.dart';
 import '../widgets/ui/custom_button.dart';
-import '../utils/form_validators.dart';
-import '../utils/snackbar_helper.dart';
+import '../core/validation/form_validators.dart';
+import '../core/presentation/ui/snackbar_presentation.dart';
 import 'package:go_router/go_router.dart';
 import '../core/error/error_mapper.dart';
 import '../core/i18n/translations.g.dart';
-import '../core/responsive/responsive.dart';
+import '../core/responsive/responsive.g.dart';
 import '../theme/app_color_scheme.dart';
 
+/// Puerta de enlace de autenticación e inicio de sesión.
+/// 
+/// Implementa la interfaz de acceso principal, gestionando la validación 
+/// de identidad y la obtención de tokens de seguridad. Incluye:
+/// * **Validación Robusta**: Comprobación en tiempo real de formato de 
+///   correo y requisitos de seguridad de contraseña.
+/// * **Experiencia Fluida**: Animaciones de entrada y estados visuales 
+///   de carga (loading spinners).
+/// * **Gestión de Errores**: Mapeo de errores del servidor a mensajes 
+///   amigables para el usuario.
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 

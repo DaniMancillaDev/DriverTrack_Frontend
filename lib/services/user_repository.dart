@@ -1,12 +1,16 @@
-import '../models/user_model.dart';
-import 'api_client.dart';
+import '../features/auth/domain/user_model.dart';
+import '../core/network/api_client.dart';
 
+/// Repositorio para la gestión de la identidad y preferencias del usuario.
+/// 
+/// Centraliza las operaciones de perfil, incluyendo la edición de datos 
+/// personales, configuración de privacidad/notificaciones y seguridad de cuenta.
 class UserRepository {
   final ApiClient _apiClient;
 
   UserRepository(this._apiClient);
 
-  /// Actualiza el nombre del usuario autenticado
+  /// Actualiza los datos básicos del perfil (nombre completo).
   Future<User> updateProfile({required String fullName}) async {
     final response = await _apiClient.put('/users/me', {
       'full_name': fullName,
@@ -14,7 +18,10 @@ class UserRepository {
     return User.fromJson(response);
   }
 
-  /// Actualiza las preferencias de notificaciones del usuario
+  /// Sincroniza las preferencias de usuario para distintos tipos de alertas.
+  /// 
+  /// Permite activar/desactivar notificaciones push, recordatorios de 
+  /// servicio y alertas críticas de forma independiente.
   Future<User> updatePreferences({
     bool? pushNotifications,
     bool? serviceReminders,
@@ -29,7 +36,7 @@ class UserRepository {
     return User.fromJson(response);
   }
 
-  /// Cambia la contraseña del usuario autenticado
+  /// Gestiona de forma segura el cambio de contraseña del usuario autenticado.
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
@@ -40,7 +47,10 @@ class UserRepository {
     });
   }
 
-  /// Obtiene una URL pre-firmada para subir foto de perfil
+  /// Genera un set de metadatos y URL pre-firmada para la carga de avatar.
+  /// 
+  /// Retorna un mapa con la 'upload_url' (para la subida) y la 'photo_url' 
+  /// final que representará al usuario.
   Future<Map<String, String>> getPhotoPresignedUrl() async {
     final response = await _apiClient.post('/users/me/photo/presigned-url', {});
     return {
@@ -50,7 +60,7 @@ class UserRepository {
     };
   }
 
-  /// Confirma la subida de foto y actualiza la URL en el perfil
+  /// Finaliza el proceso de actualización de foto tras la carga exitosa al bucket.
   Future<User> confirmPhotoUpload({required String objectKey}) async {
     final response = await _apiClient.put(
       '/users/me/photo/confirm?object_key=${Uri.encodeComponent(objectKey)}',
@@ -59,7 +69,7 @@ class UserRepository {
     return User.fromJson(response);
   }
 
-  /// Obtiene el perfil del usuario autenticado
+  /// Recupera la última versión del perfil del usuario desde el servidor.
   Future<User> getCurrentUser() async {
     final response = await _apiClient.get('/users/me');
     return User.fromJson(response);

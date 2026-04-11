@@ -7,7 +7,12 @@ import '../../core/responsive/responsive.dart';
 import '../../features/notifications/presentation/providers/notifications_provider.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Cabecera principal de la pantalla de Garaje.
+/// 
+/// Provee contexto de bienvenida personalizado al usuario e integra el 
+/// acceso rápido al centro de notificaciones con contador de mensajes no leídos.
 class GarageHeader extends ConsumerWidget {
+  /// Callback ejecutado al presionar el icono de notificaciones.
   final VoidCallback onNotificationTap;
 
   const GarageHeader({super.key, required this.onNotificationTap});

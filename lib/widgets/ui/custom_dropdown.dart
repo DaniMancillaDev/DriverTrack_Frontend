@@ -2,13 +2,24 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Un selector de opciones desplegable genérico y tipado.
+/// 
+/// Permite seleccionar un elemento de una lista de tipo [T], utilizando 
+/// una etiqueta opcional y un constructor de etiquetas personalizado para la UI.
 class CustomDropdown<T> extends StatelessWidget {
+  /// Valor seleccionado actualmente.
   final T? value;
+  /// Etiqueta superior opcional del campo.
   final String? label;
+  /// Texto de ayuda cuando no hay selección.
   final String hint;
+  /// Icono opcional a mostrar junto a las opciones.
   final IconData? icon;
+  /// Lista de opciones disponibles.
   final List<T> items;
+  /// Función para determinar el texto a mostrar por cada item de tipo [T].
   final String Function(T) itemLabelBuilder;
+  /// Callback ejecutado al seleccionar una nueva opción.
   final void Function(T?) onChanged;
 
   const CustomDropdown({

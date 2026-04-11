@@ -1,13 +1,23 @@
-import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Un widget de avatar circular versátil con gestión de fallbacks.
+/// 
+/// El componente maneja tres niveles de visualización:
+/// 1. **Imagen**: Muestra [imageUrl] si se recibe y carga correctamente.
+/// 2. **Texto**: Muestra iniciales obtenidas de [fallbackText] si la imagen falla o no existe.
+/// 3. **Icono**: Muestra [fallbackIcon] o un icono genérico como último recurso.
 class CustomAvatar extends StatelessWidget {
+  /// URL remota de la imagen de perfil.
   final String? imageUrl;
+  /// Texto (ej. nombre) para generar las iniciales de respaldo.
   final String? fallbackText;
+  /// Icono personalizado para mostrar si no hay imagen ni texto.
   final Widget? fallbackIcon;
+  /// Radio del círculo (el diámetro será el doble).
   final double radius;
+  /// Color de fondo del contenedor circular.
   final Color? backgroundColor;
+  /// Color del contenido de respaldo (texto o icono).
   final Color? foregroundColor;
 
   const CustomAvatar({
@@ -15,7 +25,7 @@ class CustomAvatar extends StatelessWidget {
     this.imageUrl,
     this.fallbackText,
     this.fallbackIcon,
-    this.radius = 20, // Aproximadamente size-10 (40px de diámetro)
+    this.radius = 20,
     this.backgroundColor,
     this.foregroundColor,
   });

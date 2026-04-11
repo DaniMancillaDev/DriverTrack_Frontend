@@ -8,6 +8,11 @@ import '../../core/responsive/responsive.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Cuadro de mando táctico con métricas clave del usuario.
+/// 
+/// Agrega información de múltiples fuentes (flota de vehículos y registros 
+/// de mantenimiento) para presentar indicadores de desempeño como el valor 
+/// estimado de la flota, el gasto total histórico y el conteo de activos.
 class ProfileStatsDashboard extends ConsumerWidget {
   const ProfileStatsDashboard({super.key});
 

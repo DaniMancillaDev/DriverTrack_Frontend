@@ -4,7 +4,7 @@ import '../theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/app_providers.dart';
 import '../providers/auth_provider.dart';
-import '../services/api_client.dart';
+import '../core/network/api_client.dart';
 import '../viewmodels/vehicle_view_model.dart';
 import '../widgets/garage/add_vehicle_sheet.dart';
 import '../widgets/garage/vehicle_detail_sheet.dart';
@@ -25,6 +25,17 @@ import '../widgets/garage/vehicle_card.dart';
 import '../widgets/garage/vehicle_card_skeleton.dart';
 import '../widgets/garage/weather_widget.dart';
 
+/// Página principal del "Garaje" (Dashboard).
+/// 
+/// Actúa como el núcleo de la aplicación, centralizando la supervisión de 
+/// la flota. Sus responsabilidades incluyen:
+/// * **Visualización de Estatus**: Presenta métricas de salud y rendimiento 
+///   de todos los vehículos mediante [GarageStats].
+/// * **Gestión de Activos**: Permite el registro, edición y baja de vehículos.
+/// * **Contexto Ambiental**: Integra alerts meteorológicos en tiempo real 
+///   relevantes para la conducción.
+/// * **Navegación Táctica**: Provee acceso inmediato a notificaciones y al 
+///   registro rápido de mantenimientos.
 class GaragePage extends ConsumerStatefulWidget {
   const GaragePage({super.key});
 

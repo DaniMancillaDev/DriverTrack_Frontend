@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/app_color_scheme.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../core/responsive/responsive.dart';
-import '../../theme/app_color_scheme.dart';
+import '../../theme/app_theme.dart';
 
+/// Barra de navegación inferior personalizada integrada con el sistema de rutas.
+/// 
+/// Implementa un diseño premium con indicadores visuales animados y soporte 
+/// completo para internacionalización. Gestiona el cambio de pestañas 
+/// principales de la aplicación.
 class CustomBottomNav extends StatelessWidget {
+  /// Índice de la pestaña activa actualmente.
   final int currentIndex;
+  /// Callback disparado al hacer tap en una pestaña.
   final Function(int) onTap;
 
   const CustomBottomNav({

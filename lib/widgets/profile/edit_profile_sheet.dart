@@ -7,6 +7,11 @@ import '../../theme/app_color_scheme.dart';
 import '../../core/i18n/translations.g.dart';
 import '../ui/custom_button.dart';
 
+/// Hoja modal para la edición de la información básica del perfil.
+/// 
+/// Permite al usuario actualizar su nombre completo, validando que cumpla 
+/// con los requisitos mínimos de longitud antes de persistir los cambios 
+/// en el servidor a través del estado global de autenticación.
 class EditProfileSheet extends ConsumerStatefulWidget {
   const EditProfileSheet({super.key});
 

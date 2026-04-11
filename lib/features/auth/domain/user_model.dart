@@ -1,14 +1,30 @@
+/// Representa un usuario autenticado en el sistema.
+///
+/// Contiene la información de perfil básica y el token de sesión activo.
 class User {
+  /// Identificador único del usuario.
   final int id;
+
+  /// Correo electrónico (identificador principal de cuenta).
   final String email;
+
+  /// Nombre completo del usuario.
   final String fullName;
+
+  /// Estado de la cuenta (activo/inactivo).
   final bool isActive;
+
+  /// Fecha de registro en el sistema.
   final DateTime createdAt;
+
+  /// Última vez que se cambió la contraseña (para auditoría de seguridad).
   final DateTime? passwordChangedAt;
+
+  /// URL de la imagen de perfil (opcional).
   final String? photoUrl;
 
-  /// JWT o token de sesión devuelto por el backend. Puede ser null
-  /// si el backend usa cookies en vez de Bearer tokens.
+  /// JWT o token de acceso devuelto por el backend.
+  /// Se utiliza para autorizar peticiones en el [ApiClient].
   final String? token;
 
   User({
@@ -22,7 +38,7 @@ class User {
     this.token,
   });
 
-  /// Crea un objeto `User` a partir del JSON recibido de la API.
+  /// Crea un objeto [User] a partir de un mapa JSON de la API.
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as int,
@@ -38,6 +54,7 @@ class User {
     );
   }
 
+  /// Crea una copia del usuario con los campos especificados sobrescritos.
   User copyWith({
     int? id,
     String? email,
@@ -60,7 +77,7 @@ class User {
     );
   }
 
-  /// Convierte el objeto a un mapa JSON (opcional, por si necesitas mandarlo)
+  /// Convierte el objeto a un mapa JSON para envío o persistencia local.
   Map<String, dynamic> toJson() {
     return {
       'id': id,

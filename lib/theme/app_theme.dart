@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'app_color_scheme.dart';
 
+/// Definición central de la paleta de colores y recursos visuales.
+/// 
+/// Centraliza todos los tokens de color del sistema de diseño, organizados por:
+/// * **Backgrounds**: Superficies oscuras y capas de elevación.
+/// * **Brand**: Colores de marca (Naranja primario) y acentos.
+/// * **Semantic**: Colores de estado (Éxito, Error, Advertencia).
+/// * **Text**: Jerarquía tipográfica desde Main hasta Ghost.
 class AppColors {
   // Backgrounds
   static const Color background = Color(0xFF000000);
@@ -46,6 +53,7 @@ class AppColors {
     colors: [orangePrimary, orangeSecondary],
   );
 
+  /// Genera un gradiente suave para superficies basadas en un color de acento.
   static LinearGradient surfaceGradient(Color baseAccent) => LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
@@ -53,6 +61,7 @@ class AppColors {
   );
 }
 
+/// Escala de espaciado estandarizada para márgenes y paddings.
 class AppSpacing {
   static const double zero = 0;
   static const double xxs = 4.0;
@@ -66,6 +75,7 @@ class AppSpacing {
   static const double massive = 64.0;
 }
 
+/// Definición de radios de borde para consistencia visual.
 class AppRadius {
   static const double xs = 8.0;
   static const double s = 12.0;
@@ -76,7 +86,16 @@ class AppRadius {
   static const double full = 999.0;
 }
 
+/// Punto de configuración central para los temas de la aplicación.
+/// 
+/// Provee definiciones de [ThemeData] para modos Claro y Oscuro, 
+/// configurando:
+/// * **Material 3**: Activado por defecto con esquemas de color adaptativos.
+/// * **Tipografía**: Integración de la fuente 'Inter'.
+/// * **Extensions**: Uso de [AppColorScheme] para tokens personalizados que 
+///   no existen en el SDK estándar de Flutter.
 class AppTheme {
+  /// Devuelve la configuración del tema oscuro basado en AppColors.
   static ThemeData get darkTheme {
     return ThemeData(
       brightness: Brightness.dark,

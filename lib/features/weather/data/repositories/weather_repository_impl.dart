@@ -1,16 +1,19 @@
-/// Implementación del repositorio de clima.
-///
-/// Estrategia cache-first:
-/// 1. Si el cache es fresco → retorna cache
-/// 2. Si no → intenta fetch remoto → cachea resultado
-/// 3. Si falla el remoto → retorna cache stale si disponible
-/// 4. Si no hay nada → lanza excepción
-
 import '../../domain/entities/weather_entity.dart';
 import '../../domain/repositories/weather_repository.dart';
 import '../datasources/weather_local_datasource.dart';
 import '../datasources/weather_remote_datasource.dart';
 
+/// Implementación concreta del repositorio de clima.
+///
+/// Gestiona la orquestación entre fuentes de datos remotas y locales
+/// siguiendo una estrategia de **Caché-Primero (Cache-First)**:
+/// 1. Si los datos locales son "frescos" (dentro del TTL), se retornan de inmediato.
+/// 2. Si no, se intenta una sincronización remota con el servidor.
+/// 3. En caso de fallo de red, se intenta retornar el caché expirado como fallback (stale-while-revalidate).
+/// 4. Si no hay datos en ninguna fuente, se propaga la excepción.
+///
+/// Esta capa actúa como mediador, asegurando que la lógica de negocio no necesite
+/// conocer los detalles de la persistencia o la comunicación con el Proxy de Clima.
 class WeatherRepositoryImpl implements WeatherRepository {
   final WeatherRemoteDataSource remoteDataSource;
   final WeatherLocalDataSource localDataSource;

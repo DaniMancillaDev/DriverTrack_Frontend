@@ -4,6 +4,11 @@ import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 import 'skeleton_loader.dart';
 
+/// Marcador de posición (skeleton) para la tarjeta de notificación.
+/// 
+/// Replica la estructura visual de [NotificationCard] utilizando [SkeletonLoader] 
+/// para proporcionar feedback visual inmediato mientras se obtienen las 
+/// notificaciones del servidor.
 class NotificationCardSkeleton extends StatelessWidget {
   const NotificationCardSkeleton({super.key});
 

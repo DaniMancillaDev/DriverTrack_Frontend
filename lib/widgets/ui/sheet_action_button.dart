@@ -4,14 +4,29 @@ import '../../core/responsive/responsive.dart';
 import 'custom_button.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Un botón de acción principal específicamente diseñado para hojas modales (Sheets).
+/// 
+/// Orquesta múltiples estados de interacción:
+/// * **Carga**: Muestra un spinner mientras se procesa la acción.
+/// * **Éxito**: Cambia el color a verde y actualiza el icono/etiqueta para 
+///   confirmar el resultado positivo.
+/// * **Bloqueado**: Gestiona la interactividad basado en [isEnabled].
 class SheetActionButton extends StatelessWidget {
+  /// Etiqueta de texto por defecto.
   final String label;
+  /// Etiqueta a mostrar cuando [isSuccess] es verdadero.
   final String? successLabel;
+  /// Callback al presionar el botón.
   final VoidCallback onPressed;
+  /// Controla la interactividad del botón.
   final bool isEnabled;
+  /// Muestra el estado de carga.
   final bool isLoading;
+  /// Muestra el estado de confirmación positiva.
   final bool isSuccess;
+  /// Icono por defecto.
   final IconData icon;
+  /// Icono a mostrar cuando [isSuccess] es verdadero.
   final IconData? successIcon;
 
   const SheetActionButton({

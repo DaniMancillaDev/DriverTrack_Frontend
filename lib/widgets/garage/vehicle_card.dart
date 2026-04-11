@@ -10,8 +10,17 @@ import '../../core/units/domain/unit_formatter.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Tarjeta interactiva que representa un vehículo en el Garaje.
+/// 
+/// Este componente es una "Smart Component" que:
+/// 1. Observa el historial de mantenimiento mediante [maintenanceDocsProvider].
+/// 2. Determina el kilometraje real comparando el odómetro del vehículo con el último servicio.
+/// 3. Utiliza [VehicleViewModel] para calcular el estado de salud (Healthy, Attention, Critical).
+/// 4. Adapta las unidades de medida dinámicamente según [unitSystemProvider].
 class VehicleCard extends ConsumerStatefulWidget {
+  /// Entidad de datos del vehículo a mostrar.
   final Vehicle vehicleData;
+  /// Callback disparado al tocar la tarjeta del vehículo.
   final VoidCallback onTap;
 
   const VehicleCard({
@@ -161,38 +170,43 @@ class _VehicleCardState extends ConsumerState<VehicleCard> {
                               borderRadius: BorderRadius.circular(
                                 r.r(AppRadius.lg),
                               ),
-                              child: Image.network(
-                                v.displayImageUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Center(
-                                    child: Icon(
-                                      v.typeIcon,
-                                      color: context.colors.borderLight,
-                                      size: r.dim(32),
+                              child: v.displayImageUrl.startsWith('http')
+                                  ? Image.network(
+                                      v.displayImageUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Center(
+                                          child: Icon(
+                                            v.typeIcon,
+                                            color: context.colors.borderLight,
+                                            size: r.dim(32),
+                                          ),
+                                        );
+                                      },
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    (loadingProgress
+                                                            .expectedTotalBytes ??
+                                                        1)
+                                                : null,
+                                            strokeWidth: 2,
+                                            color: color.withValues(alpha: 0.5),
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Image.asset(
+                                      v.displayImageUrl,
+                                      fit: BoxFit.cover,
                                     ),
-                                  );
-                                },
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                (loadingProgress
-                                                        .expectedTotalBytes ??
-                                                    1)
-                                              : null,
-                                          strokeWidth: 2,
-                                          color: color.withValues(alpha: 0.5),
-                                        ),
-                                      );
-                                    },
-                              ),
                             ),
                           ),
                           SizedBox(width: r.space(16)),

@@ -1,8 +1,12 @@
 import 'package:flutter/widgets.dart';
-import '../core/i18n/translations.g.dart';
+import '../i18n/translations.g.dart';
 
+/// Clase de utilidad que centraliza la lógica de validación de entradas de usuario.
+/// 
+/// Provee métodos estáticos para validar campos comunes de formularios, 
+/// asegurando que los mensajes de error estén internacionalizados mediante [Translations].
 class FormValidators {
-  /// Validates that a string is not empty.
+  /// Valida que una cadena de texto no esté vacía o compuesta solo por espacios.
   static String? notEmpty(
     String? value,
     String fieldName,
@@ -16,7 +20,7 @@ class FormValidators {
     return null;
   }
 
-  /// Validates that a number is within a specific range.
+  /// Valida que un valor numérico se encuentre dentro de un rango inclusivo ([min], [max]).
   static String? range(
     num? value,
     num min,
@@ -39,7 +43,9 @@ class FormValidators {
     return null;
   }
 
-  /// Validates a license plate format (simplified example).
+  /// Valida el formato de una placa de vehículo.
+  /// 
+  /// Verifica la longitud mínima y máxima permitida para asegurar identificadores válidos.
   static String? licensePlate(String? value, BuildContext context) {
     if (value == null || value.isEmpty)
       return Translations.of(context).validators.plateRequired;
@@ -50,7 +56,9 @@ class FormValidators {
     return null;
   }
 
-  /// Validates a mileage value.
+  /// Valida un valor de kilometraje.
+  /// 
+  /// Asegura que el número sea positivo y no exceda el [max] lógico (por defecto 1,000,000).
   static String? mileage(
     String? value,
     BuildContext context, {
@@ -72,7 +80,9 @@ class FormValidators {
     );
   }
 
-  /// Validates a cost value.
+  /// Valida un valor de costo financiero.
+  /// 
+  /// Asegura que el monto sea un número válido y no exceda límites razonables de transacción.
   static String? cost(String? value, BuildContext context, {num max = 100000}) {
     if (value == null || value.isEmpty)
       return Translations.of(context).validators.requiredParams.replaceAll(
@@ -90,7 +100,7 @@ class FormValidators {
     );
   }
 
-  /// Validates an email address.
+  /// Valida que la cadena tenga un formato de correo electrónico estándar.
   static String? email(String? value, BuildContext context) {
     if (value == null || value.trim().isEmpty)
       return Translations.of(context).validators.emailRequired;
@@ -101,7 +111,10 @@ class FormValidators {
     return null;
   }
 
-  /// Validates a password.
+  /// Valida los requisitos de seguridad de una contraseña.
+  /// 
+  /// Si [isLogin] es verdadero, solo verifica que no esté vacía.
+  /// En registro, requiere longitud mínima, mayúsculas y números.
   static String? password(
     String? value,
     BuildContext context, {
@@ -109,7 +122,7 @@ class FormValidators {
   }) {
     if (value == null || value.isEmpty)
       return Translations.of(context).validators.passwordRequired;
-    if (isLogin) return null; // Only check emptiness for login
+    if (isLogin) return null; // Solo check de vacío para login
 
     if (value.length < 8)
       return Translations.of(context).validators.passwordLength;
@@ -122,7 +135,7 @@ class FormValidators {
     return null;
   }
 
-  /// Validates a full name.
+  /// Valida un nombre completo (mínimo 3 caracteres).
   static String? fullName(String? value, BuildContext context) {
     if (value == null || value.trim().isEmpty)
       return Translations.of(context).validators.nameRequired;
@@ -131,7 +144,7 @@ class FormValidators {
     return null;
   }
 
-  /// Validates a phone number.
+  /// Valida un número telefónico extrayendo solo dígitos.
   static String? phone(String? value, BuildContext context) {
     if (value == null || value.trim().isEmpty)
       return Translations.of(context).validators.phoneRequired;
@@ -142,7 +155,7 @@ class FormValidators {
     return null;
   }
 
-  /// Validates a birth date (must be at least 16 years old).
+  /// Valida una fecha de nacimiento, exigiendo una edad mínima de 16 años.
   static String? birthDate(String? value, BuildContext context) {
     if (value == null || value.isEmpty)
       return Translations.of(context).validators.dateRequired;

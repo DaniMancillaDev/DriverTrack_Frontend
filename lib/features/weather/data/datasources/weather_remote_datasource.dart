@@ -2,115 +2,91 @@
 ///
 /// Consume el proxy de clima del backend de DriveTrack
 /// en lugar de llamar directamente a OpenWeatherMap.
-/// La API key se mantiene segura en el servidor.
+/// Usa [ApiClient] para manejar autenticación Bearer,
+/// refresh automático de tokens y expiración de sesión.
 
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../models/weather_model.dart';
-
-/// Proveedor del token JWT para autenticar peticiones.
-typedef TokenProvider = String? Function();
+import '../../../../core/network/api_client.dart';
 
 class WeatherRemoteDataSource {
-  final String baseUrl;
-  final TokenProvider? getToken;
-  final http.Client _client;
+  final ApiClient _apiClient;
 
-  WeatherRemoteDataSource({
-    required this.baseUrl,
-    this.getToken,
-    http.Client? client,
-  }) : _client = client ?? http.Client();
+  const WeatherRemoteDataSource({required ApiClient apiClient})
+      : _apiClient = apiClient;
 
-  /// Headers con autenticación Bearer.
-  Map<String, String> _buildHeaders() {
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    final token = getToken?.call();
-    if (token != null && token.isNotEmpty) {
-      headers['Authorization'] = 'Bearer $token';
-    }
-    return headers;
-  }
-
-  /// Obtiene el clima actual para las coordenadas dadas.
+  /// Obtiene el clima actual basado en la geolocalización del dispositivo.
   ///
-  /// La petición va al backend, que hace el proxy a OWM.
-  /// El JSON retornado tiene el mismo formato que OWM,
-  /// por lo que [WeatherModel.fromOwmJson] sigue funcionando.
-  ///
-  /// Lanza [WeatherApiException] en caso de error.
+  /// Realiza un GET al endpoint `/weather/current`.
+  /// Lanza [WeatherApiException] si el servidor no responde o hay errores de validación.
   Future<WeatherModel> fetchCurrentWeather({
     required double latitude,
     required double longitude,
   }) async {
-    final uri = Uri.parse(
-      '$baseUrl/weather/current?lat=$latitude&lon=$longitude',
-    );
-
     try {
-      final response = await _client
-          .get(uri, headers: _buildHeaders())
-          .timeout(const Duration(seconds: 15));
-
-      if (response.statusCode == 200) {
-        final json = jsonDecode(response.body) as Map<String, dynamic>;
-        return WeatherModel.fromOwmJson(json);
-      } else if (response.statusCode == 401) {
+      final json = await _apiClient.get(
+        '/weather/current?lat=$latitude&lon=$longitude',
+      ) as Map<String, dynamic>;
+      return WeatherModel.fromOwmJson(json);
+    } on SessionExpiredException {
+      throw const WeatherApiException(
+        'Sesión expirada — vuelve a iniciar sesión',
+        statusCode: 401,
+      );
+    } on ApiException catch (e) {
+      if (e.statusCode == 404) {
         throw WeatherApiException(
-          'Sesión expirada — vuelve a iniciar sesión',
-          statusCode: 401,
-        );
-      } else {
-        throw WeatherApiException(
-          'Error del servidor: ${response.statusCode}',
-          statusCode: response.statusCode,
+          'Ubicación no encontrada',
+          statusCode: 404,
         );
       }
-    } on WeatherApiException {
-      rethrow;
+      throw WeatherApiException(
+        'Error del servidor: ${e.statusCode}',
+        statusCode: e.statusCode,
+      );
     } catch (e) {
       throw WeatherApiException('Error de red: $e');
     }
   }
 
-  /// Obtiene el clima actual por nombre de ciudad.
+  /// Obtiene el clima buscando por el nombre de la ciudad.
+  /// 
+  /// Útil como fallback si el GPS no está disponible o para búsquedas manuales.
   Future<WeatherModel> fetchWeatherByCityName({
     required String cityName,
   }) async {
-    final uri = Uri.parse(
-      '$baseUrl/weather/city/${Uri.encodeComponent(cityName)}',
-    );
-
     try {
-      final response = await _client
-          .get(uri, headers: _buildHeaders())
-          .timeout(const Duration(seconds: 15));
-
-      if (response.statusCode == 200) {
-        final json = jsonDecode(response.body) as Map<String, dynamic>;
-        return WeatherModel.fromOwmJson(json);
-      } else if (response.statusCode == 404) {
+      final json = await _apiClient.get(
+        '/weather/city/${Uri.encodeComponent(cityName)}',
+      ) as Map<String, dynamic>;
+      return WeatherModel.fromOwmJson(json);
+    } on SessionExpiredException {
+      throw const WeatherApiException(
+        'Sesión expirada — vuelve a iniciar sesión',
+        statusCode: 401,
+      );
+    } on ApiException catch (e) {
+      if (e.statusCode == 404) {
         throw WeatherApiException(
           'Ciudad no encontrada: $cityName',
           statusCode: 404,
         );
-      } else {
-        throw WeatherApiException(
-          'Error del servidor: ${response.statusCode}',
-          statusCode: response.statusCode,
-        );
       }
-    } on WeatherApiException {
-      rethrow;
+      throw WeatherApiException(
+        'Error del servidor: ${e.statusCode}',
+        statusCode: e.statusCode,
+      );
     } catch (e) {
       throw WeatherApiException('Error de red: $e');
     }
   }
 }
 
-/// Excepción específica para errores de la API de clima.
+/// Excepción especializada para errores ocurridos en la feature de clima.
 class WeatherApiException implements Exception {
+  /// Mensaje descriptivo para el usuario o logs.
   final String message;
+
+  /// Código de estado HTTP si el error provino del servidor.
   final int? statusCode;
 
   const WeatherApiException(this.message, {this.statusCode});

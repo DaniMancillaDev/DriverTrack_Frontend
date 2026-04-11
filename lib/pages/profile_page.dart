@@ -31,6 +31,15 @@ import '../widgets/maintenance/add_service_sheet.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
+/// Centro de configuración y gestión del perfil del usuario.
+/// 
+/// Consolida la administración de la cuenta y la personalización de la experiencia 
+/// de uso. Ofrece:
+/// * **Identidad Visual**: Gestión de avatar y datos personales.
+/// * **Resumen de Actividad**: Métricas globales de flota y gastos.
+/// * **Preferencias de Interfaz**: Configuración de tema (oscuro/claro), 
+///   idioma (ES/EN) y sistema de unidades (Métrico/Imperial).
+/// * **Seguridad y Soporte**: Gestión de contraseñas y canales de asistencia.
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 

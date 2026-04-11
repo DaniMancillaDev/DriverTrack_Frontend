@@ -3,18 +3,22 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 
-import '../../services/api_client.dart';
+import '../../core/network/api_client.dart';
 import '../i18n/translations.g.dart';
 
-/// Convierte cualquier excepción en un mensaje legible para el usuario.
+/// Utilidad centralizada para mapear errores de bajo nivel a mensajes legibles.
 ///
-/// Reglas:
-/// - Nunca expone URLs, nombres de clase ni stack traces.
-/// - Usa claves i18n cuando están disponibles.
-/// - Requiere [BuildContext] para acceder a las traducciones activas.
+/// Esta clase actúa como un traductor entre las excepciones técnicas (red, API, timeout)
+/// y los mensajes que el usuario final verá en la interfaz, garantizando que:
+/// 1. Nunca se exponga información sensible (URLs, nombres de clase, trazas).
+/// 2. Todos los mensajes estén localizados mediante [Translations].
+/// 3. Haya una respuesta consistente para errores desconocidos.
 abstract final class ErrorMapper {
   ErrorMapper._();
 
+  /// Transforma un [error] de cualquier tipo en un String localizado.
+  ///
+  /// Requiere un [BuildContext] para acceder a las traducciones activas del sistema.
   static String toUserMessage(Object error, BuildContext context) {
     final t = Translations.of(context);
 

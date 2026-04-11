@@ -1,5 +1,11 @@
+/// Orquestador central de la configuración del entorno de la aplicación.
+/// 
+/// Permite conmutar entre distintos ambientes (Desarrollo, Producción) 
+/// centralizando las URLs de API y otras constantes de comportamiento global.
 class AppConfig {
+  /// URL base para las peticiones al backend de DriverTrack.
   final String baseUrl;
+  /// Nombre oficial de la aplicación.
   final String appName;
 
   const AppConfig({
@@ -7,17 +13,17 @@ class AppConfig {
     this.appName = 'DriveTrack',
   });
 
-  // Default configuration (Development)
+  /// Configuración predeterminada para el entorno local o de desarrollo.
   factory AppConfig.dev() {
     return const AppConfig(
-      baseUrl: 'http://127.0.0.1:8000',
+      baseUrl: 'http://74.208.155.46:8010',
     );
   }
 
-  // Production configuration (Example)
+  /// Configuración optimizada para el entorno de producción.
   factory AppConfig.prod() {
     return const AppConfig(
-      baseUrl: 'https://api.drivetrack.app', // Placeholder
+      baseUrl: 'http://74.208.155.46:8010',
     );
   }
 }

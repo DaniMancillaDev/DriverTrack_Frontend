@@ -1,12 +1,3 @@
-/// Implementación concreta del repositorio de notificaciones.
-///
-/// Orquesta remote + local datasources con estrategia
-/// cache-first y refresh en background.
-///
-/// NOTA: El user_id ya no se pasa explícitamente — el ApiClient
-/// incluye el JWT automáticamente en cada petición y el backend
-/// extrae la identidad del usuario del token.
-
 import 'dart:async';
 import '../../domain/entities/notification_entity.dart';
 import '../../domain/repositories/notification_repository.dart';
@@ -14,6 +5,13 @@ import '../datasources/notification_local_datasource.dart';
 import '../datasources/notification_remote_datasource.dart';
 import '../models/notification_model.dart';
 
+/// Implementación del repositorio de notificaciones del sistema.
+///
+/// Coordina el acceso a datos entre la API remota y la caché local persistente.
+/// Sigue un patrón de **Sincronización con Caché**: 
+/// * Las consultas intentan obtener datos frescos de la red y actualizan el almacenamiento local.
+/// * En caso de desconexión, se sirven los datos cacheados para garantizar la disponibilidad.
+/// * Las acciones de escritura (marcar leída/borrar) se propagan primero al servidor antes de actualizar el estado local.
 class NotificationRepositoryImpl implements NotificationRepository {
   final NotificationRemoteDataSource _remoteDataSource;
   final NotificationLocalDataSource _localDataSource;

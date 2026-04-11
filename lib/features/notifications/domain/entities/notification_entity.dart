@@ -3,15 +3,23 @@
 /// Representa una notificación interna de la aplicación
 /// con soporte para tipos, estados de lectura y timestamps.
 
-/// Tipos de notificación soportados por el sistema.
+/// Tipos de notificación soportados por el sistema DriverTrack.
+/// 
+/// Cada tipo tiene una representación visual distinta (colores e iconos) en la UI.
 enum NotificationType {
+  /// Información general o actualizaciones menores.
   info,
+  /// Advertencias que requieren atención del usuario.
   warning,
+  /// Avisos de éxito (ej. mantenimiento registrado exitosamente).
   success,
+  /// Errores críticos o fallos en procesos.
   error,
+  /// Alertas meteorológicas específicas.
   weather;
 
-  /// Convierte un string del backend al enum.
+  /// Traduce el campo 'type' proveniente del servidor al enum [NotificationType].
+  /// Si el tipo es desconocido, por defecto retorna [info].
   static NotificationType fromString(String value) {
     return NotificationType.values.firstWhere(
       (e) => e.name == value,
@@ -20,14 +28,30 @@ enum NotificationType {
   }
 }
 
-/// Entidad inmutable que representa una notificación.
+/// Entidad inmutable que representa una notificación individual.
+/// 
+/// Centraliza los datos de las alertas enviadas por el sistema de mantenimiento
+/// o el servicio de clima.
 class NotificationEntity {
+  /// Identificador único de la notificación.
   final int id;
+
+  /// ID del usuario destinatario.
   final int userId;
+
+  /// Título breve de la notificación.
   final String title;
+
+  /// Cuerpo del mensaje con el detalle del aviso.
   final String message;
+
+  /// Categoría de la notificación para su gestión visual.
   final NotificationType type;
+
+  /// Indica si el usuario ya ha visualizado esta notificación.
   final bool isRead;
+
+  /// Fecha y hora de creación de la alerta.
   final DateTime createdAt;
 
   const NotificationEntity({

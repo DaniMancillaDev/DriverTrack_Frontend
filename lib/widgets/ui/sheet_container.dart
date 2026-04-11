@@ -3,13 +3,25 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Un contenedor base para hojas modales (Bottom Sheets) personalizadas.
+/// 
+/// Provee una estructura premium con bordes redondeados superioes, 
+/// indicador de arrastre ([showDragHandle]) y gestión inteligente del 
+/// espaciado para evitar la superposición con el teclado de pantalla.
 class SheetContainer extends StatelessWidget {
+  /// Contenido principal a renderizar dentro de la hoja.
   final Widget child;
+  /// Si es verdadero, muestra una barra horizontal en la parte superior.
   final bool showDragHandle;
+  /// Limita el ancho del contenedor (útil para pantallas grandes/tablets).
   final double maxWidth;
+  /// Altura fija opcional. Si es nula, se ajusta al contenido.
   final double? height;
+  /// Borde decorativo personalizado.
   final BoxBorder? border;
+  /// Callback de cierre (manual).
   final VoidCallback? onClose;
+  /// Callback disparado al interactuar con el estado de expansión.
   final VoidCallback? onToggle;
 
   const SheetContainer({

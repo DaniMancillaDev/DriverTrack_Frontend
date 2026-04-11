@@ -6,13 +6,20 @@ import '../../core/i18n/translations.g.dart';
 import '../../features/currency/presentation/widgets/currency_display.dart';
 import '../../core/responsive/responsive.dart';
 
+/// Panel de métricas acumuladas para el historial de mantenimiento.
+/// 
+/// Resume la inversión financiera total realizada y cuantifica la actividad 
+/// de servicios a través de toda la flota o un vehículo específico, utilizando 
+/// el sistema de [SummaryStats].
 class MaintenanceStats extends StatelessWidget {
+  /// Lista de registros procesados para generar las estadísticas.
   final List<MaintenanceViewModel> maintenances;
 
   const MaintenanceStats({super.key, required this.maintenances});
 
   @override
   Widget build(BuildContext context) {
+    // ... (logic follows)
     final t = Translations.of(context);
     final double totalSpent = maintenances.fold(
       0,

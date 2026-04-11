@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
+/// Contenedor base con bordes redondeados y estilo unificado.
+/// 
+/// Implementa una superficie [Card] personalizada que sigue el sistema de radios 
+/// y bordes de la aplicación, optimizada para visualización plana (sin elevación).
 class CustomCard extends StatelessWidget {
+  /// Contenido principal de la tarjeta.
   final Widget child;
+  /// Espaciado interno opcional.
   final EdgeInsetsGeometry? padding;
+  /// Color de fondo personalizado. Si es nulo, usa el por defecto del tema.
   final Color? backgroundColor;
+  /// Márgenes exteriores opcionales.
   final EdgeInsetsGeometry? margin;
 
   const CustomCard({
@@ -33,6 +41,9 @@ class CustomCard extends StatelessWidget {
   }
 }
 
+/// Encabezado estandarizado para usar dentro de un [CustomCard].
+/// 
+/// Organiza un título, una descripción y una acción opcional en la parte superior.
 class CustomCardHeader extends StatelessWidget {
   final Widget? title;
   final Widget? description;

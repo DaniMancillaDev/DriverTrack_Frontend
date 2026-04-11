@@ -1,6 +1,10 @@
 import '../../domain/entities/currency.dart';
 import '../../domain/entities/exchange_rate.dart';
 
+/// Modelo de datos para las tasas de cambio de divisas.
+/// 
+/// Extiende [ExchangeRate] para incluir capacidades de serialización JSON,
+/// permitiendo el mapeo de respuestas desde APIs externas y el almacenamiento local.
 class ExchangeRateModel extends ExchangeRate {
   ExchangeRateModel({
     required super.baseCurrency,
@@ -9,17 +13,14 @@ class ExchangeRateModel extends ExchangeRate {
     required super.lastUpdated,
   });
 
+  /// Crea una instancia desde el formato JSON de ExchangeRate-API (v6).
+  /// 
+  /// Extrae la tasa correspondiente a la moneda de destino ([target]) y 
+  /// convierte la marca de tiempo UNIX a [DateTime].
   factory ExchangeRateModel.fromJson(
     Map<String, dynamic> json,
     Currency target,
   ) {
-    // ExchangeRate-API returns:
-    // {
-    //   "base_code": "USD",
-    //   "time_last_update_unix": 1729017600,
-    //   "rates": { "MXN": 19.5, ... }
-    // }
-
     final baseCode = json['base_code'] as String;
     // La v4 devuelve 'rates', la v6 devuelve 'conversion_rates'
     final rates =
@@ -35,6 +36,7 @@ class ExchangeRateModel extends ExchangeRate {
     );
   }
 
+  /// Convierte la instancia a un mapa JSON para persistencia local.
   Map<String, dynamic> toJson() {
     return {
       'base_code': baseCurrency.code,
@@ -44,6 +46,7 @@ class ExchangeRateModel extends ExchangeRate {
     };
   }
 
+  /// Reconstruye el modelo desde un mapa JSON recuperado de caché.
   factory ExchangeRateModel.fromCacheJson(Map<String, dynamic> json) {
     return ExchangeRateModel(
       baseCurrency: Currency.fromString(json['base_code'] as String),

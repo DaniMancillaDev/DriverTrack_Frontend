@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_theme.dart';
-import '../widgets/ui/custom_list_card.dart';
+import '../providers/app_providers.dart';
+import '../models/notification_model.dart';
+import '../widgets/notifications/notification_card.dart';
 import '../core/i18n/translations.g.dart';
 import '../core/responsive/responsive.dart';
-import '../features/notifications/presentation/providers/notifications_provider.dart';
-import '../features/notifications/domain/entities/notification_entity.dart';
-import '../widgets/ui/notification_card.dart';
 import '../theme/app_color_scheme.dart';
 
+/// Centro de gestión de alertas y notificaciones del sistema.
+/// 
+/// Monitoriza y presenta eventos críticos en tiempo real. Sus funciones son:
+/// * **Central de Alertas**: Agregación de avisos de mantenimiento, seguridad 
+///   y actualizaciones del sistema.
+/// * **Segregación por Gravedad**: Clasificación visual y filtrado por niveles 
+///   (Crítico, Advertencia, Info, éxito).
+/// * **Gestión de Flujos**: Acciones para marcar lecturas masivas o eliminación 
+///   de historial irrelevante.
+/// * **Sincronización Proactiva**: Integración con el motor de notificaciones 
+///   para actualizaciones instantáneas.
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
 

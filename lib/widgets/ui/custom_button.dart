@@ -2,25 +2,55 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Variantes visuales soportadas para los botones de la aplicación.
 enum ButtonVariant {
+  /// Estilo corporativo base.
   defaultVariant,
+  /// Acción de peligro o eliminación.
   destructive,
+  /// Estilo con borde, ideal para acciones secundarias.
   outline,
+  /// Estilo sutil de superficie.
   secondary,
+  /// Sin fondo ni bordes, alta discreción.
   ghost,
+  /// Estilo de enlace de texto puro.
   link,
-  gradient, // New premium variant
+  /// Estilo premium con gradiente de marca y sombras.
+  gradient,
 }
 
-enum ButtonSize { defaultSize, sm, lg, icon }
+/// Escala de tamaños predefinidos para los botones.
+enum ButtonSize { 
+  /// Tamaño estándar (altura de 48px).
+  defaultSize, 
+  /// Tamaño compacto.
+  sm, 
+  /// Tamaño prominente (altura de 56px).
+  lg, 
+  /// Tamaño cuadrado para iconos.
+  icon 
+}
 
+/// Un botón altamente personalizable que implementa el sistema de diseño.
+/// 
+/// El [CustomButton] unifica los estilos de botones de la aplicación, soportando
+/// estados de carga automáticos ([isLoading]), gradientes complejos y 
+/// adaptabilidad responsiva del tamaño.
 class CustomButton extends StatelessWidget {
+  /// Función a ejecutar al presionar.
   final VoidCallback? onPressed;
+  /// Contenido del botón (típicamente [Text] o [Icon]).
   final Widget child;
+  /// Variante visual a aplicar.
   final ButtonVariant variant;
+  /// Dimensiones del botón.
   final ButtonSize size;
+  /// Muestra un indicador de progreso si es verdadero.
   final bool isLoading;
+  /// Ancho personalizado opcional.
   final double? width;
+  /// Colores personalizados para el gradiente (si se usa [ButtonVariant.gradient]).
   final List<Color>? gradientColors;
 
   const CustomButton({

@@ -1,29 +1,27 @@
-/// Datasource remoto para notificaciones.
-///
-/// Usa el ApiClient existente para realizar todas las llamadas
-/// REST al backend con retry automático y manejo de errores.
-///
-/// NOTA: user_id ya no se pasa como query param — el backend
-/// lo extrae automáticamente del JWT Bearer token.
-
 import 'dart:async';
-import '../../../../services/api_client.dart';
+import '../../../../core/network/api_client.dart';
 import '../models/notification_model.dart';
 
+/// Fuente de datos remota para la gestión de notificaciones mediante API REST.
+///
+/// Provee métodos para listar, marcar como leídas y eliminar notificaciones,
+/// implementando una lógica robusta de reintentos automáticos para mitigar 
+/// fallos temporales de red.
 class NotificationRemoteDataSource {
   final ApiClient _apiClient;
 
-  /// Máximo número de reintentos automáticos.
+  /// Máximo número de reintentos automáticos para peticiones fallidas.
   static const int _maxRetries = 3;
 
-  /// Delay base para backoff exponencial (ms).
+  /// Retraso base inicial para el algoritmo de retroceso exponencial (ms).
   static const int _baseDelayMs = 500;
 
   NotificationRemoteDataSource(this._apiClient);
 
   /// Obtiene la lista paginada de notificaciones del usuario autenticado.
   ///
-  /// El backend filtra automáticamente por el usuario del JWT.
+  /// El backend filtra automáticamente por el usuario extraído del JWT Bearer token.
+  /// [skip] define cuántos elementos omitir y [limit] el tamaño de la página.
   Future<PaginatedNotificationsModel> getNotifications({
     int skip = 0,
     int limit = 20,
@@ -38,7 +36,7 @@ class NotificationRemoteDataSource {
     });
   }
 
-  /// Marca una notificación como leída.
+  /// Marca una notificación específica como leída en el servidor.
   Future<NotificationModel> markAsRead(int notificationId) async {
     return _withRetry(() async {
       final response = await _apiClient.patch(
@@ -49,16 +47,14 @@ class NotificationRemoteDataSource {
     });
   }
 
-  /// Marca todas las notificaciones del usuario autenticado como leídas.
-  ///
-  /// El backend identifica el usuario a través del JWT.
+  /// Envía una señal al backend para marcar todas las notificaciones del usuario como leídas.
   Future<void> markAllAsRead() async {
     return _withRetry(() async {
       await _apiClient.patch('/notifications/read-all', {});
     });
   }
 
-  /// Obtiene el conteo de notificaciones no leídas del usuario autenticado.
+  /// Recupera el número total de notificaciones no leídas pendientes por el usuario.
   Future<int> getUnreadCount() async {
     return _withRetry(() async {
       final response = await _apiClient.get('/notifications/unread-count');
@@ -66,14 +62,18 @@ class NotificationRemoteDataSource {
     });
   }
 
-  /// Elimina una notificación.
+  /// Elimina permanentemente una notificación del historial.
   Future<void> deleteNotification(int notificationId) async {
     return _withRetry(() async {
       await _apiClient.delete('/notifications/$notificationId');
     });
   }
 
-  /// Ejecuta una operación con retry automático y backoff exponencial.
+  /// Envoltura lógica que añade resilencia a las operaciones de red.
+  /// 
+  /// Implementa **Backoff Exponencial**:
+  /// El tiempo de espera entre intentos crece en potencia de 2 (0.5s, 1s, 2s).
+  /// Excluye errores de la serie 4xx del proceso de reintento.
   Future<T> _withRetry<T>(Future<T> Function() operation) async {
     int attempt = 0;
     while (true) {
@@ -83,7 +83,7 @@ class NotificationRemoteDataSource {
         attempt++;
         if (attempt >= _maxRetries) rethrow;
 
-        // No retry para errores 4xx (errores del cliente)
+        // No reintentar ante errores de autorregulación del cliente (4xx)
         if (e is ApiException && e.statusCode >= 400 && e.statusCode < 500) {
           rethrow;
         }

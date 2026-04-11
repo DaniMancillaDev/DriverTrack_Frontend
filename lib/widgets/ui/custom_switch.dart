@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
+/// Un interruptor tipo switch alineado con el sistema de diseño.
+/// 
+/// Provee una alternativa visual al [Checkbox], ideal para configuraciones
+/// binarias directas. Incluye soporte para etiquetas laterales interactivas.
 class CustomSwitch extends StatelessWidget {
   final bool value;
   final ValueChanged<bool>? onChanged;

@@ -1,22 +1,31 @@
 /// Entidad de dominio para datos climáticos.
 ///
 /// Todos los valores se almacenan en unidades métricas (°C, m/s).
-/// La conversión a imperial se realiza en la capa de presentación
-/// mediante el UnitFormatter existente.
+/// La conversión a unidades imperiales o personalizadas se delega a los
+/// formateadores de la capa de presentación.
 
-/// Condiciones climáticas soportadas.
+/// Enumeración con las condiciones climáticas principales soportadas.
 enum WeatherCondition {
+  /// Cielo despejado.
   clear,
+  /// Cielo nublado o parcialmente nuboso.
   clouds,
+  /// Lluvia moderada o fuerte.
   rain,
+  /// Llovizna o lluvia ligera.
   drizzle,
+  /// Tormentas eléctricas.
   thunderstorm,
+  /// Nieve o granizo.
   snow,
+  /// Neblina, bruma o visibilidad reducida.
   fog,
+  /// Condiciones extremas (tornados, ráfagas violentas).
   extreme,
+  /// Condición no identificada o error de mapeo.
   unknown;
 
-  /// Convierte el código OWM `main` field al enum.
+  /// Traduce el campo 'main' de OpenWeatherMap al enum [WeatherCondition].
   static WeatherCondition fromOwmMain(String main) {
     return switch (main.toLowerCase()) {
       'clear' => WeatherCondition.clear,
@@ -38,36 +47,39 @@ enum WeatherCondition {
   }
 }
 
-/// Entidad inmutable que representa el clima actual.
+/// Representa el estado meteorológico actual obtenido de un servicio externo.
+/// 
+/// Es una entidad inmutable que consolida temperatura, visibilidad,
+/// viento y metadatos de ubicación.
 class WeatherEntity {
-  /// Temperatura en °C.
+  /// Temperatura medida en grados Celsius.
   final double temperatureCelsius;
 
-  /// Sensación térmica en °C.
+  /// Sensación térmica medida en grados Celsius.
   final double feelsLikeCelsius;
 
-  /// Humedad relativa (0–100).
+  /// Porcentaje de humedad relativa (0 a 100).
   final int humidity;
 
-  /// Presión atmosférica en hPa.
+  /// Presión atmosférica a nivel del mar (hPa).
   final int pressure;
 
-  /// Velocidad del viento en m/s.
+  /// Velocidad del viento en metros por segundo.
   final double windSpeed;
 
-  /// Condición climática principal.
+  /// Clasificación simplificada del clima ([WeatherCondition]).
   final WeatherCondition condition;
 
-  /// Descripción textual del clima (del API).
+  /// Descripción extendida y localizada del clima (ej: "nubes dispersas").
   final String description;
 
-  /// Código de icono OWM (ej: "10d").
+  /// Código de icono compatible con OpenWeatherMap (ej: "01d").
   final String iconCode;
 
-  /// Nombre de la ciudad.
+  /// Nombre de la ubicación geográfica (ciudad/distrito).
   final String cityName;
 
-  /// Timestamp de cuando se obtuvo el dato.
+  /// Momento exacto de la última sincronización con el servidor.
   final DateTime fetchedAt;
 
   const WeatherEntity({
@@ -83,7 +95,9 @@ class WeatherEntity {
     required this.fetchedAt,
   });
 
-  /// Determina si los datos son considerados "frescos" (< ttl).
+  /// Verifica si los datos climáticos actuales siguen siendo válidos.
+  /// 
+  /// Por defecto, DriverTrack considera que el clima expira tras 15 minutos ([ttl]).
   bool isFresh({Duration ttl = const Duration(minutes: 15)}) {
     return DateTime.now().difference(fetchedAt) < ttl;
   }

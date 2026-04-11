@@ -1,12 +1,29 @@
 // lib/models/maintenance_model.dart
 
+/// Representa un registro de mantenimiento realizado a un vehículo.
+/// 
+/// Contiene detalles sobre la fecha, costo, kilometraje en el momento del 
+/// servicio y una descripción de los trabajos realizados.
 class Maintenance {
+  /// Identificador único del registro de mantenimiento.
   final int id;
+
+  /// ID del vehículo asociado a este mantenimiento.
   final int vehicleId;
+
+  /// Fecha en la que se realizó el mantenimiento.
   final DateTime date;
+
+  /// Descripción detallada de las tareas realizadas (ej. Cambio de aceite).
   final String description;
+
+  /// Costo total del servicio realizado.
   final double cost;
+
+  /// Kilometraje del vehículo al momento de realizar el servicio.
   final int mileage;
+
+  /// Categoría del mantenimiento (ej. Motor, Llantas, General).
   final String category;
 
   Maintenance({
@@ -19,13 +36,14 @@ class Maintenance {
     this.category = 'General',
   });
 
+  /// Crea una instancia de [Maintenance] a partir de un mapa JSON del servidor.
   factory Maintenance.fromJson(Map<String, dynamic> json) {
     return Maintenance(
       id: json['id'] as int,
       vehicleId: json['vehicle_id'] as int,
       date: DateTime.parse(json['date'] as String),
       description: json['description'] as String,
-      // Manejar la posibilidad de que el Decimal de Python llegue como string o int
+      // Manejar la posibilidad de que el Decimal de Python llegue como string o num
       cost: (json['cost'] is String)
           ? double.tryParse(json['cost']) ?? 0.0
           : (json['cost'] as num).toDouble(),
@@ -34,6 +52,7 @@ class Maintenance {
     );
   }
 
+  /// Convierte la instancia de [Maintenance] a un mapa JSON para enviar al API.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -47,6 +66,7 @@ class Maintenance {
     };
   }
 
+  /// Crea una copia de este objeto con los campos proporcionados sobrescritos.
   Maintenance copyWith({
     int? id,
     int? vehicleId,

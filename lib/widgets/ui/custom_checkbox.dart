@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
+/// Un componente de selección binaria personalizado.
+/// 
+/// Ofrece un diseño moderno con bordes redondeados y soporte integrado para 
+/// etiquetas interactivas que expanden el área de interacción.
 class CustomCheckbox extends StatelessWidget {
+  /// Estado actual del checkbox.
   final bool value;
+  /// Callback ejecutado cuando el estado cambia.
   final ValueChanged<bool?>? onChanged;
+  /// Texto descriptivo opcional al lado del checkbox.
   final String? label;
+  /// Controla la interactividad del widget.
   final bool enabled;
 
   const CustomCheckbox({

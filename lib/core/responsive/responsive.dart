@@ -4,12 +4,21 @@ import 'package:flutter/material.dart';
 // Breakpoints
 // ─────────────────────────────────────────────────────────────
 
+/// Define los umbrales de ancho de pantalla (en píxeles lógicos) para
+/// determinar la categoría del dispositivo.
 class AppBreakpoints {
   AppBreakpoints._();
 
+  /// Móviles pequeños o pantallas muy estrechas.
   static const double mobileSmall = 360;
+
+  /// Móviles estándar.
   static const double mobile = 400;
+
+  /// Tablets y iPads en modo vertical o pantallas pequeñas.
   static const double tablet = 600;
+
+  /// Pantallas grandes, tablets en horizontal y monitores.
   static const double desktop = 900;
 }
 
@@ -17,17 +26,44 @@ class AppBreakpoints {
 // Device classification
 // ─────────────────────────────────────────────────────────────
 
-enum DeviceType { mobileSmall, mobile, tablet, desktop }
+/// Categorías de dispositivos soportadas por el sistema de diseño.
+enum DeviceType {
+  /// Teléfonos con ancho < 360px.
+  mobileSmall,
+
+  /// Teléfonos estándar (ej. iPhone Pro, Pixel).
+  mobile,
+
+  /// Tablets (ej. iPad Pro, Samsung Tab).
+  tablet,
+
+  /// Pantallas de escritorio o portátiles.
+  desktop
+}
 
 // ─────────────────────────────────────────────────────────────
 // Core responsive utility
 // ─────────────────────────────────────────────────────────────
 
+/// Clase principal para la gestión de la adaptabilidad en la aplicación.
+///
+/// Proporciona valores de escalado, dimensiones porcentuales y selección
+/// automática de valores basados en el tipo de dispositivo detectado.
 class AppResponsive {
+  /// Ancho actual de la pantalla en píxeles lógicos.
   final double screenWidth;
+
+  /// Alto actual de la pantalla en píxeles lógicos.
   final double screenHeight;
+
+  /// Categoría del dispositivo actual basado en [AppBreakpoints].
   final DeviceType deviceType;
+
+  /// Factor multiplicador para el escalado de fuentes y dimensiones.
+  /// Permite que la UI se "agigante" o "encoja" proporcionalmente.
   final double scaleFactor;
+
+  /// Orientación actual (vertical/horizontal).
   final Orientation orientation;
 
   AppResponsive._({
@@ -38,7 +74,10 @@ class AppResponsive {
     required this.orientation,
   });
 
-  /// Create from BuildContext — uses MediaQuery for accurate sizing.
+  /// Obtiene una instancia de [AppResponsive] a partir del [BuildContext].
+  ///
+  /// Utiliza [MediaQuery] internamente para asegurar que los valores sean exactos
+  /// y reaccionen a cambios de tamaño o rotación.
   factory AppResponsive.of(BuildContext context) {
     final mq = MediaQuery.of(context);
     final width = mq.size.width;
@@ -73,33 +112,45 @@ class AppResponsive {
 
   // ─── Convenience getters ──────────────────────────────────
 
+  /// Indica si el dispositivo es un móvil pequeño.
   bool get isMobileSmall => deviceType == DeviceType.mobileSmall;
+
+  /// Indica si el dispositivo es cualquier tipo de móvil (incluyendo small).
   bool get isMobile => deviceType == DeviceType.mobile || isMobileSmall;
-  bool get isTablet => deviceType == DeviceType.tablet;
+
+  /// Indica si el dispositivo es una tablet.
+  bool get isVolunteer => deviceType == DeviceType.tablet;
+
+  /// Indica si el dispositivo es un escritorio.
   bool get isDesktop => deviceType == DeviceType.desktop;
+
+  /// Indica si la orientación actual es horizontal.
   bool get isLandscape => orientation == Orientation.landscape;
 
   // ─── Scaling methods ──────────────────────────────────────
 
-  /// Scale-aware font size. Replaces hardcoded `fontSize:` values.
+  /// Tamaño de fuente adaptativo.
+  /// Reemplaza valores `fontSize` fijos por valores escalados según el dispositivo.
   double sp(double size) => size * scaleFactor;
 
-  /// Scale-aware radius.
+  /// Radio adaptativo para bordes y esquinas.
   double r(double radius) => radius * scaleFactor;
 
-  /// Scale-aware icon size.
+  /// Tamaño de icono adaptativo.
   double iconSize(double size) => size * scaleFactor;
 
-  /// Scale-aware dimension (for containers, images, etc.).
+  /// Dimensión genérica adaptativa (usar para anchos y altos de contenedores).
   double dim(double size) => size * scaleFactor;
 
-  /// Scale-aware spacing.
+  /// Espaciado adaptativo (usar para márgenes y paddings).
   double space(double size) => size * scaleFactor;
 
   // ─── Responsive value selection ───────────────────────────
 
-  /// Pick a value based on current device type.
-  /// Falls back to the smallest provided value.
+  /// Selecciona un valor específico basado en el tipo de dispositivo actual.
+  ///
+  /// Si no se proporciona un valor para una categoría específica,
+  /// retrocede (fallback) al valor de la categoría inferior disponible.
   T value<T>({required T mobile, T? mobileSmall, T? tablet, T? desktop}) {
     return switch (deviceType) {
       DeviceType.mobileSmall => mobileSmall ?? mobile,
@@ -109,10 +160,10 @@ class AppResponsive {
     };
   }
 
-  /// Returns a proportional width (percentage of screen width).
+  /// Retorna un ancho proporcional (porcentaje del ancho total de pantalla).
   double wp(double percent) => screenWidth * percent / 100;
 
-  /// Returns a proportional height (percentage of screen height).
+  /// Retorna un alto proporcional (porcentaje del alto total de pantalla).
   double hp(double percent) => screenHeight * percent / 100;
 }
 
@@ -120,7 +171,10 @@ class AppResponsive {
 // Extension on BuildContext for easy access
 // ─────────────────────────────────────────────────────────────
 
+/// Extensión para facilitar el acceso a la lógica de responsividad.
+/// Permite usar `context.responsive` en cualquier parte de la jerarquía de widgets.
 extension ResponsiveExtension on BuildContext {
+  /// Proporciona acceso a las utilidades de [AppResponsive].
   AppResponsive get responsive => AppResponsive.of(this);
 }
 
@@ -128,7 +182,10 @@ extension ResponsiveExtension on BuildContext {
 // ResponsiveBuilder widget
 // ─────────────────────────────────────────────────────────────
 
+/// Widget que expone la lógica de responsividad a través de un constructor (builder).
+/// Útil cuando se necesita reconstruir partes complejas basadas en el tamaño detectado.
 class ResponsiveBuilder extends StatelessWidget {
+  /// Función constructora que recibe el contexto y la utilidad de responsividad.
   final Widget Function(BuildContext context, AppResponsive responsive) builder;
 
   const ResponsiveBuilder({super.key, required this.builder});
@@ -147,6 +204,7 @@ class ResponsiveBuilder extends StatelessWidget {
 // Responsive Icon Sizes
 // ─────────────────────────────────────────────────────────────
 
+/// Centraliza los tamaños de iconos adaptativos del sistema.
 class AppIconSizes {
   AppIconSizes._();
 
@@ -160,15 +218,24 @@ class AppIconSizes {
   static const double _huge = 40;
   static const double _massive = 48;
 
+  /// Tamaño extra pequeño (10sp).
   static double xxs(BuildContext context) => context.responsive.iconSize(_xxs);
+  /// Tamaño muy pequeño (12sp).
   static double xs(BuildContext context) => context.responsive.iconSize(_xs);
+  /// Tamaño pequeño estándar (16sp).
   static double sm(BuildContext context) => context.responsive.iconSize(_sm);
+  /// Tamaño medio (18sp).
   static double md(BuildContext context) => context.responsive.iconSize(_md);
+  /// Tamaño grande (20sp).
   static double lg(BuildContext context) => context.responsive.iconSize(_lg);
+  /// Tamaño muy grande (24sp).
   static double xl(BuildContext context) => context.responsive.iconSize(_xl);
+  /// Tamaño doble XL (32sp).
   static double xxl(BuildContext context) => context.responsive.iconSize(_xxl);
+  /// Tamaño gigante (40sp).
   static double huge(BuildContext context) =>
       context.responsive.iconSize(_huge);
+  /// Tamaño masivo (48sp).
   static double massive(BuildContext context) =>
       context.responsive.iconSize(_massive);
 }
@@ -177,10 +244,11 @@ class AppIconSizes {
 // Responsive Text Styles
 // ─────────────────────────────────────────────────────────────
 
+/// Centraliza los estilos de texto adaptativos del sistema.
 class AppTextStyles {
   AppTextStyles._();
 
-  /// 24sp — Main headings
+  /// Títulos principales de páginas (24sp, Bold).
   static TextStyle headline(BuildContext context) {
     final r = context.responsive;
     return TextStyle(
@@ -190,13 +258,13 @@ class AppTextStyles {
     );
   }
 
-  /// 20sp — Section headings
+  /// Títulos de secciones intermedias (20sp, Bold).
   static TextStyle headlineMedium(BuildContext context) {
     final r = context.responsive;
     return TextStyle(fontSize: r.sp(20), fontWeight: FontWeight.w700);
   }
 
-  /// 22sp — Large display numbers / titles in sheets
+  /// Texto destacado o números grandes en hojas modales (22sp, Heavy).
   static TextStyle display(BuildContext context) {
     final r = context.responsive;
     return TextStyle(
@@ -206,37 +274,37 @@ class AppTextStyles {
     );
   }
 
-  /// 17sp — Titles (cards, sections)
+  /// Títulos de tarjetas o secciones (17sp, Bold).
   static TextStyle title(BuildContext context) {
     final r = context.responsive;
     return TextStyle(fontSize: r.sp(17), fontWeight: FontWeight.w700);
   }
 
-  /// 15sp — Primary body text
+  /// Texto de cuerpo principal (15sp).
   static TextStyle body(BuildContext context) {
     final r = context.responsive;
     return TextStyle(fontSize: r.sp(15));
   }
 
-  /// 14sp — Secondary body text
+  /// Texto de cuerpo secundario o párrafos largos (14sp).
   static TextStyle bodyMedium(BuildContext context) {
     final r = context.responsive;
     return TextStyle(fontSize: r.sp(14));
   }
 
-  /// 13sp — Small body / subtitles
+  /// Texto de cuerpo pequeño o subtítulos (13sp).
   static TextStyle bodySmall(BuildContext context) {
     final r = context.responsive;
     return TextStyle(fontSize: r.sp(13));
   }
 
-  /// 12sp — Captions / supplementary text
+  /// Pies de foto o texto suplementario (12sp).
   static TextStyle caption(BuildContext context) {
     final r = context.responsive;
     return TextStyle(fontSize: r.sp(12));
   }
 
-  /// 11sp — Labels / tags
+  /// Etiquetas, tags o badges pequeños (11sp, Semibold).
   static TextStyle label(BuildContext context) {
     final r = context.responsive;
     return TextStyle(
@@ -246,25 +314,25 @@ class AppTextStyles {
     );
   }
 
-  /// 10sp — Micro labels / badges
+  /// Texto microscópico para UI auxiliar (10sp).
   static TextStyle micro(BuildContext context) {
     final r = context.responsive;
     return TextStyle(fontSize: r.sp(10));
   }
 
-  /// 9sp — Tiny text (minimal UI labels)
+  /// El tamaño de texto más pequeño permitido (9sp).
   static TextStyle tiny(BuildContext context) {
     final r = context.responsive;
     return TextStyle(fontSize: r.sp(9));
   }
 
-  /// 16sp — Button text
+  /// Estilo para el contenido de los botones (16sp, Bold).
   static TextStyle button(BuildContext context) {
     final r = context.responsive;
     return TextStyle(fontSize: r.sp(16), fontWeight: FontWeight.w700);
   }
 
-  /// 18sp — Sheet / dialog titles
+  /// Títulos dentro de BottomSheets o Diálogos (18sp, Heavy).
   static TextStyle sheetTitle(BuildContext context) {
     final r = context.responsive;
     return TextStyle(fontSize: r.sp(18), fontWeight: FontWeight.w800);
@@ -272,25 +340,37 @@ class AppTextStyles {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Responsive Spacing (extends existing AppSpacing with scaling)
+// Responsive Spacing
 // ─────────────────────────────────────────────────────────────
 
+/// Centraliza los márgenes y paddings dinámicos.
+/// Se basa en la utilidad [AppResponsive] para escalar espacios según la pantalla.
 class AppResponsiveSpacing {
   final AppResponsive _responsive;
 
   AppResponsiveSpacing._(this._responsive);
 
+  /// Crea una instancia de espaciado adaptativo a partir del contexto.
   factory AppResponsiveSpacing.of(BuildContext context) {
     return AppResponsiveSpacing._(AppResponsive.of(context));
   }
 
+  /// Espacio extra extra pequeño (4px escalado).
   double get xxs => _responsive.space(4);
+  /// Espacio extra pequeño (8px escalado).
   double get xs => _responsive.space(8);
+  /// Espacio pequeño (12px escalado).
   double get s => _responsive.space(12);
+  /// Espacio medio (16px escalado).
   double get md => _responsive.space(16);
+  /// Espacio grande (24px escalado).
   double get lg => _responsive.space(24);
+  /// Espacio XL (32px escalado).
   double get xl => _responsive.space(32);
+  /// Espacio XXL (40px escalado).
   double get xxl => _responsive.space(40);
+  /// Espacio XXXL (48px escalado).
   double get xxxl => _responsive.space(48);
+  /// Espacio masivo (64px escalado).
   double get massive => _responsive.space(64);
 }

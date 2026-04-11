@@ -1,12 +1,20 @@
 import '../models/maintenance_model.dart';
-import 'api_client.dart';
+import '../core/network/api_client.dart';
 
+/// Repositorio para la gestión del historial de mantenimiento preventivo y correctivo.
+/// 
+/// Permite el seguimiento detallado de intervenciones mecánicas, costos 
+/// y kilometraje, vinculando cada registro con un vehículo de la flota.
 class MaintenanceRepository {
   final ApiClient _apiClient;
 
   MaintenanceRepository(this._apiClient);
 
-  /// Fetch maintenance records, optionally filtered by vehicleId, with pagination
+  /// Recupera registros de mantenimiento con soporte para paginación y filtrado.
+  /// 
+  /// Si se proporciona [vehicleId], se obtienen los registros exclusivos de ese 
+  /// vehículo. Si no, se obtienen todos los registros del usuario (útil para 
+  /// dashboards globales).
   Future<List<Maintenance>> getMaintenanceRecords({
     int? vehicleId,
     int skip = 0,
@@ -14,8 +22,6 @@ class MaintenanceRepository {
   }) async {
     final queryParams = {'skip': skip.toString(), 'limit': limit.toString()};
 
-    // If vehicleId is provided, use the vehicle-specific endpoint.
-    // Otherwise, use the global maintenance endpoint (optimizing N+1).
     final path = vehicleId != null
         ? '/vehicles/$vehicleId/maintenance'
         : '/maintenance';
@@ -30,7 +36,7 @@ class MaintenanceRepository {
     return [];
   }
 
-  /// Add a new maintenance record
+  /// Registra una nueva intervención de mantenimiento para un vehículo.
   Future<Maintenance> addMaintenanceRecord(Map<String, dynamic> data) async {
     final vehicleId = data['vehicle_id'];
     final response = await _apiClient.post(
@@ -40,7 +46,7 @@ class MaintenanceRepository {
     return Maintenance.fromJson(response);
   }
 
-  /// Update an existing maintenance record
+  /// Actualiza los detalles de un registro de mantenimiento existente.
   Future<Maintenance> updateMaintenanceRecord(
     int id,
     Map<String, dynamic> data,
@@ -49,7 +55,7 @@ class MaintenanceRepository {
     return Maintenance.fromJson(response);
   }
 
-  /// Delete a maintenance record
+  /// Elimina de forma permanente un registro de mantenimiento.
   Future<void> deleteMaintenanceRecord(int id) async {
     await _apiClient.delete('/maintenance/$id');
   }

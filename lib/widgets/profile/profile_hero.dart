@@ -12,7 +12,14 @@ import '../../core/i18n/translations.g.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Sección de impacto visual y encabezado del perfil de usuario.
+/// 
+/// Presenta la identidad del conductor mediante un avatar enriquecido 
+/// (con soporte para carga de fotos e iniciales dinámicas), nombre, 
+/// correo y distintivos de membresía. Sirve como punto de entrada para 
+/// la gestión visual de la cuenta.
 class ProfileHero extends ConsumerStatefulWidget {
+  /// Callback opcional para navegar a la edición de datos textuales.
   final VoidCallback? onTapEdit;
 
   const ProfileHero({

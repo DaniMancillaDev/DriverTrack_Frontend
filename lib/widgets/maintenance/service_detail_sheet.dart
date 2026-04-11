@@ -13,17 +13,33 @@ import '../../features/currency/presentation/widgets/currency_display.dart';
 import '../../core/responsive/responsive.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Hoja informativa detallada de un registro de mantenimiento.
+/// 
+/// Presenta un desglose completo de una intervención específica: inversión 
+/// realizada, fecha, kilometraje registrado y notas mecánicas adicionales. 
+/// Sirve como punto de entrada para la edición o eliminación del registro.
 class ServiceDetailSheet extends ConsumerWidget {
+  /// Título descriptivo del servicio (ej: 'Cambio de Aceite').
   final String serviceTitle;
+  /// Nombre del vehículo al que se le aplicó el servicio.
   final String vehicleName;
+  /// Fecha en la que se realizó la intervención.
   final DateTime date;
+  /// Costo total registrado (base USD).
   final double cost;
+  /// Kilometraje del vehículo en ese momento.
   final int mileage;
+  /// Comentarios adicionales del mecánico o usuario.
   final String? notes;
+  /// Color semántico para la identidad visual del tipo de servicio.
   final Color accentColor;
+  /// Categoría maestra del servicio.
   final String category;
+  /// Callback de cierre.
   final VoidCallback onClose;
+  /// Callback opcional para entrar en modo edición.
   final VoidCallback? onEdit;
+  /// Callback opcional para iniciar el flujo de eliminación.
   final VoidCallback? onRemove;
 
   const ServiceDetailSheet({

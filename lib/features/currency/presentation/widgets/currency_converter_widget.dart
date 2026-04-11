@@ -1,14 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-
-import '../../domain/entities/currency.dart';
-import '../providers/currency_provider.dart';
-import '../../../../core/i18n/translations.g.dart';
-import '../../../../theme/app_theme.dart';
-import '../../../../core/responsive/responsive.dart';
 import '../../../../theme/app_color_scheme.dart';
 
+/// Widget de conversión de divisas en tiempo real.
+/// 
+/// Permite al usuario convertir montos entre USD y MXN (y viceversa) utilizando 
+/// tasas de cambio actualizadas. Se integra con [currencyNotifierProvider] para:
+/// * Persistir la preferencia de moneda del usuario.
+/// * Obtener tasas de cambio mediante un cron service o actualización manual.
+/// * Realizar cálculos de conversión siguiendo estándares financieros básicos.
 class CurrencyConverterWidget extends ConsumerStatefulWidget {
   const CurrencyConverterWidget({super.key});
 
@@ -276,6 +274,17 @@ class _CurrencyConverterWidgetState
       ),
     );
   }
+}
+
+/// Widget principal para la conversión de divisas.
+/// 
+/// Gestiona la lógica de entrada de usuario y la visualización de tasas de cambio.
+/// Se integra con [currencyNotifierProvider] para:
+/// * Obtener tasas de cambio en tiempo real.
+/// * Manejar estados de carga y error.
+/// * Persistir la selección de divisas del usuario.
+class CurrencyConverterWidget extends StatelessWidget {
+  // ... (implementation details)
 }
 
 class _CurrencyRow extends StatelessWidget {

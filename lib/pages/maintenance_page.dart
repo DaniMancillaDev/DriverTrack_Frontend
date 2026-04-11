@@ -1,27 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_theme.dart';
+import '../providers/app_providers.dart';
+import '../viewmodels/maintenance_view_model.dart';
+import '../viewmodels/vehicle_view_model.dart';
+import '../widgets/maintenance/maintenance_card.dart';
+import '../widgets/maintenance/maintenance_card_skeleton.dart';
+import '../widgets/maintenance/maintenance_header.dart';
+import '../widgets/maintenance/maintenance_stats.dart';
 import '../widgets/maintenance/add_service_sheet.dart';
 import '../widgets/maintenance/service_detail_sheet.dart';
 import '../widgets/ui/premium_fab.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/app_providers.dart';
 import '../widgets/ui/filter_pills.dart';
 import '../models/vehicle_model.dart';
 import '../models/maintenance_model.dart';
-import '../viewmodels/maintenance_view_model.dart';
-import '../viewmodels/vehicle_view_model.dart';
 import '../widgets/ui/confirmation_dialog.dart';
 import '../core/i18n/translations.g.dart';
 import '../core/responsive/responsive.dart';
 import '../theme/app_color_scheme.dart';
-
-// Modular Widgets
-import '../widgets/maintenance/maintenance_header.dart';
-import '../widgets/maintenance/maintenance_stats.dart';
-import '../widgets/maintenance/maintenance_card.dart';
-import '../widgets/maintenance/maintenance_card_skeleton.dart';
 import '../widgets/maintenance/maintenance_empty_state.dart';
 
+/// Página de historial y gestión de mantenimiento.
+/// 
+/// Centraliza la bitácora técnica de toda la flota de vehículos. 
+/// Sus funciones principales incluyen:
+/// * **Repositorio Histórico**: Listado cronológico de todas las intervenciones 
+///   mecánicas y servicios realizados.
+/// * **Análisis de Inversión**: Visualización de costos acumulados mediante [MaintenanceStats].
+/// * **Filtrado Inteligente**: Capacidad de segmentar el historial por vehículo 
+///   específico usando [FilterPills].
+/// * **CRUD de Servicios**: Interfaz para el registro, edición y eliminación de 
+///   entradas de mantenimiento.
 class MaintenancePage extends ConsumerStatefulWidget {
   const MaintenancePage({super.key});
 

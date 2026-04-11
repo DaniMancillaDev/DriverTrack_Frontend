@@ -7,9 +7,17 @@ import '../../features/notifications/domain/entities/notification_entity.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../theme/app_color_scheme.dart';
 
+/// Un componente de tarjeta interactiva para mostrar notificaciones del sistema.
+/// 
+/// Soporta payloads dinámicos en formato JSON para interpolar datos (vehículo, días, etc.)
+/// en mensajes localizados. Incluye acciones de deslizamiento ([Slidable]) para 
+/// eliminar notificaciones de forma intuitiva.
 class NotificationCard extends StatelessWidget {
+  /// Entidad que contiene los datos de la notificación.
   final NotificationEntity notif;
+  /// Callback disparado al presionar la tarjeta.
   final VoidCallback onTap;
+  /// Callback disparado al confirmar la eliminación mediante el gesto slidable.
   final VoidCallback onDelete;
 
   const NotificationCard({
@@ -21,6 +29,7 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ... (logic follows in the build method)
     final r = context.responsive;
     final cfg = _getTypeConfig(notif.type, context);
 

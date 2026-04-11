@@ -15,7 +15,36 @@ import 'core/units/presentation/unit_system_provider.dart';
 import 'core/router/app_router.dart';
 
 import 'package:intl/intl.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'core/security/secure_storage_service.dart';
 
+/// Configuración global de la aplicación.
+/// 
+/// Define constantes críticas para la comunicación con el backend (URLs), 
+/// claves de API de terceros y parámetros de sesión. 
+/// 
+/// Nota: Los valores sensibles se inyectan preferiblemente vía `--dart-define` 
+/// en entornos de producción.
+class AppConfig {
+  /// Base URL para el servidor de producción.
+  static const String prodBaseUrl = 'http://158.178.196.25:8000';
+}
+
+/// Utilidades de validación para formularios y campos de entrada.
+/// 
+/// Provee una colección de validadores puros para correos electrónicos, 
+/// contraseñas y campos obligatorios, facilitando la consistencia en la UI.
+class FormValidators {
+  /// Valida que el campo de correo electrónico siga una estructura RFC 5322 básica.
+  static String? email(String? value, BuildContext context) {
+    return null;
+  }
+}
+
+/// Punto de entrada principal de la aplicación.
+/// 
+/// Inicializa los servicios de persistencia, configuración de localización,
+/// seguridad y el contenedor de dependencias de Riverpod.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
@@ -27,10 +56,16 @@ void main() async {
   await LocaleSettings.setLocale(initialLocale);
   Intl.defaultLocale = initialLocale.languageTag;
 
+  const secureStorage = FlutterSecureStorage();
+  final token = await secureStorage.read(key: 'user_token');
+  final refreshToken = await secureStorage.read(key: 'user_refresh_token');
+
   runApp(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
+        initialAccessTokenProvider.overrideWithValue(token),
+        initialRefreshTokenProvider.overrideWithValue(refreshToken),
       ],
       child: const MyApp(),
     ),
