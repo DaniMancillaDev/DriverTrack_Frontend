@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../models/vehicle_model.dart';
 import '../models/vehicle_type_model.dart';
 import '../core/network/api_client.dart';
@@ -15,9 +17,13 @@ class VehicleRepository {
   /// Recupera el catálogo maestro de tipos de vehículos soportados.
   Future<List<VehicleType>> getVehicleTypes() async {
     final response = await _apiClient.get('/vehicles/types');
+    log('[VehicleRepository] GET /vehicles/types response: $response');
     if (response is List) {
-      return response.map((data) => VehicleType.fromJson(data)).toList();
+      final types = response.map((data) => VehicleType.fromJson(data)).toList();
+      log('[VehicleRepository] Parsed vehicle types: $types');
+      return types;
     }
+    log('[VehicleRepository] WARNING: response is not a List, returning empty');
     return [];
   }
 

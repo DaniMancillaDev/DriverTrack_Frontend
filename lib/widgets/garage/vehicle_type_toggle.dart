@@ -95,11 +95,9 @@ class VehicleTypeToggle extends StatelessWidget {
             SizedBox(width: r.space(AppSpacing.xs)),
             Flexible(
               child: Text(
-                type.icon == 'motorcycle_rounded' ||
-                        type.slug.toLowerCase().contains('moto')
+                type.isMotorcycle
                     ? Translations.of(context).garage.vehicleTypes.motorcycle
-                    : (type.icon == 'directions_car_filled_rounded' ||
-                              type.slug.toLowerCase().contains('car')
+                    : (type.isCar
                           ? Translations.of(context).garage.vehicleTypes.car
                           : type.label),
                 style: AppTextStyles.bodyMedium(context).copyWith(
@@ -116,6 +114,13 @@ class VehicleTypeToggle extends StatelessWidget {
   }
 
   static IconData _getIconData(String name) {
+    final n = name.toLowerCase();
+    if (n.contains('motorcycle') || n.contains('moto')) {
+      return Icons.motorcycle_rounded;
+    }
+    if (n.contains('car') || n.contains('auto')) {
+      return Icons.directions_car_filled_rounded;
+    }
     switch (name) {
       case 'directions_car_filled_rounded':
         return Icons.directions_car_filled_rounded;
