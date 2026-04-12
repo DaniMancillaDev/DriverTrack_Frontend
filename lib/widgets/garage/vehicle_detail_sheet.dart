@@ -605,9 +605,15 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                 vertical: 6,
               ),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
+                color: context.colors.isDark
+                    ? context.colors.background.withValues(alpha: 0.5)
+                    : context.colors.surface.withValues(alpha: 0.85),
                 borderRadius: BorderRadius.circular(AppRadius.full),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                border: Border.all(
+                  color: context.colors.isDark
+                      ? context.colors.borderLight
+                      : context.colors.border,
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
