@@ -1,22 +1,37 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
+import '../../theme/app_color_scheme.dart';
 
+/// Una tarjeta especializada para elementos de lista con interacción rica.
+/// 
+/// Provee un contenedor interactivo ([InkWell]) con soporte visual para 
+/// estados de selección, resaltando el borde y aplicando sombras sutiles. 
+/// Es ideal para listar vehículos, servicios o cualquier entidad con metadatos.
 class CustomListCard extends StatelessWidget {
+  /// Widget opcional en el extremo izquierdo (ej: icono o avatar).
   final Widget? leading;
+  /// Título principal de la entrada.
   final String? title;
+  /// Texto de apoyo debajo del título.
   final String? subtitle;
+  /// Widget opcional en el extremo derecho (ej: flecha o badge).
   final Widget? trailing;
+  /// Contenido personalizado que reemplaza la estructura Row por defecto.
   final Widget? child;
+  /// Callback al presionar la tarjeta.
   final VoidCallback? onTap;
+  /// Indica si la tarjeta debe mostrar el estilo visual de selección.
   final bool isSelected;
+  /// Espaciado interno de la tarjeta.
   final EdgeInsetsGeometry? padding;
 
   const CustomListCard({
     super.key,
+    this.child, // Optional child, falls back to Row if null
     this.leading,
     this.title,
     this.subtitle,
     this.trailing,
-    this.child,
     this.onTap,
     this.isSelected = false,
     this.padding,
@@ -30,74 +45,72 @@ class CustomListCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        highlightColor: const Color(0xFFFF6B1A).withOpacity(0.1),
-        splashColor: const Color(0xFFFF6B1A).withOpacity(0.1),
-        hoverColor: Colors.white.withOpacity(0.02),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        highlightColor: AppColors.orangePrimary.withValues(alpha: 0.1),
+        splashColor: AppColors.orangePrimary.withValues(alpha: 0.1),
+        hoverColor: Colors.white.withValues(alpha: 0.02),
         child: Ink(
-          padding: padding ?? const EdgeInsets.all(16),
+          padding: padding ?? const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: isSelected 
-                ? const Color(0xFFFF6B1A).withOpacity(0.08)
-                : const Color(0xFF16161A),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isSelected 
-                  ? const Color(0xFFFF6B1A).withOpacity(0.4)
-                  : const Color(0xFF222228),
-              width: isSelected ? 1.5 : 1,
-            ),
+            color: isSelected
+                ? AppColors.orangePrimary.withValues(alpha: 0.08)
+                : context.colors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+            border: isSelected
+                ? Border.all(
+                    color: AppColors.orangePrimary.withValues(alpha: 0.4),
+                    width: 1.5,
+                  )
+                : null,
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFFFF6B1A).withOpacity(0.1),
+                      color: AppColors.orangePrimary.withValues(alpha: 0.1),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
-                    )
+                    ),
                   ]
                 : [],
           ),
-          child: hasChild 
-            ? child! 
-            : Row(
-              children: [
-                if (leading != null) ...[
-                  leading!,
-                  const SizedBox(width: 16),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (title != null)
-                        Text(
-                          title!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle!,
-                          style: const TextStyle(
-                            color: Color(0xFF6B6B7A),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
+          child: hasChild
+              ? child!
+              : Row(
+                  children: [
+                    if (leading != null) ...[
+                      leading!,
+                      const SizedBox(width: AppSpacing.md),
                     ],
-                  ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (title != null)
+                            Text(
+                              title!,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    color: context.colors.textMain,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                          if (subtitle != null) ...[
+                            const SizedBox(height: AppSpacing.xxs),
+                            Text(
+                              subtitle!,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: context.colors.textMuted),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (trailing != null) ...[
+                      const SizedBox(width: AppSpacing.md),
+                      trailing!,
+                    ],
+                  ],
                 ),
-                if (trailing != null) ...[
-                  const SizedBox(width: 12),
-                  trailing!,
-                ],
-              ],
-            ),
         ),
       ),
     );

@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ui/custom_input.dart';
 import '../widgets/ui/custom_button.dart';
+import '../widgets/ui/password_strength_indicator.dart';
+import '../core/validation/form_validators.dart';
+import '../core/presentation/ui/snackbar_presentation.dart';
+import 'package:go_router/go_router.dart';
+import '../core/error/error_mapper.dart';
+import '../core/i18n/translations.g.dart';
+import '../core/responsive/responsive.dart';
+import '../theme/app_color_scheme.dart';
 
-class RegistrationPage extends StatefulWidget {
+class RegistrationPage extends ConsumerStatefulWidget {
   const RegistrationPage({super.key});
 
   @override
-  State<RegistrationPage> createState() => _RegistrationPageState();
+  ConsumerState<RegistrationPage> createState() => _RegistrationPageState();
 }
 
-class _RegistrationPageState extends State<RegistrationPage> {
-  final _formKey = GlobalKey<FormState>();
-  
+class _RegistrationPageState extends ConsumerState<RegistrationPage>
+    with SingleTickerProviderStateMixin {
   final _fullNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
@@ -22,12 +30,35 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   bool _showPassword = false;
   bool _submitted = false;
+  bool _isLoading = false;
 
   String? _fullNameError;
   String? _phoneError;
   String? _emailError;
   String? _birthDateError;
   String? _passwordError;
+
+  late final AnimationController _animCtrl;
+  late final Animation<double> _fadeAnim;
+  late final Animation<Offset> _slideAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.06),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
+
+    Future.delayed(const Duration(milliseconds: 80), () {
+      if (mounted) _animCtrl.forward();
+    });
+  }
 
   @override
   void dispose() {
@@ -36,57 +67,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _emailController.dispose();
     _birthDateController.dispose();
     _passwordController.dispose();
+    _animCtrl.dispose();
     super.dispose();
   }
 
-  String? _validateFullName(String? value) {
-    if (value == null || value.trim().isEmpty) return "Full name is required";
-    if (value.trim().length < 3) return "Name must be at least 3 characters";
-    return null;
-  }
-
-  String? _validatePhone(String? value) {
-    if (value == null || value.trim().isEmpty) return "Phone number is required";
-    final digits = value.replaceAll(RegExp(r'\D'), '');
-    if (digits.length < 10 || digits.length > 15) return "Phone must be 10–15 digits";
-    return null;
-  }
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.trim().isEmpty) return "Email is required";
-    if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(value)) {
-      return "Enter a valid email address";
-    }
-    return null;
-  }
-
-  String? _validateBirthDate(String? value) {
-    if (value == null || value.isEmpty) return "Birth date is required";
-    try {
-      final dob = DateTime.parse(value);
-      final age = DateTime.now().difference(dob).inDays / 365.25;
-      if (age < 16) return "You must be at least 16 years old";
-    } catch (e) {
-      return "Invalid date format";
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) return "Password is required";
-    if (value.length < 8) return "Password must be at least 8 characters";
-    if (!RegExp(r'[A-Z]').hasMatch(value)) return "Must contain at least one uppercase letter";
-    if (!RegExp(r'[0-9]').hasMatch(value)) return "Must contain at least one number";
-    return null;
-  }
-
-  void _handleSubmit() {
+  void _handleSubmit() async {
     setState(() {
-      _fullNameError = _validateFullName(_fullNameController.text);
-      _phoneError = _validatePhone(_phoneController.text);
-      _emailError = _validateEmail(_emailController.text);
-      _birthDateError = _validateBirthDate(_birthDateController.text);
-      _passwordError = _validatePassword(_passwordController.text);
+      _fullNameError = FormValidators.fullName(_fullNameController.text, context);
+      _phoneError = FormValidators.phone(_phoneController.text, context);
+      _emailError = FormValidators.email(_emailController.text, context);
+      _birthDateError = FormValidators.birthDate(_birthDateController.text, context);
+      _passwordError = FormValidators.password(_passwordController.text, context);
     });
 
     if (_fullNameError == null &&
@@ -94,364 +85,338 @@ class _RegistrationPageState extends State<RegistrationPage> {
         _emailError == null &&
         _birthDateError == null &&
         _passwordError == null) {
-      setState(() => _submitted = true);
-      Timer(const Duration(milliseconds: 1200), () {
+      setState(() => _isLoading = true);
+      try {
+        await ref.read(authProvider.notifier).register(
+              _emailController.text.trim(),
+              _passwordController.text,
+              _fullNameController.text.trim(),
+            );
+        if (mounted) setState(() => _submitted = true);
+      } catch (e) {
         if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/app');
+          SnackBarHelper.error(context, ErrorMapper.toUserMessage(e, context));
         }
-      });
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    final r = context.responsive;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Center(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final bool isMobile = constraints.maxWidth < 600;
-              
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: Column(
-                    children: [
-                      _buildHeader(isMobile),
-                      _buildFormCard(isMobile),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(bool isMobile) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.only(
-        top: isMobile ? 32 : 48,
-        bottom: isMobile ? 32 : 40,
-        left: 24,
-        right: 24,
-      ),
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: const Alignment(0, -1),
-          radius: 0.8,
-          colors: [
-            AppColors.orangePrimary.withOpacity(0.12),
-            Colors.transparent,
-          ],
-        ),
-      ),
-      child: Column(
+      backgroundColor: context.colors.background,
+      body: Stack(
         children: [
-          Container(
-            width: isMobile ? 56 : 64,
-            height: isMobile ? 56 : 64,
-            decoration: BoxDecoration(
-              gradient: AppColors.primaryGradient,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.orangePrimary.withOpacity(0.35),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
+          // ── Resplandor radial de fondo ────────────────────────────
+          Positioned(
+            top: -100,
+            left: -80,
+            right: -80,
+            child: Container(
+              height: r.dim(350),
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: const Alignment(0, -0.6),
+                  radius: 0.9,
+                  colors: [
+                    AppColors.orangePrimary.withValues(alpha: 0.10),
+                    AppColors.orangePrimary.withValues(alpha: 0.03),
+                    Colors.transparent,
+                  ],
                 ),
-              ],
-            ),
-            child: const Icon(Icons.directions_car, color: Colors.white, size: 32),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'DriveTrack',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Your intelligent vehicle companion',
-            style: TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFormCard(bool isMobile) {
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: isMobile ? 12 : 24,
-        vertical: isMobile ? 16 : 0,
-      ),
-      padding: EdgeInsets.all(isMobile ? 20 : 28),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(isMobile ? 24 : 32),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Create Account',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isMobile ? 18 : 20,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Fill in your details to get started',
-            style: TextStyle(
-              color: AppColors.textDim,
-              fontSize: isMobile ? 12 : 13,
-            ),
-          ),
-          const SizedBox(height: 20),
-          CustomInput(
-            controller: _fullNameController,
-            label: 'FULL NAME',
-            placeholder: 'John Doe',
-            errorText: _fullNameError,
-            prefixIcon: const Icon(Icons.person_outline, size: 18, color: AppColors.textDim),
-            onChanged: (_) {
-              if (_fullNameError != null) {
-                setState(() => _fullNameError = _validateFullName(_fullNameController.text));
-              }
-            },
-          ),
-          const SizedBox(height: 20),
-          CustomInput(
-            controller: _phoneController,
-            label: 'PHONE NUMBER',
-            placeholder: '+1 234 567 8900',
-            keyboardType: TextInputType.phone,
-            errorText: _phoneError,
-            subHint: _phoneError == null ? '10–15 digits, including country code' : null,
-            prefixIcon: const Icon(Icons.phone_outlined, size: 18, color: AppColors.textDim),
-            onChanged: (_) {
-              if (_phoneError != null) {
-                setState(() => _phoneError = _validatePhone(_phoneController.text));
-              }
-            },
-          ),
-          const SizedBox(height: 20),
-          CustomInput(
-            controller: _emailController,
-            label: 'EMAIL ADDRESS',
-            placeholder: 'john@example.com',
-            keyboardType: TextInputType.emailAddress,
-            errorText: _emailError,
-            prefixIcon: const Icon(Icons.mail_outline, size: 18, color: AppColors.textDim),
-            onChanged: (_) {
-              if (_emailError != null) {
-                setState(() => _emailError = _validateEmail(_emailController.text));
-              }
-            },
-          ),
-          const SizedBox(height: 20),
-          CustomInput(
-            controller: _birthDateController,
-            label: 'DATE OF BIRTH',
-            placeholder: 'YYYY-MM-DD',
-            keyboardType: TextInputType.datetime,
-            errorText: _birthDateError,
-            prefixIcon: const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.textDim),
-            onChanged: (_) {
-              if (_birthDateError != null) {
-                setState(() => _birthDateError = _validateBirthDate(_birthDateController.text));
-              }
-            },
-          ),
-          const SizedBox(height: 20),
-          CustomInput(
-            controller: _passwordController,
-            label: 'PASSWORD',
-            placeholder: 'Min. 8 characters',
-            obscureText: !_showPassword,
-            errorText: _passwordError,
-            prefixIcon: const Icon(Icons.lock_outline, size: 18, color: AppColors.textDim),
-            suffixIcon: GestureDetector(
-              onTap: () => setState(() => _showPassword = !_showPassword),
-              child: Icon(
-                _showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                size: 18,
-                color: AppColors.textDim,
               ),
             ),
-            onChanged: (val) {
-              setState(() {
-                if (_passwordError != null) {
-                  _passwordError = _validatePassword(val);
-                }
-              });
-            },
           ),
-          PasswordStrengthIndicator(password: _passwordController.text),
-          const SizedBox(height: 24),
-          _buildSubmitButton(),
-          const SizedBox(height: 20),
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Already have an account? ',
-                  style: TextStyle(color: AppColors.textDim, fontSize: 13),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+
+          // ── Contenido con animación de entrada ────────────────────
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.lg)),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: r.value(mobile: 480, tablet: 520),
                   ),
-                  child: const Text(
-                    'Sign In',
-                    style: TextStyle(
-                      color: AppColors.cyan,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                  child: FadeTransition(
+                    opacity: _fadeAnim,
+                    child: SlideTransition(
+                      position: _slideAnim,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(height: r.space(AppSpacing.xxl)),
+                          _buildLogo(r),
+                          SizedBox(height: r.space(AppSpacing.xl)),
+                          _buildHeader(t),
+                          SizedBox(height: r.space(AppSpacing.xxl)),
+                          _buildForm(t, r),
+                          SizedBox(height: r.space(AppSpacing.lg)),
+                          _buildFooter(t),
+                          SizedBox(height: r.space(AppSpacing.lg)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubmitButton() {
-    return CustomButton(
-      onPressed: _handleSubmit,
-      variant: ButtonVariant.gradient,
-      gradientColors: _submitted ? [const Color(0xFF4CAF82), const Color(0xFF00D4A0)] : null,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (_submitted)
-            const Icon(Icons.check_circle, color: Colors.white, size: 20)
-          else
-            const SizedBox.shrink(),
-          if (_submitted) const SizedBox(width: 8) else const SizedBox.shrink(),
-          Flexible(
-            child: Text(
-              _submitted ? 'Welcome to DriveTrack!' : 'Create Account',
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
               ),
             ),
           ),
-          if (!_submitted) const SizedBox(width: 8) else const SizedBox.shrink(),
-          if (!_submitted)
-            const Icon(Icons.chevron_right, color: Colors.white, size: 20)
-          else
-            const SizedBox.shrink(),
+
+          // ── Botón volver flotante (no interfiere con el scroll) ────
+          Positioned(
+            top: 0,
+            left: 0,
+            child: SafeArea(
+              child: BackButton(
+                color: context.colors.textMain,
+                onPressed: () => context.go('/login'),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
-}
 
+  // ─── Logo con halo ────────────────────────────────────────────
 
-class PasswordStrengthIndicator extends StatelessWidget {
-  final String password;
+  Widget _buildLogo(AppResponsive r) {
+    final logoSize = r.dim(88);
+    return Container(
+      width: logoSize + 24,
+      height: logoSize + 24,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: AppColors.orangePrimary.withValues(alpha: 0.15),
+          width: 1.5,
+        ),
+      ),
+      child: Center(
+        child: Container(
+          width: logoSize,
+          height: logoSize,
+          decoration: BoxDecoration(
+            gradient: AppColors.primaryGradient,
+            borderRadius: BorderRadius.circular(r.r(AppRadius.xxl)),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.orangePrimary.withValues(alpha: 0.35),
+                blurRadius: 36,
+                offset: const Offset(0, 14),
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.person_add_rounded,
+            color: Colors.white,
+            size: AppIconSizes.huge(context),
+          ),
+        ),
+      ),
+    );
+  }
 
-  const PasswordStrengthIndicator({super.key, required this.password});
+  // ─── Header ───────────────────────────────────────────────────
 
-  @override
-  Widget build(BuildContext context) {
-    if (password.isEmpty) return const SizedBox.shrink();
-
-    final checks = [
-      password.length >= 8,
-      RegExp(r'[A-Z]').hasMatch(password),
-      RegExp(r'[0-9]').hasMatch(password),
-    ];
-    final score = checks.where((c) => c).length;
-    final colors = [AppColors.red, AppColors.orangeSecondary, AppColors.green];
-    final labels = ["Weak", "Fair", "Strong"];
-
+  Widget _buildHeader(Translations t) {
     return Column(
       children: [
-        const SizedBox(height: 8),
-        Row(
-          children: List.generate(3, (i) {
-            return Expanded(
-              child: Container(
-                height: 3,
-                margin: EdgeInsets.only(right: i == 2 ? 0 : 6),
-                decoration: BoxDecoration(
-                  color: i < score ? colors[score - 1] : AppColors.borderLight,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            );
-          }),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                _buildCheckItem(checks[0], "8+ characters"),
-                const SizedBox(width: 12),
-                _buildCheckItem(checks[1], "Uppercase"),
-                const SizedBox(width: 12),
-                _buildCheckItem(checks[2], "Number"),
-              ],
+        RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            style: AppTextStyles.headline(context).copyWith(
+              color: context.colors.textMain,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.5,
             ),
-            if (score > 0)
-              Text(
-                labels[score - 1],
-                style: TextStyle(
-                  fontSize: 11,
-                  color: colors[score - 1],
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-          ],
+            children: [TextSpan(text: t.registration.title)],
+          ),
+        ),
+        SizedBox(height: context.responsive.space(AppSpacing.xs)),
+        Text(
+          t.registration.subtitle,
+          textAlign: TextAlign.center,
+          style: AppTextStyles.bodySmall(context)
+              .copyWith(color: context.colors.textSecondary),
         ),
       ],
     );
   }
 
-  Widget _buildCheckItem(bool ok, String label) {
-    return Row(
+  // ─── Formulario ───────────────────────────────────────────────
+
+  Widget _buildForm(Translations t, AppResponsive r) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          Icons.check_circle,
-          size: 10,
-          color: ok ? AppColors.green : AppColors.textDim,
+        CustomInput(
+          controller: _fullNameController,
+          label: t.registration.fullName,
+          placeholder: t.registration.fullNamePlaceholder,
+          errorText: _fullNameError,
+          prefixIcon: Icon(Icons.person_outline_rounded,
+              size: AppIconSizes.md(context), color: context.colors.textMuted),
+          onChanged: (_) {
+            if (_fullNameError != null) {
+              setState(() => _fullNameError =
+                  FormValidators.fullName(_fullNameController.text, context));
+            }
+          },
         ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: ok ? AppColors.green : AppColors.textDim,
+        SizedBox(height: r.space(AppSpacing.md)),
+        CustomInput(
+          controller: _phoneController,
+          label: t.registration.phoneNumber,
+          placeholder: t.registration.phonePlaceholder,
+          keyboardType: TextInputType.phone,
+          errorText: _phoneError,
+          subHint: _phoneError == null ? t.registration.phoneHint : null,
+          prefixIcon: Icon(Icons.phone_outlined,
+              size: AppIconSizes.md(context), color: context.colors.textMuted),
+          onChanged: (_) {
+            if (_phoneError != null) {
+              setState(() =>
+                  _phoneError = FormValidators.phone(_phoneController.text, context));
+            }
+          },
+        ),
+        SizedBox(height: r.space(AppSpacing.md)),
+        CustomInput(
+          controller: _emailController,
+          label: t.auth.emailAddress,
+          placeholder: t.auth.emailPlaceholder,
+          keyboardType: TextInputType.emailAddress,
+          errorText: _emailError,
+          prefixIcon: Icon(Icons.mail_outline_rounded,
+              size: AppIconSizes.md(context), color: context.colors.textMuted),
+          onChanged: (_) {
+            if (_emailError != null) {
+              setState(() =>
+                  _emailError = FormValidators.email(_emailController.text, context));
+            }
+          },
+        ),
+        SizedBox(height: r.space(AppSpacing.md)),
+        CustomInput(
+          controller: _birthDateController,
+          label: t.registration.dateOfBirth,
+          placeholder: t.registration.datePlaceholder,
+          keyboardType: TextInputType.datetime,
+          errorText: _birthDateError,
+          prefixIcon: Icon(Icons.calendar_today_outlined,
+              size: AppIconSizes.md(context), color: context.colors.textMuted),
+          onChanged: (_) {
+            if (_birthDateError != null) {
+              setState(() => _birthDateError =
+                  FormValidators.birthDate(_birthDateController.text, context));
+            }
+          },
+        ),
+        SizedBox(height: r.space(AppSpacing.md)),
+        CustomInput(
+          controller: _passwordController,
+          label: t.auth.password,
+          placeholder: t.registration.passwordPlaceholder,
+          obscureText: !_showPassword,
+          errorText: _passwordError,
+          prefixIcon: Icon(Icons.lock_outline_rounded,
+              size: AppIconSizes.md(context), color: context.colors.textMuted),
+          suffixIcon: GestureDetector(
+            onTap: () => setState(() => _showPassword = !_showPassword),
+            child: Icon(
+              _showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+              size: AppIconSizes.md(context),
+              color: context.colors.textMuted,
+            ),
+          ),
+          onChanged: (val) {
+            setState(() {
+              if (_passwordError != null)
+                _passwordError = FormValidators.password(val, context);
+            });
+          },
+        ),
+        PasswordStrengthIndicator(password: _passwordController.text),
+        SizedBox(height: r.space(AppSpacing.lg)),
+        _buildSubmitButton(t),
+      ],
+    );
+  }
+
+  // ─── Botón de envío ───────────────────────────────────────────
+
+  Widget _buildSubmitButton(Translations t) {
+    return CustomButton(
+      onPressed: _handleSubmit,
+      variant: ButtonVariant.gradient,
+      isLoading: _isLoading,
+      gradientColors: _submitted
+          ? [AppColors.green, AppColors.green.withValues(alpha: 0.8)]
+          : null,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_submitted)
+            Icon(Icons.check_circle, color: Colors.white, size: AppIconSizes.lg(context))
+          else
+            const SizedBox.shrink(),
+          if (_submitted)
+            SizedBox(width: context.responsive.space(AppSpacing.xs))
+          else
+            const SizedBox.shrink(),
+          Flexible(
+            child: Text(
+              _submitted ? t.registration.welcomeSuccess : t.registration.createAccount,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.button(context).copyWith(color: Colors.white),
+            ),
+          ),
+          if (!_submitted)
+            SizedBox(width: context.responsive.space(AppSpacing.xs))
+          else
+            const SizedBox.shrink(),
+          if (!_submitted)
+            Icon(Icons.chevron_right, color: Colors.white, size: AppIconSizes.lg(context))
+          else
+            const SizedBox.shrink(),
+        ],
+      ),
+    );
+  }
+
+  // ─── Footer ───────────────────────────────────────────────────
+
+  Widget _buildFooter(Translations t) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Flexible(
+          child: Text(
+            t.registration.alreadyHaveAccount,
+            style: AppTextStyles.bodySmall(context)
+                .copyWith(color: context.colors.textSecondary),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        TextButton(
+          onPressed: () => context.go('/login'),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            minimumSize: Size.zero,
+          ),
+          child: Text(
+            t.auth.signIn,
+            style: AppTextStyles.bodyMedium(context).copyWith(
+              color: AppColors.orangePrimary,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
       ],

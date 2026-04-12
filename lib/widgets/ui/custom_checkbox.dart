@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
+/// Orquestador de selección binaria del sistema de diseño.
+/// 
+/// El [CustomCheckbox] es la pieza fundamental para la gestión de estados sí/no
+/// en formularios. Provee un diseño moderno con bordes redondeados y soporte 
+/// para etiquetas interactivas que maximizan el área de contacto táctil.
 class CustomCheckbox extends StatelessWidget {
+  /// Estado actual del checkbox (seleccionado o no).
   final bool value;
+  /// Callback ejecutado cuando el usuario interactúa con el componente.
   final ValueChanged<bool?>? onChanged;
+  /// Texto descriptivo opcional que acompaña al checkbox.
   final String? label;
+  /// Controla la interactividad del widget.
   final bool enabled;
 
   const CustomCheckbox({
@@ -23,26 +33,29 @@ class CustomCheckbox extends StatelessWidget {
       value: value,
       onChanged: enabled ? onChanged : null,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4), // Equivalente a rounded-[4px]
+        borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
       side: BorderSide(
         color: colorScheme.outlineVariant, // border nativo
         width: 1,
       ),
-      checkColor: colorScheme.onPrimary, // text-primary-foreground (icono palomita)
-      fillColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+      checkColor:
+          colorScheme.onPrimary, // text-primary-foreground (icono palomita)
+      fillColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
         if (!enabled) {
-          return colorScheme.onSurface.withOpacity(0.12);
+          return colorScheme.onSurface.withValues(alpha: 0.12);
         }
         if (states.contains(WidgetState.selected)) {
           return colorScheme.primary; // bg-primary al estar seleccionado
         }
         return colorScheme.surface; // bg-input-background por defecto
       }),
-      // Para asimilar el tamaño size-4 (16x16 px) podemos envolverlo en un SizedBox/Transform si vemos 
-      // la versión nativa de Material muy grande, pero la recomendación actual es usar el tamaño 
+      // Para asimilar el tamaño size-4 (16x16 px) podemos envolverlo en un SizedBox/Transform si vemos
+      // la versión nativa de Material muy grande, pero la recomendación actual es usar el tamaño
       // mínimo clicable de Material (48x48 área de tap).
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, 
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
 
     // Si no hay etiqueta, devuelve solo el Checkbox
@@ -59,21 +72,24 @@ class CustomCheckbox extends StatelessWidget {
               }
             }
           : null,
-      borderRadius: BorderRadius.circular(4),
+      borderRadius: BorderRadius.circular(AppRadius.xs),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSpacing.xxs,
+          horizontal: AppSpacing.xs,
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             checkbox,
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.xs),
             Text(
               label!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: enabled
-                        ? colorScheme.onSurface
-                        : colorScheme.onSurface.withOpacity(0.5),
-                  ),
+                color: enabled
+                    ? colorScheme.onSurface
+                    : colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
             ),
           ],
         ),

@@ -3,6 +3,7 @@
 *.log
 *.pyc
 *.swp
+*.pdf
 .DS_Store
 .atom/
 .build/
@@ -43,3 +44,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Archivos temporales de análisis
+analyze_output.txt
+
+# Scripts de prueba y parches temporales
+/updates/

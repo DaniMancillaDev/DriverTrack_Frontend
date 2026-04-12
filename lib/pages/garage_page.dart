@@ -1,55 +1,90 @@
-import 'dart:ui' as ui;
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import 'notifications_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/app_providers.dart';
+import '../providers/auth_provider.dart';
+import '../core/network/api_client.dart';
+import '../viewmodels/vehicle_view_model.dart';
 import '../widgets/garage/add_vehicle_sheet.dart';
-import '../widgets/garage/weather_widget.dart';
 import '../widgets/garage/vehicle_detail_sheet.dart';
 import '../widgets/maintenance/add_service_sheet.dart';
-import '../widgets/ui/custom_list_card.dart';
 import '../widgets/ui/premium_fab.dart';
-import '../widgets/ui/summary_stats.dart';
-import '../widgets/ui/custom_button.dart';
+import '../models/vehicle_model.dart';
+import '../models/maintenance_model.dart';
+import '../widgets/ui/confirmation_dialog.dart';
+import '../core/i18n/translations.g.dart';
+import '../core/responsive/responsive.dart';
+import '../theme/app_color_scheme.dart';
 
-class GaragePage extends StatefulWidget {
+// Modular Widgets
+import '../widgets/garage/garage_header.dart';
+import '../widgets/garage/garage_stats.dart';
+import '../widgets/garage/garage_empty_state.dart';
+import '../widgets/garage/vehicle_card.dart';
+import '../widgets/garage/vehicle_card_skeleton.dart';
+import '../widgets/garage/weather_widget.dart';
+import '../widgets/ui/sliver_header_delegate.dart';
+
+/// Página principal del "Garaje" (Dashboard).
+/// 
+/// Actúa como el núcleo de la aplicación, centralizando la supervisión de 
+/// la flota. Sus responsabilidades incluyen:
+/// * **Visualización de Estatus**: Presenta métricas de salud y rendimiento 
+///   de todos los vehículos mediante [GarageStats].
+/// * **Gestión de Activos**: Permite el registro, edición y baja de vehículos.
+/// * **Contexto Ambiental**: Integra alerts meteorológicos en tiempo real 
+///   relevantes para la conducción.
+/// * **Navegación Táctica**: Provee acceso inmediato a notificaciones y al 
+///   registro rápido de mantenimientos.
+class GaragePage extends ConsumerStatefulWidget {
   const GaragePage({super.key});
 
   @override
-  State<GaragePage> createState() => _GaragePageState();
+  ConsumerState<GaragePage> createState() => _GaragePageState();
 }
 
-class _GaragePageState extends State<GaragePage> {
-  final List<Map<String, dynamic>> _vehicles = [
-    {
-      'id': 'v1',
-      'name': 'Toyota Camry',
-      'plate': 'ABC-1234',
-      'type': 'Sedan',
-      'mileage': 42000,
-      'maxMileage': 50000,
-      'image': 'https://images.unsplash.com/photo-1666887509163-9644127848b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjYXIlMjBkYXJrJTIwc2hvd3RpbWUlMjBzaWRlJTIwdmlld3xlbnwxfHx8fDE3NzMyNDY3MDl8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      'nextService': 'Oil Change in 3,000 mi',
-      'status': 'warning',
-      'color': AppColors.orangeSecondary,
-    },
-    {
-      'id': 'v2',
-      'name': 'Honda CBR 600RR',
-      'plate': 'XYZ-5678',
-      'type': 'Motorcycle',
-      'mileage': 12500,
-      'maxMileage': 50000,
-      'image': 'https://images.unsplash.com/photo-1588486624469-ad668ac8e1d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcG9ydHMlMjBtb3RvcmN5Y2xlJTIwZGFyayUyMGJhY2tncm91bmR8ZW58MXx8fHwxNzczMjQ2NzA5fDA&ixlib=rb-4.1.0&q=80&w=1080',
-      'nextService': 'All services up to date',
-      'status': 'good',
-      'color': AppColors.green,
-    },
-  ];
-
+class _GaragePageState extends ConsumerState<GaragePage> {
   late ScrollController _scrollController;
   bool _isFabExtended = true;
-  String? _selectedVehicleId;
-  bool _sheetExpanded = false;
+
+  // ─── Helper: mostrar SnackBar de error amigable ───────────
+
+  void _showErrorSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  /// Muestra mensaje de sesión expirada (amigable, sin datos del servidor).
+  void _showSessionExpiredMessage() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(Translations.of(context).auth.sessionExpiredSnackbar),
+        backgroundColor: AppColors.orangeSecondary,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
 
   @override
   void initState() {
@@ -72,195 +107,260 @@ class _GaragePageState extends State<GaragePage> {
     super.dispose();
   }
 
-  void _handleAddVehicle(Map<String, dynamic> newV) {
-    setState(() {
-      _vehicles.insert(0, {
-        'id': 'v${DateTime.now().millisecondsSinceEpoch}',
-        'name': '${newV['brand']} ${newV['model']}',
-        'plate': newV['plate'],
-        'type': newV['type'] == 'car' ? 'Car' : 'Motorcycle',
-        'mileage': int.tryParse(newV['mileage'] ?? '0') ?? 0,
-        'maxMileage': 50000,
-        'image': newV['type'] == 'car'
-            ? 'https://images.unsplash.com/photo-1760520830355-e6be53e41c2f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxTVVYlMjBibGFjayUyMGNhciUyMHByb2Zlc3Npb25hbCUyMHN0dWRpb3xlbnwxfHx8fDE3NzMyNDY3MTF8MA&ixlib=rb-4.1.0&q=80&w=1080'
-            : 'https://images.unsplash.com/photo-1588486624469-ad668ac8e1d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcG9ydHMlMjBtb3RvcmN5Y2xlJTIwZGFyayUyMGJhY2tncm91bmR8ZW58MXx8fHwxNzczMjQ2NzA5fDA&ixlib=rb-4.1.0&q=80&w=1080',
-        'nextService': 'Check health soon',
-        'status': 'good',
-        'color': AppColors.green,
-      });
-    });
+  Future<void> _handleAddVehicle(Map<String, dynamic> data) async {
+    try {
+      final userId = ref.read(authProvider)?.id ?? 1;
+      final newVehicleData = {
+        'user_id': userId,
+        'type_id': data['type_id'],
+        'brand': data['brand'] ?? 'Unknown',
+        'model': data['model'] ?? 'Unknown',
+        'plate': data['plate'] ?? 'UNKNOWN',
+        'year': data['year'],
+        'mileage': data['mileage'] ?? 0,
+        'max_mileage': data['max_mileage'] ?? 50000,
+      };
+      await ref.read(vehiclesProvider.notifier).addVehicle(newVehicleData);
+      _showSuccessSnackBar(Translations.of(context).garage.vehicleAdded);
+    } on SessionExpiredException {
+      _showSessionExpiredMessage();
+    } catch (_) {
+      _showErrorSnackBar(Translations.of(context).garage.errorAddingVehicle);
+    }
   }
 
-  void _showAddVehicleSheet() {
+  void _showAddVehicleSheet({Vehicle? initialVehicle}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddVehicleSheet(onSave: _handleAddVehicle),
+      builder: (context) => AddVehicleSheet(
+        onSave: (data) {
+          if (initialVehicle != null) {
+            return _handleEditVehicle(initialVehicle.id, data);
+          } else {
+            return _handleAddVehicle(data);
+          }
+        },
+        initialVehicle: initialVehicle,
+      ),
     );
   }
 
-  void _handleLogService(String vehicleName) {
+  Future<void> _handleEditVehicle(int id, Map<String, dynamic> data) async {
+    try {
+      await ref.read(vehiclesProvider.notifier).updateVehicle(id, data);
+      _showSuccessSnackBar(Translations.of(context).garage.vehicleUpdated);
+    } on SessionExpiredException {
+      _showSessionExpiredMessage();
+      rethrow;
+    } catch (_) {
+      _showErrorSnackBar(Translations.of(context).garage.errorUpdatingVehicle);
+      rethrow;
+    }
+  }
+
+  void _handleLogService(Vehicle vehicle) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AddServiceSheet(
-        vehicles: [vehicleName],
-        onSave: (data) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Service logged for $vehicleName'),
-              backgroundColor: AppColors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+        vehicles: [vehicle],
+        onSave: (data) async {
+          final repository = ref.read(maintenanceRepositoryProvider);
+          final params = MaintenanceParams(vehicleId: vehicle.id);
+
+          final recordData = {
+            'vehicle_id': vehicle.id,
+            'date': data['date'] as String,
+            'description':
+                data['notes'] != null && data['notes'].toString().isNotEmpty
+                ? '${data['description']} | ${data['notes']}'
+                : data['description'],
+            'cost': data['cost'].toString(),
+            'mileage': data['mileage'],
+            'category': data['category'],
+          };
+
+          final newRecord = await repository.addMaintenanceRecord(recordData);
+          ref.read(maintenanceDocsProvider(params).notifier).updateLocal(newRecord);
+          ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(newRecord);
+
+          // Actualizar el kilometraje del vehículo localmente para reflejar la salud de inmediato
+          if ((data['mileage'] as int) > vehicle.mileage) {
+            final updatedVehicle = vehicle.copyWith(mileage: data['mileage'] as int);
+            ref.read(vehiclesProvider.notifier).updateVehicleLocally(updatedVehicle);
+          }
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  Translations.of(context).garage.serviceLogged(
+                    vehicleName: vehicle.displayName,
+                  ),
+                ),
+                backgroundColor: AppColors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
         },
       ),
     );
   }
 
-  void _handleRemoveVehicle(String vehicleId) {
-    final vehicle = _vehicles.firstWhere((v) => v['id'] == vehicleId);
-    showDialog(
+  void _showEditServiceSheet(Vehicle vehicle, Maintenance maintenance) {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Remove Vehicle?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
-        content: Text(
-          'Are you sure you want to remove ${vehicle['name']}? This action cannot be undone.',
-          style: const TextStyle(color: AppColors.textMuted),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _vehicles.removeWhere((v) => v['id'] == vehicleId);
-                _selectedVehicleId = null;
-                _sheetExpanded = false;
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${vehicle['name']} removed'),
-                  backgroundColor: AppColors.orangePrimary,
-                  behavior: SnackBarBehavior.floating,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddServiceSheet(
+        vehicles: [vehicle],
+        initialMaintenance: maintenance,
+        onSave: (data) async {
+          final repository = ref.read(maintenanceRepositoryProvider);
+          final params = MaintenanceParams(vehicleId: vehicle.id);
+
+          final recordData = {
+            'vehicle_id': vehicle.id,
+            'date': data['date'] as String,
+            'description':
+                data['notes'] != null && data['notes'].toString().isNotEmpty
+                ? '${data['description']} | ${data['notes']}'
+                : data['description'],
+            'cost': data['cost'].toString(),
+            'mileage': data['mileage'],
+            'category': data['category'],
+          };
+
+          final updatedRecord = await repository.updateMaintenanceRecord(maintenance.id, recordData);
+          ref.read(maintenanceDocsProvider(params).notifier).updateLocal(updatedRecord);
+          ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(updatedRecord);
+
+          // Actualizar el kilometraje del vehículo localmente si cambió significativamente
+          if ((data['mileage'] as int) > vehicle.mileage) {
+            final updatedVehicle = vehicle.copyWith(mileage: data['mileage'] as int);
+            ref.read(vehiclesProvider.notifier).updateVehicleLocally(updatedVehicle);
+          }
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  Translations.of(context).garage.serviceRecordUpdated,
                 ),
-              );
-            },
-            child: const Text('Remove', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
-          ),
-        ],
+                backgroundColor: AppColors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
       ),
     );
   }
 
-  void _handleEditVehicle(String vehicleId) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Edit feature coming soon! 🚧'),
-        behavior: SnackBarBehavior.floating,
-      ),
+  void _handleRemoveVehicle(int vehicleId, String vehicleName) {
+    ConfirmationDialog.show(
+      context,
+      title: Translations.of(context).garage.removeVehicleTitle,
+      message: Translations.of(context).garage.removeVehicleMessage(vehicleName: vehicleName),
+      onConfirm: () async {
+        try {
+          await ref.read(vehiclesProvider.notifier).deleteVehicle(vehicleId);
+          _showSuccessSnackBar(Translations.of(context).garage.vehicleRemoved);
+        } on SessionExpiredException {
+          _showSessionExpiredMessage();
+        } catch (_) {
+          _showErrorSnackBar(Translations.of(context).garage.errorRemovingVehicle);
+        }
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final vehiclesAsyncValue = ref.watch(vehiclesProvider);
+    final r = context.responsive;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          // Content
-          Positioned.fill(
-            child: CustomScrollView(
-              controller: _scrollController,
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                SliverPadding(
-                  padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top + 80,
-                    left: 20,
-                    right: 20,
-                    bottom: 100,
-                  ),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 600),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const WeatherWidget(),
-                              const SizedBox(height: 24),
-                              _buildQuickStats(),
-                              const SizedBox(height: 32),
-                              _buildVehiclesSection(),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ]),
+      backgroundColor: context.colors.background,
+      body: vehiclesAsyncValue.when(
+        data: (vehiclesList) => RefreshIndicator(
+          onRefresh: () => ref.read(vehiclesProvider.notifier).refresh(),
+          color: AppColors.orangePrimary,
+          backgroundColor: context.colors.surface,
+          edgeOffset: MediaQuery.of(context).padding.top + r.dim(80),
+          child: CustomScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: SliverPinnedHeaderDelegate(
+                  height: MediaQuery.of(context).padding.top + r.dim(82),
+                  child: GarageHeader(
+                    onNotificationTap: () => context.push('/notifications'),
                   ),
                 ),
-              ],
-            ),
-          ),
-          
-          // Fixed Glass Header
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: _buildFixedHeader(context),
-          ),
-
-          // Vehicle Detail Sheet overlay
-          if (_selectedVehicleId != null) ...[
-            GestureDetector(
-              onTap: () => setState(() {
-                _selectedVehicleId = null;
-                _sheetExpanded = false;
-              }),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                color: Colors.black.withOpacity(_sheetExpanded ? 0.6 : 0.3),
               ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: VehicleDetailSheet(
-                vehicle: _vehicles.firstWhere((v) => v['id'] == _selectedVehicleId),
-                isExpanded: _sheetExpanded,
-                onToggle: () => setState(() => _sheetExpanded = !_sheetExpanded),
-                onClose: () => setState(() {
-                  _selectedVehicleId = null;
-                  _sheetExpanded = false;
-                }),
-                onLogService: () => _handleLogService(_vehicles.firstWhere((v) => v['id'] == _selectedVehicleId)['name']),
-                onEdit: () => _handleEditVehicle(_selectedVehicleId!),
-                onRemove: () => _handleRemoveVehicle(_selectedVehicleId!),
+              SliverPadding(
+                padding: EdgeInsets.only(
+                  left: r.space(AppSpacing.lg),
+                  right: r.space(AppSpacing.lg),
+                  bottom: r.dim(120),
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: r.value(mobile: 600, tablet: 700),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(height: r.space(AppSpacing.md)),
+                            GarageStats(vehicles: vehiclesList),
+                            SizedBox(height: r.space(AppSpacing.xxl)),
+                            _buildVehiclesSection(vehiclesList, r),
+                            SizedBox(height: r.space(AppSpacing.massive)),
+                            const WeatherWidget(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ]),
+                ),
               ),
-            ),
-          ],
-        ],
+            ],
+          ),
+        ),
+        loading: () => ListView.builder(
+          padding: EdgeInsets.fromLTRB(
+            r.space(AppSpacing.lg),
+            r.dim(100),
+            r.space(AppSpacing.lg),
+            r.dim(100),
+          ),
+          itemCount: 3,
+          itemBuilder: (context, _) => const VehicleCardSkeleton(),
+        ),
+        error: (err, stack) => _buildErrorState(r),
       ),
-      floatingActionButton: _selectedVehicleId != null ? null : Center(
+      floatingActionButton: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
+          constraints: BoxConstraints(
+            maxWidth: r.value(mobile: 600, tablet: 700),
+          ),
           child: Align(
             alignment: Alignment.bottomRight,
             child: PremiumFAB(
               onPressed: _showAddVehicleSheet,
-              label: 'Add Vehicle',
+              label: Translations.of(context).garage.addVehicle,
               icon: Icons.add,
               isExtended: _isFabExtended,
             ),
@@ -270,398 +370,147 @@ class _GaragePageState extends State<GaragePage> {
     );
   }
 
-  Widget _buildFixedHeader(BuildContext context) {
-    final topPadding = MediaQuery.of(context).padding.top;
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.background.withOpacity(0.7),
-            border: Border(
-              bottom: BorderSide(color: AppColors.border.withOpacity(0.5)),
-            ),
-          ),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(20, topPadding + 10, 20, 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'Good morning,',
-                          style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-                        ),
-                        Text(
-                          'My Garage 🚗',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                    _buildIconButton(
-                      Icons.notifications_none,
-                      2,
-                      onTap: () => Navigator.of(context).pushNamed('/notifications'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+  void _showVehicleDetailSheet(Vehicle vehicle) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => VehicleDetailSheet(
+        vehicle: VehicleViewModel(vehicle),
+        onClose: () => Navigator.pop(context),
+        onLogService: () {
+          Navigator.pop(context);
+          _handleLogService(vehicle);
+        },
+        onEdit: () {
+          Navigator.pop(context);
+          _showAddVehicleSheet(initialVehicle: vehicle);
+        },
+        onRemove: () {
+          Navigator.pop(context);
+          _handleRemoveVehicle(vehicle.id, vehicle.brand);
+        },
+        onRemoveService: (id) {
+          _handleRemoveService(vehicle, id);
+        },
+        onEditService: (maintenance) {
+          Navigator.pop(context);
+          _showEditServiceSheet(vehicle, maintenance);
+        },
       ),
     );
   }
 
-  Widget _buildIconButton(IconData icon, int count, {VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Icon(icon, color: AppColors.textSecondary, size: 20),
-          ),
-          if (count > 0)
-            Positioned(
-              top: -2,
-              right: -2,
-              child: Container(
-                width: 14,
-                height: 14,
-                decoration: BoxDecoration(
-                  color: AppColors.red,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.background, width: 2),
-                ),
-                child: Center(
-                  child: Text(
-                    count.toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w800),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCountBadge(int count) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.cyan.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cyan.withOpacity(0.2)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.bolt, color: AppColors.cyan, size: 12),
-          const SizedBox(width: 4),
-          Text(
-            '$count Vehicles',
-            style: const TextStyle(
-              color: AppColors.cyan,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickStats() {
-    if (_vehicles.isEmpty) {
-      final stats = [
-        StatItem(label: 'Total Miles', value: '0', accent: AppColors.orangePrimary),
-        StatItem(label: 'Services Due', value: '0', accent: AppColors.red),
-        StatItem(label: 'Avg Health', value: '0%', accent: AppColors.green),
-      ];
-      return SummaryStats(stats: stats);
-    }
-
-    final totalMiles = _vehicles.fold<int>(0, (sum, v) => sum + (v['mileage'] as int));
-    final servicesDue = _vehicles.where((v) => v['status'] != 'good').length;
-    final totalHealth = _vehicles.fold<double>(0, (sum, v) {
-      final health = (100 - ((v['mileage'] as int) / (v['maxMileage'] as int) * 100)).toDouble();
-      return sum + health;
-    });
-    final avgHealth = (totalHealth / _vehicles.length).round();
-
-    final stats = [
-      StatItem(
-        label: 'Total Miles', 
-        value: totalMiles > 1000 ? '${(totalMiles / 1000).toStringAsFixed(1)}K' : totalMiles.toString(), 
-        accent: AppColors.orangePrimary
-      ),
-      StatItem(label: 'Services Due', value: servicesDue.toString(), accent: AppColors.red),
-      StatItem(label: 'Avg Health', value: '$avgHealth%', accent: AppColors.green),
-    ];
-
-    return SummaryStats(stats: stats);
-  }
-
-  Widget _buildVehiclesSection() {
+  Widget _buildVehiclesSection(List<Vehicle> vehiclesList, AppResponsive r) {
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Your Vehicles',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+            Flexible(
+              child: Text(
+                Translations.of(context).garage.yourVehicles,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: context.colors.textMain,
+                  fontWeight: FontWeight.w700,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            _buildCountBadge(_vehicles.length),
+            _buildCountBadge(vehiclesList.length, r),
           ],
         ),
-        const SizedBox(height: 16),
-        if (_vehicles.isEmpty)
-          _buildEmptyState()
+        SizedBox(height: r.space(AppSpacing.md)),
+        if (vehiclesList.isEmpty)
+          const GarageEmptyState()
         else
-          ..._vehicles.map((v) => _buildVehicleCard(v)).toList(),
+          // U1 fix: list generated without spread operator.
+          // For potential large lists, consider migrating to SliverList.builder.
+          ...List.generate(
+            vehiclesList.length,
+            (i) => VehicleCard(
+              vehicleData: vehiclesList[i],
+              onTap: () => _showVehicleDetailSheet(vehiclesList[i]),
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildCountBadge(int count, AppResponsive r) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+      width: r.dim(28),
+      height: r.dim(28),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: AppColors.border),
+        color: AppColors.cyan.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(r.r(AppRadius.s)),
       ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppColors.orangePrimary.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.directions_car_outlined, size: 48, color: AppColors.orangePrimary),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Your Garage is Empty',
-            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Tap the button below to add your first vehicle\nand start tracking its performance.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textMuted, fontSize: 13, height: 1.6),
-          ),
-        ],
+      child: Center(
+        child: Text(
+          '$count',
+          style: AppTextStyles.caption(
+            context,
+          ).copyWith(color: AppColors.cyan, fontWeight: FontWeight.w800),
+        ),
       ),
     );
   }
 
-  Widget _buildVehicleCard(Map<String, dynamic> v) {
-    final Color color = v['color'];
-    final double healthPct = (100 - ((v['mileage'] as int) / (v['maxMileage'] as int) * 100)).toDouble();
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: CustomListCard(
-        onTap: () {
-          setState(() {
-            _selectedVehicleId = v['id'];
-            _sheetExpanded = false;
-          });
-        },
-        padding: EdgeInsets.zero,
+  Widget _buildErrorState(AppResponsive r) {
+    return Center(
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: r.space(AppSpacing.lg)),
+        padding: EdgeInsets.all(r.space(AppSpacing.xl)),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(r.r(AppRadius.xxl)),
+        ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Image / Top Area
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.network(
-                    v['image'],
-                    height: 160,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Container(
-                  height: 160,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.1),
-                        AppColors.surface.withOpacity(0.95),
-                      ],
-                    ),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                ),
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: color.withOpacity(0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(v['status'] == 'good' ? Icons.shield_outlined : Icons.warning_amber_rounded, size: 12, color: color),
-                        const SizedBox(width: 4),
-                        Text(
-                          v['status'] == 'good' ? 'Healthy' : (v['status'] == 'warning' ? 'Due Soon' : 'Overdue'),
-                          style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 12,
-                  left: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      v['type'],
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            v['name'],
-                            style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.orangePrimary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AppColors.orangePrimary.withOpacity(0.2)),
-                            ),
-                            child: Text(
-                              v['plate'],
-                              style: const TextStyle(
-                                color: AppColors.orangePrimary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: AppColors.orangePrimary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.orangePrimary.withOpacity(0.2)),
-                        ),
-                        child: const Icon(Icons.chevron_right, color: AppColors.orangePrimary, size: 16),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Health Bar
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Vehicle Health', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.w500)),
-                          Text('${healthPct.round()}%', style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w700)),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: LinearProgressIndicator(
-                          value: healthPct / 100,
-                          minHeight: 6,
-                          backgroundColor: AppColors.divider,
-                          valueColor: AlwaysStoppedAnimation<Color>(color),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('${v['mileage'].toString()} mi', style: const TextStyle(color: AppColors.textDim, fontSize: 11)),
-                          Text('Limit ${v['maxMileage'].toString()} mi', style: const TextStyle(color: AppColors.textDim, fontSize: 11)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Next Service
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.bolt, color: color, size: 14),
-                        const SizedBox(width: 8),
-                        Text(
-                          v['nextService'],
-                          style: const TextStyle(color: Color(0xFF7A7A8A), fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            Container(
+              padding: EdgeInsets.all(r.space(AppSpacing.lg)),
+              decoration: BoxDecoration(
+                color: AppColors.red.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
               ),
+              child: Icon(
+                Icons.warning_amber_rounded,
+                size: AppIconSizes.massive(context),
+                color: AppColors.red,
+              ),
+            ),
+            SizedBox(height: r.space(AppSpacing.lg)),
+            Text(
+              Translations.of(context).garage.errorSyncFailed,
+              style: AppTextStyles.sheetTitle(
+                context,
+              ).copyWith(color: context.colors.textMain),
+            ),
+            SizedBox(height: r.space(AppSpacing.s)),
+            Text(
+              Translations.of(context).garage.errorSyncMessage,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium(
+                context,
+              ).copyWith(color: context.colors.textMuted, height: 1.5),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _handleRemoveService(Vehicle vehicle, int serviceId) async {
+    try {
+      final repository = ref.read(maintenanceRepositoryProvider);
+      await repository.deleteMaintenanceRecord(serviceId);
+      ref.invalidate(maintenanceDocsProvider);
+      _showSuccessSnackBar(Translations.of(context).maintenance.serviceRemoved);
+    } on SessionExpiredException {
+      _showSessionExpiredMessage();
+    } catch (_) {
+      _showErrorSnackBar(Translations.of(context).maintenance.errorRemovingService);
+    }
   }
 }

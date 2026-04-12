@@ -5,7 +5,16 @@ import '../pages/garage_page.dart';
 import '../pages/maintenance_page.dart';
 import '../pages/service_map_page.dart';
 import '../pages/profile_page.dart';
+import '../core/responsive/responsive.dart';
+import '../theme/app_theme.dart';
 
+/// Orquestador principal de la interfaz de usuario.
+/// 
+/// Gestiona la estructura base de la aplicación, incluyendo:
+/// * **Navegación**: Switch persistente entre Garage, Historial, Mapa y Perfil.
+/// * **Persistencia de Estado**: Utiliza [IndexedStack] para mantener el estado 
+///   de las páginas sin recargas innecesarias al navegar.
+/// * **Layout Responsivo**: Se adapta a márgenes y áreas seguras globales.
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
 
@@ -26,11 +35,8 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F12),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: CustomBottomNav(
         currentIndex: _currentIndex,
         onTap: (index) {

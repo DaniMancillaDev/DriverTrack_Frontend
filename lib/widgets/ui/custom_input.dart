@@ -1,23 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
+import '../../core/responsive/responsive.dart';
+import '../../theme/app_color_scheme.dart';
 
+/// Nucleo de entrada de datos estandarizado para la plataforma.
+/// 
+/// Su responsabilidad es gestionar la captura de información del usuario, 
+/// integrando soporte para etiquetas semánticas, validaciones reactivas y 
+/// retroalimentación visual de errores conforme al sistema de diseño.
 class CustomInput extends StatelessWidget {
+  /// Controlador de texto opcional.
   final TextEditingController? controller;
+  /// Texto de ayuda dentro del campo.
   final String? placeholder;
+  /// Etiqueta superior del campo.
   final String? label;
+  /// Pequeño texto explicativo debajo del campo.
   final String? subHint;
+  /// Valor inicial si no se usa controlador.
   final String? initialValue;
+  /// Oculta el texto (útil para contraseñas).
   final bool obscureText;
+  /// Tipo de teclado a mostrar.
   final TextInputType keyboardType;
+  /// Texto de error manual.
   final String? errorText;
+  /// Controla la edición del campo.
   final bool enabled;
+  /// Cantidad de líneas permitidas.
   final int maxLines;
+  /// Callback de cambio de valor.
   final void Function(String)? onChanged;
+  /// Lógica de validación para formularios.
   final String? Function(String?)? validator;
+  /// Máscaras y restricciones de entrada.
   final List<TextInputFormatter>? inputFormatters;
+  /// Icono al inicio del campo.
   final Widget? prefixIcon;
+  /// Icono al final del campo.
   final Widget? suffixIcon;
+  /// Límite de caracteres.
+  final int? maxLength;
 
   const CustomInput({
     super.key,
@@ -36,11 +60,14 @@ class CustomInput extends StatelessWidget {
     this.inputFormatters,
     this.prefixIcon,
     this.suffixIcon,
+    this.maxLength,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final r = context.responsive;
 
     Widget input = TextFormField(
       controller: controller,
@@ -51,73 +78,70 @@ class CustomInput extends StatelessWidget {
       onChanged: onChanged,
       validator: validator,
       maxLines: maxLines,
+      maxLength: maxLength,
       inputFormatters: inputFormatters,
-      style: const TextStyle(color: AppColors.textMain, fontSize: 15),
+      style: AppTextStyles.body(context).copyWith(color: context.colors.textMain),
       cursorColor: colorScheme.primary,
       decoration: InputDecoration(
         hintText: placeholder,
         prefixIcon: prefixIcon != null
             ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: EdgeInsets.symmetric(
+                  horizontal: r.space(AppSpacing.s),
+                ),
                 child: prefixIcon,
               )
             : null,
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         suffixIcon: suffixIcon != null
             ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: EdgeInsets.symmetric(
+                  horizontal: r.space(AppSpacing.s),
+                ),
                 child: suffixIcon,
               )
             : null,
         suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        hintStyle: const TextStyle(color: AppColors.textDim, fontSize: 15),
+        hintStyle: AppTextStyles.body(
+          context,
+        ).copyWith(color: context.colors.textDim),
         errorText: errorText,
-        errorStyle: const TextStyle(fontSize: 12),
+        errorStyle: AppTextStyles.label(
+          context,
+        ).copyWith(color: colorScheme.error),
         filled: true,
-        fillColor: AppColors.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        
+        fillColor: context.colors.inputBackground,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: r.space(AppSpacing.md),
+          vertical: r.space(AppSpacing.s),
+        ),
+
         // Default border
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(
-            color: AppColors.border,
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+          borderSide: BorderSide(color: context.colors.border, width: 1.0),
         ),
 
         // Focus state
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: colorScheme.primary,
-            width: 1.5,
-          ),
+          borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
 
         // Error state
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: colorScheme.error,
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+          borderSide: BorderSide(color: colorScheme.error, width: 1),
         ),
 
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: colorScheme.error,
-            width: 1.5,
-          ),
+          borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+          borderSide: BorderSide(color: colorScheme.error, width: 1.5),
         ),
 
         disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(
-            color: AppColors.surfaceLight,
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
+          borderSide: BorderSide.none,
         ),
       ),
     );
@@ -130,28 +154,33 @@ class CustomInput extends StatelessWidget {
       children: [
         if (label != null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 8.0, left: 4),
+            padding: EdgeInsets.only(
+              bottom: r.space(AppSpacing.xs),
+              left: r.space(AppSpacing.xxs),
+            ),
             child: Text(
               label!.toUpperCase(),
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.6,
-              ),
+              style: AppTextStyles.label(
+                context,
+              ).copyWith(color: context.colors.textMain, letterSpacing: 0.8),
             ),
           ),
         input,
         if (subHint != null)
           Padding(
-            padding: const EdgeInsets.only(top: 6, left: 4),
+            padding: EdgeInsets.only(
+              top: r.space(AppSpacing.xxs),
+              left: r.space(AppSpacing.xxs),
+            ),
             child: Text(
               subHint!,
-              style: const TextStyle(color: AppColors.textDark, fontSize: 11),
+              style: AppTextStyles.label(context).copyWith(
+                color: context.colors.textDark,
+                fontWeight: FontWeight.normal,
+              ),
             ),
           ),
       ],
     );
   }
 }
-

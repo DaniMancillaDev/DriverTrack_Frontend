@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
+import '../../theme/app_color_scheme.dart';
 
+/// Un selector de opciones desplegable genérico y tipado.
+/// 
+/// Permite seleccionar un elemento de una lista de tipo [T], utilizando 
+/// una etiqueta opcional y un constructor de etiquetas personalizado para la UI.
 class CustomDropdown<T> extends StatelessWidget {
+  /// Valor seleccionado actualmente.
   final T? value;
+  /// Etiqueta superior opcional del campo.
   final String? label;
+  /// Texto de ayuda cuando no hay selección.
   final String hint;
+  /// Icono opcional a mostrar junto a las opciones.
   final IconData? icon;
+  /// Lista de opciones disponibles.
   final List<T> items;
+  /// Función para determinar el texto a mostrar por cada item de tipo [T].
   final String Function(T) itemLabelBuilder;
+  /// Callback ejecutado al seleccionar una nueva opción.
   final void Function(T?) onChanged;
 
   const CustomDropdown({
@@ -23,42 +36,51 @@ class CustomDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget dropdown = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       decoration: BoxDecoration(
-        color: const Color(0xFF16161A),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF222228)),
+        color: context.colors.surface, // Background handles contrast (Tip 1)
+        borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
           value: value,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: context.colors.textMain,
+          ),
           hint: Row(
             children: [
               if (icon != null) ...[
-                Icon(icon, color: const Color(0xFF5A5A6A), size: 16),
-                const SizedBox(width: 12),
+                Icon(icon, color: context.colors.textDark, size: 16),
+                const SizedBox(width: AppSpacing.md),
               ],
               Text(
                 hint,
-                style: const TextStyle(color: Color(0xFF4A4A5A), fontSize: 15),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: context.colors.textDim),
               ),
             ],
           ),
           isExpanded: true,
-          dropdownColor: const Color(0xFF1C1C24),
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF5A5A6A)),
+          dropdownColor: context.colors.surfaceLight,
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: context.colors.textDark,
+          ),
           items: items.map((T item) {
             return DropdownMenuItem<T>(
               value: item,
               child: Row(
                 children: [
                   if (icon != null) ...[
-                    Icon(icon, color: const Color(0xFF5A5A6A), size: 16),
-                    const SizedBox(width: 12),
+                    Icon(icon, color: context.colors.textDark, size: 16),
+                    const SizedBox(width: AppSpacing.md),
                   ],
                   Text(
                     itemLabelBuilder(item),
-                    style: const TextStyle(color: Colors.white, fontSize: 15),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: context.colors.textMain),
                   ),
                 ],
               ),
@@ -76,12 +98,11 @@ class CustomDropdown<T> extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 8.0, left: 4),
+          padding: const EdgeInsets.only(bottom: AppSpacing.xs, left: 4),
           child: Text(
             label!.toUpperCase(),
-            style: const TextStyle(
-              color: Color(0xFF9E9EAE),
-              fontSize: 11,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: context.colors.textSecondary,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.6,
             ),

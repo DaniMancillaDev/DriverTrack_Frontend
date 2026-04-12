@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
-enum BadgeVariant {
-  defaultVariant,
-  secondary,
-  destructive,
-  outline,
+/// Variantes visuales soportadas por el sistema de etiquetas.
+enum BadgeVariant { 
+  /// Estilo principal basado en el color primario.
+  defaultVariant, 
+  /// Estilo neutral basado en el color secundario.
+  secondary, 
+  /// Estilo de alerta basado en el color de error.
+  destructive, 
+  /// Estilo con borde y fondo transparente.
+  outline 
 }
 
+/// Un componente de etiqueta (badge) para mostrar estados, categorías o contadores.
+/// 
+/// El [CustomBadge] adapta automáticamente su paleta de colores según la [variant]
+/// seleccionada, asegurando consistencia con el esquema de colores global.
 class CustomBadge extends StatelessWidget {
   final Widget label;
   final BadgeVariant variant;
@@ -23,11 +33,7 @@ class CustomBadge extends StatelessWidget {
     Key? key,
     BadgeVariant variant = BadgeVariant.defaultVariant,
   }) {
-    return CustomBadge(
-      key: key,
-      variant: variant,
-      label: Text(text),
-    );
+    return CustomBadge(key: key, variant: variant, label: Text(text));
   }
 
   @override
@@ -50,10 +56,7 @@ class CustomBadge extends StatelessWidget {
       case BadgeVariant.outline:
         backgroundColor = Colors.transparent;
         foregroundColor = colorScheme.onSurface;
-        border = Border.all(
-          color: colorScheme.outlineVariant,
-          width: 1,
-        );
+        border = Border.all(color: colorScheme.outlineVariant, width: 1);
         break;
       case BadgeVariant.defaultVariant:
         backgroundColor = colorScheme.primary;
@@ -64,14 +67,19 @@ class CustomBadge extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(6), // Equivalente as rounded-md de TW
+        borderRadius: BorderRadius.circular(AppRadius.s),
         border: border,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2), // Equivalente px-2 py-0.5
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xs,
+        vertical: AppSpacing.xxs,
+      ),
       child: DefaultTextStyle(
-        style: (Theme.of(context).textTheme.labelSmall ?? const TextStyle()).copyWith(
+        style: (Theme.of(context).textTheme.labelSmall ?? const TextStyle())
+            .copyWith(
               color: foregroundColor,
-              fontWeight: FontWeight.w600, // Medium/SemiBold equivalentes a font-medium
+              fontWeight:
+                  FontWeight.w600, // Medium/SemiBold equivalentes a font-medium
               height: 1.2,
             ),
         child: label,

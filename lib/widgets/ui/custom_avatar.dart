@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_color_scheme.dart';
 
+/// Orquestador de identidad visual para usuarios y activos de flota.
+/// 
+/// Su responsabilidad es gestionar la representación gráfica mediante tres 
+/// niveles de respaldo (Fallback): 
+/// 1. **Imagen**: Renderizado prioritario de [imageUrl].
+/// 2. **Texto**: Iniciales dinámicas basadas en [fallbackText].
+/// 3. **Icono**: Glifo genérico como garantía de visualización final.
 class CustomAvatar extends StatelessWidget {
+  /// URL remota de la imagen de perfil.
   final String? imageUrl;
+  /// Texto (ej. nombre) para generar las iniciales de respaldo.
   final String? fallbackText;
+  /// Icono personalizado para mostrar si no hay imagen ni texto.
   final Widget? fallbackIcon;
+  /// Radio del círculo (el diámetro será el doble).
   final double radius;
+  /// Color de fondo del contenedor circular.
   final Color? backgroundColor;
+  /// Color del contenido de respaldo (texto o icono).
   final Color? foregroundColor;
 
   const CustomAvatar({
@@ -13,7 +27,7 @@ class CustomAvatar extends StatelessWidget {
     this.imageUrl,
     this.fallbackText,
     this.fallbackIcon,
-    this.radius = 20, // Aproximadamente size-10 (40px de diámetro)
+    this.radius = 20,
     this.backgroundColor,
     this.foregroundColor,
   });
@@ -21,10 +35,10 @@ class CustomAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     // El color de fondo "muted"
-    final bgColor = backgroundColor ?? colorScheme.surfaceContainerHighest;
-    final fgColor = foregroundColor ?? colorScheme.onSurfaceVariant;
+    final bgColor = backgroundColor ?? context.colors.surfaceLight;
+    final fgColor = foregroundColor ?? context.colors.textMain;
 
     return CircleAvatar(
       radius: radius,
@@ -54,9 +68,9 @@ class CustomAvatar extends StatelessWidget {
 
       return Text(
         displayInitials,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
       );
     }
 
@@ -66,10 +80,7 @@ class CustomAvatar extends StatelessWidget {
 
     // Por defecto, devolvemos un icono de usuario genérico si no hay fallbackText ni imageUrl válida
     if (imageUrl == null || imageUrl!.isEmpty) {
-      return Icon(
-        Icons.person,
-        size: radius * 1.2,
-      );
+      return Icon(Icons.person, size: radius * 1.2);
     }
 
     // Retorna null silenciosamente si se supone que la imagen cargará (el CircleAvatar internamente ya lo maneja hasta que da error)
