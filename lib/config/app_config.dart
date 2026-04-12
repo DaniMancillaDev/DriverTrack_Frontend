@@ -13,14 +13,14 @@ class AppConfig {
     this.appName = 'DriveTrack',
   });
 
-  /// Configuración predeterminada para el entorno local o de desarrollo.
+  /// Configuración para el entorno de desarrollo (FastAPI local).
   factory AppConfig.dev() {
     return const AppConfig(
-      baseUrl: 'https://drivertrack.mikecardona076.com',
+      baseUrl: 'http://localhost:8000',
     );
   }
 
-  /// Configuración optimizada para el entorno de producción.
+  /// Configuración para el entorno de producción.
   factory AppConfig.prod() {
     return const AppConfig(
       baseUrl: 'https://drivertrack.mikecardona076.com',

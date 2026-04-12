@@ -29,18 +29,6 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-/// Configuración global de la aplicación.
-/// 
-/// Define constantes críticas para la comunicación con el backend (URLs), 
-/// claves de API de terceros y parámetros de sesión. 
-/// 
-/// Nota: Los valores sensibles se inyectan preferiblemente vía `--dart-define` 
-/// en entornos de producción.
-class AppConfig {
-  /// Base URL para el servidor de producción.
-  static const String prodBaseUrl = 'https://drivertrack.mikecardona076.com';
-}
-
 /// Utilidades de validación para formularios y campos de entrada.
 /// 
 /// Provee una colección de validadores puros para correos electrónicos, 

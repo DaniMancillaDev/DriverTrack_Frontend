@@ -194,216 +194,219 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: Stack(
+      body: Column(
         children: [
-          // 1. Interactive Map
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _defaultCenter,
-              initialZoom: 13.0,
-              minZoom: 3.0,
-              maxZoom: 18.0,
-              onTap: (_, __) => _unselectLocation(),
-              onPositionChanged: (camera, hasGesture) {
-                ref
-                    .read(mapBoundsProvider.notifier)
-                    .setBounds(camera.visibleBounds);
-
-                // If the user moved the map manually, show the "Search here" button
-                if (hasGesture) {
-                  setState(() => _mapMovedSinceSearch = true);
-                }
-              },
-              interactionOptions: const InteractionOptions(
-                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-              ),
-            ),
-            children: [
-              TileLayer(
-                urlTemplate:
-                    'https://{s}.basemaps.cartocdn.com/$mapStyle/{z}/{x}/{y}{r}.png',
-                subdomains: const ['a', 'b', 'c', 'd'],
-                userAgentPackageName: 'com.example.drivetrack',
-                tileProvider: CancellableNetworkTileProvider(),
-              ),
-
-              // Map locations from provider
-              locationsAsync.when(
-                skipLoadingOnReload:
-                    true, // Crucial: Don't hide markers while dragging/loading new ones
-                data: (locations) => MapMarkerLayer(
-                  locations: locations,
-                  selectedId: selectedLocation?.id,
-                  onMarkerTap: _onLocationSelected,
-                ),
-                loading: () => const SizedBox.shrink(),
-                error: (err, stack) {
-                  if (kDebugMode) {
-                    dev.log(
-                      'Error loading markers: $err',
-                      name: 'ServiceMapPage',
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-
-              // User location marker
-              userLocationAsync.when(
-                data: (LatLng? loc) {
-                  if (loc == null) return const SizedBox.shrink();
-                  return MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: loc,
-                        width: r.dim(40),
-                        height: r.dim(40),
-                        child: _buildUserLocationMarker(context, r),
-                      ),
-                    ],
-                  );
-                },
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
-
-              const RichAttributionWidget(
-                attributions: [
-                  TextSourceAttribution('© CartoDB'),
-                  TextSourceAttribution('© OpenStreetMap contributors'),
-                ],
-              ),
-            ],
+          // ── Header (non-floating, in natural Column flow) ──
+          MapHeaderWidget(
+            onFilterChanged: () {
+              _unselectLocation();
+              setState(() {
+                _mapMovedSinceSearch = false;
+                _hasSearched = true;
+              });
+            },
           ),
 
-          // 2. Top Header Overlay (Search & Filters)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: MapHeaderWidget(
-              onFilterChanged: () {
-                _unselectLocation();
-                setState(() {
-                  _mapMovedSinceSearch = false;
-                  _hasSearched = true;
-                });
-              },
-            ),
-          ),
+          // ── Map area (Expanded + Stack for floating controls) ──
+          Expanded(
+            child: Stack(
+              children: [
+                // 1. Interactive Map
+                FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(
+                    initialCenter: _defaultCenter,
+                    initialZoom: 13.0,
+                    minZoom: 3.0,
+                    maxZoom: 18.0,
+                    onTap: (_, __) => _unselectLocation(),
+                    onPositionChanged: (camera, hasGesture) {
+                      ref
+                          .read(mapBoundsProvider.notifier)
+                          .setBounds(camera.visibleBounds);
 
-          // 2.5 "Search this area" — bottom floating pill (Google Maps pattern)
-          if (_mapMovedSinceSearch)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + r.dim(190),
-              left: 0,
-              right: 0,
-              child: Center(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _mapMovedSinceSearch = false;
-                      _hasSearched = true;
-                    });
-                    ref.read(mapSearchTriggerProvider.notifier).trigger();
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: r.space(AppSpacing.lg),
-                      vertical: r.space(AppSpacing.s),
+                      // If the user moved the map manually, show the "Search here" button
+                      if (hasGesture) {
+                        setState(() => _mapMovedSinceSearch = true);
+                      }
+                    },
+                    interactionOptions: const InteractionOptions(
+                      flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
                     ),
-                    decoration: BoxDecoration(
-                      color: context.colors.surface,
-                      border: Border.all(
-                        color: context.colors.borderLight,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://{s}.basemaps.cartocdn.com/$mapStyle/{z}/{x}/{y}{r}.png',
+                      subdomains: const ['a', 'b', 'c', 'd'],
+                      userAgentPackageName: 'com.example.drivetrack',
+                      tileProvider: CancellableNetworkTileProvider(),
+                    ),
+
+                    // Map locations from provider
+                    locationsAsync.when(
+                      skipLoadingOnReload:
+                          true, // Crucial: Don't hide markers while dragging/loading new ones
+                      data: (locations) => MapMarkerLayer(
+                        locations: locations,
+                        selectedId: selectedLocation?.id,
+                        onMarkerTap: _onLocationSelected,
                       ),
-                      borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
+                      loading: () => const SizedBox.shrink(),
+                      error: (err, stack) {
+                        if (kDebugMode) {
+                          dev.log(
+                            'Error loading markers: $err',
+                            name: 'ServiceMapPage',
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+
+                    // User location marker
+                    userLocationAsync.when(
+                      data: (LatLng? loc) {
+                        if (loc == null) return const SizedBox.shrink();
+                        return MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: loc,
+                              width: r.dim(40),
+                              height: r.dim(40),
+                              child: _buildUserLocationMarker(context, r),
+                            ),
+                          ],
+                        );
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    ),
+
+                    const RichAttributionWidget(
+                      attributions: [
+                        TextSourceAttribution('© CartoDB'),
+                        TextSourceAttribution('© OpenStreetMap contributors'),
                       ],
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.search_rounded,
-                          size: AppIconSizes.xs(context),
-                          color: AppColors.cyan,
-                        ),
-                        SizedBox(width: r.space(AppSpacing.xs)),
-                        Text(
-                          Translations.of(context).map.searchThisArea,
-                          style: AppTextStyles.bodySmall(context).copyWith(
-                            color: context.colors.textMain,
-                            fontWeight: FontWeight.w700,
+                  ],
+                ),
+
+                // 2. "Search this area" — floating pill (Google Maps pattern)
+                Positioned(
+                  top: r.space(AppSpacing.lg),
+                  left: 0,
+                  right: 0,
+                  child: AnimatedOpacity(
+                    opacity: _mapMovedSinceSearch ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                    child: AnimatedSlide(
+                      offset: Offset(0, _mapMovedSinceSearch ? 0.0 : -0.15),
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOut,
+                      child: IgnorePointer(
+                        ignoring: !_mapMovedSinceSearch,
+                        child: Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _mapMovedSinceSearch = false;
+                                _hasSearched = true;
+                              });
+                              ref
+                                  .read(mapSearchTriggerProvider.notifier)
+                                  .trigger();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: r.space(AppSpacing.lg),
+                                vertical: r.space(AppSpacing.s),
+                              ),
+                              decoration: BoxDecoration(
+                                color: context.colors.surface,
+                                border: Border.all(
+                                  color: context.colors.borderLight,
+                                ),
+                                borderRadius:
+                                    BorderRadius.circular(r.r(AppRadius.xl)),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.search_rounded,
+                                    size: AppIconSizes.xs(context),
+                                    color: AppColors.cyan,
+                                  ),
+                                  SizedBox(width: r.space(AppSpacing.xs)),
+                                  Text(
+                                    Translations.of(context).map.searchThisArea,
+                                    style:
+                                        AppTextStyles.bodySmall(context).copyWith(
+                                      color: context.colors.textMain,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
 
-          // 3. Map Controls (Zoom, My Location)
-          Positioned(
-            right: r.space(AppSpacing.lg),
-            bottom: r.dim(180),
-            child: MapControls(
-              onZoomIn: _zoomIn,
-              onZoomOut: _zoomOut,
-              onMyLocation: _isLocating ? null : _centerOnUser,
+                // 3. Map Controls (Zoom, My Location)
+                Positioned(
+                  right: r.space(AppSpacing.lg),
+                  bottom: r.space(AppSpacing.xxxl),
+                  child: MapControls(
+                    onZoomIn: _zoomIn,
+                    onZoomOut: _zoomOut,
+                    onMyLocation: _isLocating ? null : _centerOnUser,
+                  ),
+                ),
+
+                // 4. Bottom Detail / List Sheets
+                if (selectedLocation != null)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: PlaceDetailSheet(
+                      location: selectedLocation,
+                      onClose: _unselectLocation,
+                    ),
+                  )
+                else if (_hasSearched &&
+                    !locationsAsync.isLoading &&
+                    locationsAsync.hasValue &&
+                    locationsAsync.value!.isNotEmpty)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: PlacesListSheet(
+                      locations: locationsAsync.value!,
+                      onLocationSelected: _onLocationSelected,
+                      onClose: () {
+                        if (mounted) setState(() => _hasSearched = false);
+                      },
+                    ),
+                  ),
+              ],
             ),
           ),
-
-          // 4. Bottom Detail / List Sheets
-          if (selectedLocation != null)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: PlaceDetailSheet(
-                location: selectedLocation,
-                onClose: _unselectLocation,
-              ),
-            )
-          else if (_hasSearched &&
-              !locationsAsync.isLoading &&
-              locationsAsync.hasValue &&
-              locationsAsync.value!.isNotEmpty)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: PlacesListSheet(
-                locations: locationsAsync.value!,
-                onLocationSelected: _onLocationSelected,
-                onClose: () {
-                  if (mounted) setState(() => _hasSearched = false);
-                },
-              ),
-            ),
-
-          // 5. Non-Blocking Loading Bar
-          if (locationsAsync.isLoading)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + r.dim(165),
-              left: r.space(AppSpacing.xxl),
-              right: r.space(AppSpacing.xxl),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(r.r(AppRadius.xs)),
-                child: const LinearProgressIndicator(
-                  color: AppColors.cyan,
-                  backgroundColor: Colors.transparent,
-                  minHeight: 4,
-                ),
-              ),
-            ),
         ],
       ),
     );
