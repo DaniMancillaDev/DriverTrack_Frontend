@@ -31,24 +31,15 @@ class MapRepositoryImpl implements MapRepository {
   }) async {
     List<MapLocation> geoResults = [];
 
-    // Determine the exact query term to send to the real Nominatim OSM search
+    // Término de búsqueda solo desde la barra — NO inyectar queries falsas para los filtros.
+    // El parámetro type por sí solo es suficiente para que GeocodingService construya
+    // las consultas Overpass OQL correctas. Antes, inyectar 'taller mecanico'/'gasolinera'
+    // agregaba un filtro de nombre restrictivo que excluía la mayoría de lugares reales
+    // (raramente tienen ese texto exacto en su nombre OSM).
     String query = search?.trim() ?? '';
 
-    // If no search text is written, but they tapped a filter pill, auto-generate real places for that category
-    if (query.isEmpty) {
-      if (type == 'workshop')
-        query = 'taller mecanico';
-      else if (type == 'gasstation')
-        query = 'gasolinera';
-    }
-
-    // Fetch dynamically based on what the user searched, passing Map Bounds to enforce Geospatial strictness!
-    // La lógica de búsqueda utiliza el bounding box (bounds) para restringir los resultados
-    // a la región visible, optimizando el rendimiento de las consultas Overpass OQL.
-    if (query.isNotEmpty ||
-        type == 'all' ||
-        type == 'workshop' ||
-        type == 'gasstation') {
+    // Solo buscar cuando hay un disparador explícito (filtro, texto de búsqueda, o barrido 'all')
+    if (query.isNotEmpty || type == 'all' || type == 'workshop' || type == 'gasstation') {
       geoResults = await _geocodingService.searchAddress(
         query,
         bounds: bounds,

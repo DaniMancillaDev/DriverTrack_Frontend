@@ -2,15 +2,12 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../domain/entities/map_location.dart';
 import '../../../../providers/app_providers.dart';
 
 import '../../../../core/location/presentation/location_provider.dart';
 
-// User GPS Location Provider
+// Proveedor de ubicación GPS del usuario
 class UserLocationNotifier extends AsyncNotifier<LatLng?> {
   @override
   FutureOr<LatLng?> build() async {
@@ -46,7 +43,7 @@ final userLocationProvider =
       return UserLocationNotifier();
     });
 
-// Filter & Search
+// Filtros y búsqueda
 class MapFilterNotifier extends Notifier<String> {
   @override
   String build() => 'all';
@@ -80,7 +77,7 @@ final mapBoundsProvider = NotifierProvider<MapBoundsNotifier, LatLngBounds?>(
   MapBoundsNotifier.new,
 );
 
-// Manual search trigger to force refresh in current area
+// Disparador manual de búsqueda para forzar refresco en el área actual
 class MapSearchTriggerNotifier extends Notifier<int> {
   @override
   int build() => 0;
@@ -93,7 +90,7 @@ final mapSearchTriggerProvider =
       MapSearchTriggerNotifier.new,
     );
 
-// Nearby Locations
+// Ubicaciones cercanas
 class NearbyLocationsNotifier extends AsyncNotifier<List<MapLocation>> {
   @override
   FutureOr<List<MapLocation>> build() async {
@@ -101,21 +98,21 @@ class NearbyLocationsNotifier extends AsyncNotifier<List<MapLocation>> {
     final search = ref.watch(mapSearchProvider);
     final repo = ref.watch(mapRepositoryProvider);
 
-    // We watch the trigger to allow "Redo search in this area"
-    // without changing the filter or search text.
+    // Se observa el trigger para permitir "Buscar en esta área"
+    // sin cambiar el filtro ni el texto de búsqueda.
     final trigger = ref.watch(mapSearchTriggerProvider);
 
-    // We READ bounds and userLoc instead of WATCHing them to prevent
-    // constant rebuilds/429 errors while dragging.
-    final bounds = ref.read(mapBoundsProvider);
+    // Se READ bounds y userLoc en vez de WATCH para evitar
+    // rebuilds constantes y errores 429 al arrastrar el mapa.
+    // Nota: bounds se lee de nuevo DESPUÉS del debounce para obtener la posición más fresca.
     final userLoc = ref.read(userLocationProvider).value;
 
-    // If we have nothing to search for, stay quiet initially
-    // UNLESS the user has explicitly triggered a search via the "Search here" button
+    // Si no hay nada que buscar, mantener silencio inicialmente
+    // A MENOS que el usuario haya disparado explícitamente una búsqueda vía "Buscar aquí"
     if (filter == 'all' && search.isEmpty && trigger == 0) {
-      // However, we allow a small delay to see if bounds become available
-      // but if the user hasn't explicitly triggered anything, return empty.
-      // We will re-enable the 'all' sweep in GeocodingService so it works IF called.
+      // Sin embargo, permitimos un pequeño delay por si bounds se vuelve disponible
+      // pero si el usuario no disparó nada explícitamente, retornar vacío.
+      // Se re-habilita el barrido 'all' en GeocodingService para que funcione SI se llama.
       return [];
     }
 
@@ -126,10 +123,14 @@ class NearbyLocationsNotifier extends AsyncNotifier<List<MapLocation>> {
 
     await Future.delayed(const Duration(milliseconds: 800));
 
-    // If provider was disposed (user dragged map again), discard this lookup completely
+    // Si el provider fue disposed (el usuario arrastró el mapa de nuevo), descartar esta búsqueda
     if (didDispose) {
       return state.value ?? [];
     }
+
+    // Re-leer bounds DESPUÉS del debounce para obtener la posición más fresca del mapa,
+    // no la posición de hace 800ms cuando build() inició.
+    final bounds = ref.read(mapBoundsProvider);
 
     print(
       'DEBUG: Requesting nearby locations with filter: $filter, search: $search, bounds: $bounds',
@@ -144,15 +145,15 @@ class NearbyLocationsNotifier extends AsyncNotifier<List<MapLocation>> {
 
     print('DEBUG: Repository returned ${results.length} results.');
 
-    // Deduplication pass: OSM often has the same amenity as node AND way/area
-    // or slightly offset duplicate entries.
+    // Pase de deduplicación: OSM a menudo tiene la misma amenidad como nodo Y way/area
+    // o entradas duplicadas con ligero desplazamiento.
     final List<MapLocation> uniqueResults = [];
     const distanceCalc = Distance();
 
     for (var loc in results) {
       bool isDuplicate = false;
       for (var existing in uniqueResults) {
-        // Only deduplicate within the same major category
+        // Solo deduplicar dentro de la misma categoría principal
         if (loc.type != existing.type) continue;
 
         final distBetween = distanceCalc.as(
@@ -166,13 +167,13 @@ class NearbyLocationsNotifier extends AsyncNotifier<List<MapLocation>> {
         final isDefaultName =
             name1.contains('punto de') || name2.contains('punto de');
 
-        // 1. "Physical Overlap" - If they are within 20m, they are the same place (node vs way)
+        // 1. "Solapamiento físico" - Si están a menos de 20m, son el mismo lugar (nodo vs way)
         if (distBetween < 20) {
           isDuplicate = true;
           break;
         }
 
-        // 2. "Logical Duplicate" - Same name/brand within 60m radius
+        // 2. "Duplicado lógico" - Mismo nombre/marca en radio de 60m
         if (distBetween < 60) {
           if (name1 == name2 ||
               name1.contains(name2) ||
@@ -193,7 +194,7 @@ class NearbyLocationsNotifier extends AsyncNotifier<List<MapLocation>> {
       'DEBUG: After deduplication: ${uniqueResults.length} unique results.',
     );
 
-    // Sort and calculate real distances if user location is available
+    // Ordenar y calcular distancias reales si la ubicación del usuario está disponible
     if (userLoc != null && uniqueResults.isNotEmpty) {
       final processedResults = uniqueResults.map((loc) {
         final distMeters = distanceCalc.as(
@@ -209,11 +210,11 @@ class NearbyLocationsNotifier extends AsyncNotifier<List<MapLocation>> {
           distLabel = '${(distMeters / 1000).toStringAsFixed(1)} km';
         }
 
-        // We cast to access copyWith if it's the model, or use the entity copyWith
+        // Se hace cast para acceder a copyWith si es el model, o usar el copyWith de la entidad
         return loc.copyWith(distance: distLabel);
       }).toList();
 
-      // Sort by absolute distance in meters
+      // Ordenar por distancia absoluta en metros
       processedResults.sort((a, b) {
         final d1 = distanceCalc.as(
           LengthUnit.Meter,
@@ -240,7 +241,7 @@ final nearbyLocationsProvider =
       return NearbyLocationsNotifier();
     });
 
-// Selected Location
+// Ubicación seleccionada
 class SelectedLocationNotifier extends Notifier<MapLocation?> {
   @override
   MapLocation? build() => null;

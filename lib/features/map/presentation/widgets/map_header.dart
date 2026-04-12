@@ -1,4 +1,6 @@
-// Removed dart:ui
+// Se eliminó dart:ui
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,6 +22,7 @@ class MapHeaderWidget extends ConsumerStatefulWidget {
 
 class _MapHeaderWidgetState extends ConsumerState<MapHeaderWidget> {
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -31,6 +34,7 @@ class _MapHeaderWidgetState extends ConsumerState<MapHeaderWidget> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -51,7 +55,7 @@ class _MapHeaderWidgetState extends ConsumerState<MapHeaderWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Content with SafeArea padding
+          // Contenido con padding de SafeArea
           Padding(
             padding: EdgeInsets.fromLTRB(
               r.space(AppSpacing.lg),
@@ -89,7 +93,7 @@ class _MapHeaderWidgetState extends ConsumerState<MapHeaderWidget> {
                 ),
                 SizedBox(height: r.space(AppSpacing.md)),
 
-                // Search Bar
+                // Barra de búsqueda
                 Container(
                   decoration: BoxDecoration(
                     color: context.colors.surface,
@@ -97,8 +101,13 @@ class _MapHeaderWidgetState extends ConsumerState<MapHeaderWidget> {
                   ),
                   child: TextField(
                     controller: _searchController,
-                    onChanged: (val) =>
-                        ref.read(mapSearchProvider.notifier).setSearch(val),
+                    onChanged: (val) {
+                      _debounceTimer?.cancel();
+                      _debounceTimer = Timer(
+                        const Duration(milliseconds: 500),
+                        () => ref.read(mapSearchProvider.notifier).setSearch(val),
+                      );
+                    },
                     style: AppTextStyles.bodyMedium(
                       context,
                     ).copyWith(color: context.colors.textMain),
@@ -136,7 +145,7 @@ class _MapHeaderWidgetState extends ConsumerState<MapHeaderWidget> {
                 ),
                 SizedBox(height: r.space(AppSpacing.s)),
 
-                // Filter Pills
+                // Pastillas de filtro
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: IntrinsicHeight(
@@ -180,7 +189,7 @@ class _MapHeaderWidgetState extends ConsumerState<MapHeaderWidget> {
             ),
           ),
 
-          // Progress bar — at the bottom of the header, in natural flow
+          // Barra de progreso — al final del header, en flujo natural
           if (isLoading)
             Padding(
               padding: EdgeInsets.symmetric(
