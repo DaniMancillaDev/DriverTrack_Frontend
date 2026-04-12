@@ -55,7 +55,6 @@ class VehicleDetailSheet extends ConsumerStatefulWidget {
 
 class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
   int? _selectedServiceId;
-  bool _serviceDetailExpanded = false;
   bool _isUploading = false;
 
   void _showPhotoSourcePicker() {
@@ -217,17 +216,6 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
 
     return maintenanceAsync.maybeWhen(
       data: (records) {
-        // Calculate "Real Mileage" based on history
-        int realMileage = widget.vehicle.mileage;
-        if (records.isNotEmpty) {
-          final maxRecorded = records
-              .map((r) => r.mileage)
-              .reduce((a, b) => a > b ? a : b);
-          if (maxRecorded > realMileage) {
-            realMileage = maxRecorded;
-          }
-        }
-
         // Obtener el vehículo más actualizado desde vehiclesProvider para reflejar subida de foto sin cerrar el sheet
         final vehiclesState = ref.watch(vehiclesProvider).value ?? [];
         final latestCoreVehicle = vehiclesState.firstWhere(
@@ -235,10 +223,10 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
           orElse: () => widget.vehicle.vehicle,
         );
 
-        // Create a synchronized ViewModel with the real mileage
-        final syncedVehicle = VehicleViewModel(
+        // Create a synchronized ViewModel with the real mileage and last service base
+        final syncedVehicle = VehicleViewModel.fromVehicleWithRecords(
           latestCoreVehicle,
-          realMileage,
+          records,
         );
         return _buildSheet(context, syncedVehicle, records);
       },
@@ -280,6 +268,31 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                         onClose: widget.onClose,
                       ),
                       const SizedBox(height: AppSpacing.md),
+                        if (vehicle.mileage >= vehicle.maxMileage)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                            padding: const EdgeInsets.all(AppSpacing.md),
+                            decoration: BoxDecoration(
+                              color: AppColors.orangeSecondary.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
+                              border: Border.all(color: AppColors.orangeSecondary.withValues(alpha: 0.3)),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.notification_important_rounded, color: AppColors.orangeSecondary, size: 20),
+                                const SizedBox(width: AppSpacing.md),
+                                Expanded(
+                                  child: Text(
+                                    Translations.of(context).maintenance.goalReachedWarning,
+                                    style: AppTextStyles.bodySmall(context).copyWith(
+                                      color: AppColors.orangeSecondary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                       _buildHeroImage(vehicle, healthPct, accentColor),
                       const SizedBox(height: AppSpacing.xl),
                       _buildStatsSection(accentColor, maintenanceViewModels),
@@ -330,7 +343,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                   title: Translations.of(context).garage.deleteServiceTitle,
                   message: Translations.of(
                     context,
-                  ).garage.deleteServiceMessage.replaceAll('{title}', vm.title),
+                  ).garage.deleteServiceMessage(title: vm.title),
                   onConfirm: () {
                     final id = vm.id;
                     setState(() => _selectedServiceId = null);
@@ -345,23 +358,6 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
     );
   }
 
-  Widget _buildHandle(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      color: Colors.transparent,
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
-      child: Center(
-        child: Container(
-          width: 36,
-          height: 4,
-          decoration: BoxDecoration(
-            color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(AppRadius.xs),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildTrailingActions(
     VehicleViewModel vehicle, {
@@ -375,8 +371,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
           ConfirmationDialog.show(
             context,
             title: Translations.of(context).garage.removeVehicle,
-            message: Translations.of(context).garage.removeVehicleMessage
-                .replaceAll('{vehicleName}', vehicle.displayName),
+            message: Translations.of(context).garage.removeVehicleMessage(vehicleName: vehicle.displayName),
             onConfirm: () => widget.onRemove?.call(),
           );
         }
@@ -721,7 +716,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
             ),
             if (records.isNotEmpty)
               Text(
-                Translations.of(context).garage.recordsCount(n: records.length).replaceAll('{count}', records.length.toString()),
+                Translations.of(context).garage.recordsCount(n: records.length, count: records.length.toString()),
                 style: TextStyle(
                   color: context.colors.textMain,
                   fontSize: 10,
@@ -743,7 +738,6 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
               vm.computedAccent,
               onTap: () => setState(() {
                 _selectedServiceId = vm.id;
-                _serviceDetailExpanded = false;
               }),
             );
           }),

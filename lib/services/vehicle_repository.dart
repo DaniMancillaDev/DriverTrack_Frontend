@@ -57,10 +57,10 @@ class VehicleRepository {
   }
 
   /// Confirma la subida exitosa de la imagen y vincula la URL final al vehículo.
-  Future<Vehicle> confirmVehiclePhotoUpload(int id, String photoUrl) async {
+  Future<Vehicle> confirmVehiclePhotoUpload(int id, String objectKey) async {
     final response = await _apiClient.put(
-      '/vehicles/$id/photo/confirm?photo_url=${Uri.encodeComponent(photoUrl)}',
-      {},
+      '/vehicles/$id/photo/confirm',
+      {'object_key': objectKey},
     );
     // El backend puede retornar el vehículo directamente o envuelto en un mapa
     final vehicleData = response['vehicle'] ?? response;

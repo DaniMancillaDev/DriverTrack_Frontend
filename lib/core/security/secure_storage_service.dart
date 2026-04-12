@@ -1,3 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 /// Bóveda de seguridad para el almacenamiento de secretos y tokens.
 ///
 /// Su responsabilidad es encapsular la lógica de persistencia encriptada, 

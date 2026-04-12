@@ -23,18 +23,6 @@ class ProfileStatsViewModel {
   /// Conteo total de intervenciones técnicas registradas.
   String get maintenanceCount => maintenance.length.toString();
 
-  /// Calcula el gasto acumulado global y aplica un formato de abreviación monetaria.
-  /// 
-  /// Ejemplos: "$2.5K", "$850".
-  String get totalCostFormatted {
-    final total = maintenance.fold<double>(0, (sum, item) => sum + item.cost);
-    if (total >= 1000) return '\$${(total / 1000).toStringAsFixed(1)}K';
-    return '\$${total.toStringAsFixed(0)}';
-  }
-
-  /// Retorna una lista estructurada de objetos para renderizar tarjetas de estadísticas.
-  ///
-  /// Consolida etiquetas localizadas, valores dinámicos y colores de identidad visual.
   List<Map<String, dynamic>> getStatsItems(Translations t) => [
     {
       'label': t.profile.statsVehicles,
@@ -47,12 +35,6 @@ class ProfileStatsViewModel {
       'value': maintenanceCount,
       'accent': AppColors.cyan,
       'sub': t.profile.statsServicesSub,
-    },
-    {
-      'label': t.profile.statsSaved,
-      'value': totalCostFormatted,
-      'accent': AppColors.green,
-      'sub': t.profile.statsSavedSub,
     },
   ];
 }

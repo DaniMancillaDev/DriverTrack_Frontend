@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_theme.dart';
-import '../providers/app_providers.dart';
-import '../models/notification_model.dart';
-import '../widgets/notifications/notification_card.dart';
+import '../features/notifications/presentation/providers/notifications_provider.dart';
+import '../features/notifications/domain/entities/notification_entity.dart';
+import '../widgets/ui/notification_card.dart';
 import '../core/i18n/translations.g.dart';
 import '../core/responsive/responsive.dart';
 import '../theme/app_color_scheme.dart';
@@ -182,9 +182,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       ),
                       if (unread > 0)
                         Text(
-                          Translations.of(context).notifications.unreadSummary
-                              .replaceAll('{unread}', '$unread')
-                              .replaceAll('{total}', '$total'),
+                          Translations.of(context).notifications.unreadSummary(
+                              unread: unread,
+                              total: total),
                           style: AppTextStyles.caption(
                             context,
                           ).copyWith(color: context.colors.textMuted),

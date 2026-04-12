@@ -10,42 +10,35 @@ import '../models/weather_model.dart';
 class WeatherLocalDataSource {
   final SharedPreferences _prefs;
 
-  /// Clave de almacenamiento para el cache de clima.
-  static const _cacheKey = 'weather_cache';
-
-  /// Clave de almacenamiento para el timestamp del cache.
-  static const _cacheTimestampKey = 'weather_cache_ts';
-
   /// Tiempo de vida del cache.
   static const cacheTtl = Duration(minutes: 15);
 
   WeatherLocalDataSource(this._prefs);
 
+  /// Clave genérica delegada según modo.
+  String _getCacheKey(bool isManual) => isManual ? 'weather_cache_manual' : 'weather_cache_gps';
+  String _getCacheTimestampKey(bool isManual) => isManual ? 'weather_cache_ts_manual' : 'weather_cache_ts_gps';
+
   /// Obtiene el clima cacheado si existe y no ha expirado.
-  ///
-  /// Retorna `null` si no hay cache o si expiró.
-  WeatherModel? getCachedWeather() {
-    final jsonStr = _prefs.getString(_cacheKey);
+  WeatherModel? getCachedWeather({bool isManual = false}) {
+    final jsonStr = _prefs.getString(_getCacheKey(isManual));
     if (jsonStr == null) return null;
 
     try {
       final json = jsonDecode(jsonStr) as Map<String, dynamic>;
       final model = WeatherModel.fromCacheJson(json);
 
-      if (model.isFresh(ttl: cacheTtl)) {
-        return model;
-      }
+      if (model.isFresh(ttl: cacheTtl)) return model;
 
-      // Cache expirado pero aún puede servir como fallback
-      return model;
+      return model; // Fallback stale
     } catch (_) {
       return null;
     }
   }
 
-  /// Indica si el cache actual es fresco (dentro del TTL).
-  bool isCacheFresh() {
-    final tsStr = _prefs.getString(_cacheTimestampKey);
+  /// Indica si el cache actual es fresco.
+  bool isCacheFresh({bool isManual = false}) {
+    final tsStr = _prefs.getString(_getCacheTimestampKey(isManual));
     if (tsStr == null) return false;
 
     try {
@@ -57,18 +50,20 @@ class WeatherLocalDataSource {
   }
 
   /// Almacena el clima en el cache local.
-  Future<void> cacheWeather(WeatherModel weather) async {
+  Future<void> cacheWeather(WeatherModel weather, {bool isManual = false}) async {
     final jsonStr = jsonEncode(weather.toJson());
-    await _prefs.setString(_cacheKey, jsonStr);
+    await _prefs.setString(_getCacheKey(isManual), jsonStr);
     await _prefs.setString(
-      _cacheTimestampKey,
+      _getCacheTimestampKey(isManual),
       DateTime.now().toIso8601String(),
     );
   }
 
-  /// Limpia el cache de clima.
+  /// Limpia TODOS los caches
   Future<void> clearCache() async {
-    await _prefs.remove(_cacheKey);
-    await _prefs.remove(_cacheTimestampKey);
+    await _prefs.remove(_getCacheKey(false));
+    await _prefs.remove(_getCacheTimestampKey(false));
+    await _prefs.remove(_getCacheKey(true));
+    await _prefs.remove(_getCacheTimestampKey(true));
   }
 }

@@ -53,7 +53,7 @@ class VehiclePhotoUploadService {
     // El 'photo_url' decodificado ya viene seguro para el DB
     final updatedVehicle = await _vehicleRepo.confirmVehiclePhotoUpload(
       vehicleId,
-      presignedData['photo_url']!,
+      presignedData['object_key']!,
     );
 
     return updatedVehicle;

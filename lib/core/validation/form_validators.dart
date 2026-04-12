@@ -15,7 +15,7 @@ class FormValidators {
     if (value == null || value.trim().isEmpty) {
       return Translations.of(
         context,
-      ).validators.notEmptyParams.replaceAll('{field}', fieldName);
+      ).validators.notEmptyParams(field: fieldName);
     }
     return null;
   }
@@ -31,15 +31,17 @@ class FormValidators {
     if (value == null)
       return Translations.of(
         context,
-      ).validators.requiredParams.replaceAll('{field}', fieldName);
+      ).validators.requiredParams(field: fieldName);
     if (value < min)
-      return Translations.of(context).validators.minParams
-          .replaceAll('{field}', fieldName)
-          .replaceAll('{min}', min.toString());
+      return Translations.of(context).validators.minParams(
+          field: fieldName, 
+          min: min.toString(),
+      );
     if (value > max)
-      return Translations.of(context).validators.maxParams
-          .replaceAll('{field}', fieldName)
-          .replaceAll('{max}', max.toString());
+      return Translations.of(context).validators.maxParams(
+          field: fieldName,
+          max: max.toString(),
+      );
     return null;
   }
 
@@ -65,9 +67,8 @@ class FormValidators {
     num max = 1000000,
   }) {
     if (value == null || value.isEmpty)
-      return Translations.of(context).validators.requiredParams.replaceAll(
-        '{field}',
-        Translations.of(context).maintenance.mileage,
+      return Translations.of(context).validators.requiredParams(
+        field: Translations.of(context).maintenance.mileage,
       );
     final n = num.tryParse(value);
     if (n == null) return Translations.of(context).validators.numberRequired;
@@ -85,9 +86,8 @@ class FormValidators {
   /// Asegura que el monto sea un número válido y no exceda límites razonables de transacción.
   static String? cost(String? value, BuildContext context, {num max = 100000}) {
     if (value == null || value.isEmpty)
-      return Translations.of(context).validators.requiredParams.replaceAll(
-        '{field}',
-        Translations.of(context).maintenance.costUsd,
+      return Translations.of(context).validators.requiredParams(
+        field: Translations.of(context).maintenance.costUsd,
       );
     final n = num.tryParse(value);
     if (n == null) return Translations.of(context).validators.numberRequired;

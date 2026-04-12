@@ -47,6 +47,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
   bool _mapMovedSinceSearch = false;
   bool _hasSearched = false;
   LatLng? _lastSearchCenter;
+  bool _isLocating = false;
 
   // Default center if no user location (e.g. Mexico City for the mock data)
   final LatLng _defaultCenter = const LatLng(19.4326, -99.1332);
@@ -75,6 +76,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
 
   @override
   void dispose() {
+    ScaffoldMessenger.of(context).clearSnackBars();
     _animationController.dispose();
     super.dispose();
   }
@@ -117,20 +119,33 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
   }
 
   void _centerOnUser() {
-    final userLocState = ref.read(userLocationProvider);
-    userLocState.whenData((LatLng? loc) {
-      if (loc != null) {
-        _animatedMapMove(loc, 15.0);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              Translations.of(context).map.gpsSearching,
-            ),
-          ),
-        );
-        ref.read(userLocationProvider.notifier).fetchCurrentLocation();
+    if (_isLocating) return; // Debounce/bloqueo temporal
+    
+    setState(() => _isLocating = true);
+
+    // Limpia notificaciones previas antes de mostrar la nueva
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          Translations.of(context).map.gpsSearching,
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    // Obligar siempre a refrescar la ubicación limpia y después centrar
+    ref.read(userLocationProvider.notifier).fetchCurrentLocation().then((_) {
+      if (!mounted) return;
+      setState(() => _isLocating = false);
+      
+      final freshLoc = ref.read(userLocationProvider).value;
+      if (freshLoc != null) {
+        _animatedMapMove(freshLoc, 15.0);
       }
+    }).catchError((_) {
+      // Garantizar limpieza de estado si falla
+      if (mounted) setState(() => _isLocating = false);
     });
   }
 
@@ -161,10 +176,8 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
             SnackBar(
               content: Text(
                 Translations.of(context).map.noResults,
-                style: TextStyle(color: context.colors.textMain),
               ),
               behavior: SnackBarBehavior.floating,
-              backgroundColor: context.colors.surfaceLight,
             ),
           );
           setState(() => _hasSearched = false);
@@ -344,7 +357,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
             child: MapControls(
               onZoomIn: _zoomIn,
               onZoomOut: _zoomOut,
-              onMyLocation: _centerOnUser,
+              onMyLocation: _isLocating ? null : _centerOnUser,
             ),
           ),
 

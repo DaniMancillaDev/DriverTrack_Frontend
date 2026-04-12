@@ -6,7 +6,7 @@ import '../../../../theme/app_color_scheme.dart';
 class MapControls extends StatelessWidget {
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
-  final VoidCallback onMyLocation;
+  final VoidCallback? onMyLocation;
 
   const MapControls({
     super.key,

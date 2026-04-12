@@ -333,9 +333,7 @@ class PlaceDetailSheet extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        Translations.of(
-                          context,
-                        ).map.navigatingTo.replaceAll('{name}', location.name),
+                        Translations.of(context).map.navigatingTo(name: location.name),
                         style: TextStyle(color: context.colors.surface),
                       ),
                       behavior: SnackBarBehavior.floating,
@@ -382,9 +380,7 @@ class PlaceDetailSheet extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      Translations.of(
-                        context,
-                      ).map.calling.replaceAll('{phone}', location.phone),
+                      Translations.of(context).map.calling(phone: location.phone),
                       style: TextStyle(color: context.colors.surface),
                     ),
                     behavior: SnackBarBehavior.floating,

@@ -44,9 +44,9 @@ class _MapHeaderWidgetState extends ConsumerState<MapHeaderWidget> {
     return Container(
       padding: EdgeInsets.fromLTRB(
         r.space(AppSpacing.lg),
-        MediaQuery.of(context).padding.top + r.space(AppSpacing.s),
+        MediaQuery.of(context).padding.top + r.space(AppSpacing.xs),
         r.space(AppSpacing.lg),
-        r.space(AppSpacing.s),
+        r.space(AppSpacing.md),
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
@@ -58,11 +58,23 @@ class _MapHeaderWidgetState extends ConsumerState<MapHeaderWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  Translations.of(context).map.title,
-                  style: AppTextStyles.headline(
-                    context,
-                  ).copyWith(color: context.colors.textMain, fontWeight: FontWeight.w900),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      Translations.of(context).map.subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: context.colors.textDim,
+                          ),
+                    ),
+                    Text(
+                      Translations.of(context).map.title,
+                      style: AppTextStyles.headline(context).copyWith(
+                        color: context.colors.textMain,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

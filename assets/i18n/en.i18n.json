@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "DriveTrack",
+    "appName": "Driver Track",
     "ok": "OK",
     "cancel": "Cancel",
     "loading": "Loading...",
@@ -72,7 +72,7 @@
   "registration": {
     "title": "Create Account",
     "subtitle": "Fill in your details to get started",
-    "appTagline": "Your intelligent vehicle companion",
+    "footerTagline": "Your intelligent vehicle companion",
     "fullName": "FULL NAME",
     "fullNamePlaceholder": "John Doe",
     "phoneNumber": "PHONE NUMBER",
@@ -82,7 +82,7 @@
     "datePlaceholder": "YYYY-MM-DD",
     "passwordPlaceholder": "Min. 8 characters",
     "createAccount": "Create Account",
-    "welcomeSuccess": "Welcome to DriveTrack!",
+    "welcomeSuccess": "Welcome to DriverTrack!",
     "alreadyHaveAccount": "Already have an account? ",
     "passwordWeak": "Weak",
     "passwordFair": "Fair",
@@ -106,10 +106,10 @@
     "errorAddingVehicle": "Could not add vehicle. Please try again.",
     "errorUpdatingVehicle": "Could not update vehicle. Please try again.",
     "errorRemovingVehicle": "Could not remove vehicle. Please try again.",
-    "serviceLogged": "Service logged for {vehicleName}",
+    "serviceLogged": "Service logged for $vehicleName",
     "serviceRecordUpdated": "Service record updated",
     "removeVehicleTitle": "Remove Vehicle",
-    "removeVehicleMessage": "Are you sure you want to remove \"{vehicleName}\" from your garage? This action will also delete all associated maintenance records.",
+    "removeVehicleMessage": "Are you sure you want to remove \"$vehicleName\" from your garage? This action will also delete all associated maintenance records.",
     "errorSyncFailed": "Oops! Sync Failed",
     "errorSyncMessage": "We could not load your vehicles from the garage. Please check your connection.",
     "vehicleCount": {
@@ -121,14 +121,14 @@
     "overallHealth": "Overall Health",
     "totalSpent": "Total Spent",
     "services": "Services",
-    "lastService": "Last: {title} ({time})",
+    "lastService": "Last: $title ($time)",
     "servicesDue": "Services Due",
     "noRecordsFound": "No records found",
     "noRecordsMessage": "Keep track of your vehicle's health\nby logging your first service.",
     "emptyGarageTitle": "Your Garage is Empty",
     "emptyGarageMessage": "Tap the button below to add your first vehicle and start tracking its performance.",
     "deleteServiceTitle": "Delete Service Record",
-    "deleteServiceMessage": "Are you sure you want to delete this record for \"{title}\"? This action cannot be undone.",
+    "deleteServiceMessage": "Are you sure you want to delete this record for \"$title\"? This action cannot be undone.",
     "editVehicle": "Edit Vehicle",
     "removeVehicle": "Remove Vehicle",
     "vehicleType": "Vehicle Type",
@@ -170,7 +170,7 @@
       "motorcycle": "Motorcycle"
     },
     "vehicleHealth": "Vehicle Health",
-    "limitMileage": "Limit {mileage} mi",
+    "limitMileage": "Limit $mileage mi",
     "statusHealthy": "Healthy",
     "statusNeedsService": "Needs Service",
     "statusCritical": "Critical",
@@ -179,14 +179,16 @@
     "recordsCount": {
       "one": "1 record",
       "zero": "0 records",
-      "other": "{count} records"
+      "other": "$count records"
     },
     "totalDistanceMiles": "Total Miles",
     "totalDistanceKm": "Total Kilometers",
+    "totalFleetDistance": "Total Distance (KM)",
+    "totalFleetDistanceMiles": "Total Distance (MI)",
     "unitKilometers": "Kilometers",
     "unitMiShort": "mi",
     "unitKmShort": "km",
-    "notificationsUnread": "Notifications, {count} unread",
+    "notificationsUnread": "Notifications, $count unread",
     "notificationsNone": "Notifications, no new updates",
     "goodAfternoon": "Good afternoon",
     "goodEvening": "Good evening"
@@ -200,11 +202,11 @@
     "serviceAdded": "Service added successfully",
     "serviceUpdated": "Service record updated",
     "serviceRemoved": "Service record removed",
-    "errorAddingService": "Error adding service: {error}",
-    "errorUpdatingService": "Error updating record: {error}",
+    "errorAddingService": "Error adding service: $error",
+    "errorUpdatingService": "Error updating record: $error",
     "errorRemovingService": "Could not remove service. Please try again.",
     "removeEntryTitle": "Remove Entry?",
-    "removeEntryMessage": "Are you sure you want to remove the record for \"{title}\"? This action cannot be undone.",
+    "removeEntryMessage": "Are you sure you want to remove the record for \"$title\"? This action cannot be undone.",
     "errorTitle": "Something went wrong",
     "errorMessage": "We had trouble fetching your data. Please check your connection or try again.",
     "totalSpent": "Total Spent",
@@ -240,6 +242,8 @@
     "recordPreview": "RECORD PREVIEW",
     "untitledService": "Untitled Service",
     "unknownVehicle": "Unknown",
+    "odometerDashboard": "Odometer (Dashboard)",
+    "goalReachedWarning": "You have reached your service goal. We recommend updating your next goal in \"Edit Vehicle\".",
     "costLabel": "COST",
     "costFree": "Free",
     "mileageLabel": "MILEAGE",
@@ -263,7 +267,10 @@
       "zero": "No favorites saved",
       "other": "{n} favorites saved"
     },
-    "noFavorites": "No favorite vehicles yet",
+    "noFavorites": "You don't have favorite vehicles yet",
+    "lastServiceLabel": "Last service: $time",
+    "noServicesLogged": "No services recorded",
+    "registerAction": "Register",
     "notifications": "Notifications",
     "configureAlerts": "Configure your alerts",
     "pushNotifications": "Push Notifications",
@@ -279,13 +286,13 @@
     "twoFactorEnabled": "● Enabled",
     "twoFactorDisabled": "○ Disabled — tap to enable",
     "appSettings": "App Settings",
-    "appSettingsSubtitle": "Theme: {theme} · Language: {language}",
+    "appSettingsSubtitle": "Theme: $theme · Language: $language",
     "themeDark": "Dark",
     "themeLight": "Light",
     "theme": "Theme",
     "language": "Language",
     "feedbackSupport": "Support",
-    "rateDriveTrack": "Rate DriveTrack",
+    "rateDriveTrack": "Rate DriverTrack",
     "shareExperience": "Share your experience",
     "helpSupport": "Help & Support",
     "faqsContact": "FAQs, Contact us",
@@ -295,7 +302,7 @@
     "footerTagline": "Crafted with ❤️ for Drivers worldwide",
     "driver": "Driver",
     "activeStatus": "Active Status",
-    "memberSince": "Member since {year}",
+    "memberSince": "Member since $year",
     "statsVehicles": "Vehicles",
     "statsVehiclesSub": "linked",
     "statsServices": "Services",
@@ -328,7 +335,7 @@
   },
   "notifications": {
     "title": "Notifications",
-    "unreadSummary": "{unread} unread · {total} total",
+    "unreadSummary": "$unread unread · $total total",
     "markAllRead": "Mark all read",
     "filterAll": "All",
     "filterUnread": "Unread",
@@ -356,20 +363,20 @@
     "summaryInfo": "Info",
     "rules": {
       "mileage_warning": {
-          "title": "High mileage: {brand} {model}",
-          "message": "Your {brand} {model} ({plate}) is at {percent}% of the maximum mileage ({mileage}/{max_mileage} km). Consider scheduling a service."
+          "title": "High mileage: $brand $model",
+          "message": "Your $brand $model ($plate) is at $percent% of the maximum mileage ($mileage/$max_mileage km). Consider scheduling a service."
       },
       "mileage_critical": {
-          "title": "⚠️ Mileage exceeded: {brand} {model}",
-          "message": "Your {brand} {model} ({plate}) has reached {percent}% of the maximum mileage ({mileage}/{max_mileage} km). It's urgent to take your vehicle for service."
+          "title": "⚠️ Mileage exceeded: $brand $model",
+          "message": "Your $brand $model ($plate) has reached $percent% of the maximum mileage ($mileage/$max_mileage km). It's urgent to take your vehicle for service."
       },
       "maintenance_overdue": {
-          "title": "Maintenance overdue: {brand} {model}",
-          "message": "Your {brand} {model} ({plate}) has gone {days} days without maintenance. The last service was on {last_date}."
+          "title": "Maintenance overdue: $brand $model",
+          "message": "Your $brand $model ($plate) has gone $days days without maintenance. The last service was on $last_date."
       },
       "no_maintenance": {
-          "title": "No maintenance: {brand} {model}",
-          "message": "Your {brand} {model} ({plate}) has no maintenance records. Log your service history to receive smart alerts."
+          "title": "No maintenance: $brand $model",
+          "message": "Your $brand $model ($plate) has no maintenance records. Log your service history to receive smart alerts."
       }
     },
     "mocks": {
@@ -423,6 +430,7 @@
   "map": {
     "exploreNearby": "Explore Nearby",
     "title": "Service Map",
+    "subtitle": "Explore nearby services",
     "live": "Live",
     "searchHint": "Search workshops, gas stations...",
     "filterAll": "All",
@@ -435,9 +443,9 @@
     "openNow": "Open Now",
     "closed": "Closed",
     "navigate": "Navigate",
-    "navigatingTo": "Navigating to {name}...",
-    "calling": "Calling {phone}...",
-    "locationsFound": "{count} locations found",
+    "navigatingTo": "Navigating to $name...",
+    "calling": "Calling $phone...",
+    "locationsFound": "$count locations found",
     "specialties": "Specialties",
     "myLocation": "My Location",
     "loadingMap": "Loading map...",
@@ -451,13 +459,13 @@
   },
   "weatherWidget": {
     "alert": "WEATHER ALERT",
-    "condition": "{weather} · {temp}",
-    "humidity": "{value}%",
+    "condition": "$weather · $temp",
+    "humidity": "$value%",
     "loading": "Getting weather...",
     "errorTitle": "Weather unavailable",
     "errorRetry": "Tap to retry",
     "fallbackLocation": "Approximate location",
-    "lastUpdated": "Updated {time}",
+    "lastUpdated": "Updated $time",
     "conditions": {
       "clear": "Clear",
       "clouds": "Cloudy",
@@ -486,23 +494,23 @@
   "currency": {
     "title": "Currency Converter",
     "refreshTooltip": "Refresh Rate",
-    "amountLabel": "Amount ({code})",
+    "amountLabel": "Amount ($code)",
     "swapTooltip": "Swap Currencies",
     "convertedAmount": "Converted Amount",
-    "rateLabel": "Rate: 1 {from} = {rate} {to}",
+    "rateLabel": "Rate: 1 $from = $rate $to",
     "errorLoad": "Failed to load exchange rates",
     "tryAgain": "Try Again",
     "converterLabel": "CURRENCY CONVERTER",
     "refreshRate": "Refresh Rate",
     "swapCurrencies": "Swap Currencies",
-    "rateDesc": "Rate: 1 {from} = {rate} {to}",
+    "rateDesc": "Rate: 1 $from = $rate $to",
     "errorLoadingRates": "Failed to load exchange rates"
   },
   "validators": {
-    "requiredParams": "{field} is required",
-    "notEmptyParams": "{field} cannot be empty",
-    "minParams": "{field} must be at least {min}",
-    "maxParams": "{field} cannot exceed {max}",
+    "requiredParams": "$field is required",
+    "notEmptyParams": "$field cannot be empty",
+    "minParams": "$field must be at least $min",
+    "maxParams": "$field cannot exceed $max",
     "plateRequired": "License plate is required",
     "plateTooShort": "Plate is too short",
     "plateTooLong": "Plate is too long",
@@ -558,11 +566,12 @@
   },
   "time": {
     "now": "Now",
-    "today": "Today",
-    "minutesAgo": "{n} min ago",
-    "hoursAgo": "{n}h ago",
-    "daysAgo": "{n}d ago",
-    "monthsAgo": "{n}m ago",
-    "yearsAgo": "{n}y ago"
+    "today": "today",
+    "yesterday": "yesterday",
+    "minutesAgo": "$n min ago",
+    "hoursAgo": "${n}h ago",
+    "daysAgo": "$n days ago",
+    "monthsAgo": "$n months ago",
+    "yearsAgo": "$n year(s) ago"
   }
 }

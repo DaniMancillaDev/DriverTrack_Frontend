@@ -198,9 +198,8 @@ class _PlacesListSheetState extends State<PlacesListSheet> {
                     ),
                     SizedBox(height: r.space(4)),
                     Text(
-                      Translations.of(context).map.locationsFound.replaceAll(
-                        '{count}',
-                        locations.length.toString(),
+                      Translations.of(context).map.locationsFound(
+                        count: locations.length.toString(),
                       ),
                       style: AppTextStyles.button(
                         context,

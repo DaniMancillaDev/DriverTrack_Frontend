@@ -13,18 +13,17 @@ import '../../../../providers/app_providers.dart' show apiClientProvider;
 import '../../data/datasources/weather_local_datasource.dart';
 import '../../data/datasources/weather_remote_datasource.dart';
 import '../../data/repositories/weather_repository_impl.dart';
-import '../../data/services/geo_location_service.dart';
+
 import '../../domain/entities/weather_entity.dart';
 import '../../domain/entities/weather_recommendation.dart';
 import '../../domain/repositories/weather_repository.dart';
 import '../../domain/services/recommendation_engine.dart';
+import '../../../../core/location/domain/location_state.dart';
+import '../../../../core/location/presentation/location_provider.dart';
 
 // ─── Proveedores de Dependencias Inferiores ────────────────────────
 
-/// Punto de acceso al servicio de geolocalización del dispositivo.
-final geoLocationServiceProvider = Provider<GeoLocationService>((ref) {
-  return const GeoLocationService();
-});
+// Eliminado geoLocationServiceProvider local ya que ahora es central
 
 /// Gestiona la comunicación con la API externa de clima.
 final weatherRemoteDataSourceProvider = Provider<WeatherRemoteDataSource>((
@@ -102,6 +101,9 @@ class WeatherNotifier extends AsyncNotifier<WeatherState> {
 
   @override
   Future<WeatherState> build() async {
+    // Al observar el provider global, si cambia (ej. GPS a Manual), el clima se recargará automáticamente
+    ref.watch(globalLocationProvider);
+
     ref.onDispose(() {
       _refreshTimer?.cancel();
     });
@@ -111,32 +113,35 @@ class WeatherNotifier extends AsyncNotifier<WeatherState> {
     return _fetchWeather();
   }
 
-  /// Recupera el clima consolidado, priorizando selecciones manuales sobre el GPS.
-  Future<WeatherState> _fetchWeather({String? overrideCity}) async {
-    final geoService = ref.read(geoLocationServiceProvider);
+  Future<WeatherState> _fetchWeather() async {
     final repo = ref.read(weatherRepositoryProvider);
-    final prefs = ref.read(sharedPreferencesProvider);
-
-    final city = overrideCity ?? prefs.getString('manual_weather_city');
+    final locationStateAsync = ref.read(globalLocationProvider);
+    
+    // Si la ubicación aún está cargando o en error, esperamos que resuelva
+    if (locationStateAsync.isLoading || locationStateAsync.hasError) {
+      throw Exception("Esperando ubicación...");
+    }
+    
+    final locationState = locationStateAsync.value!;
 
     WeatherEntity weather;
-    bool isFallback = false;
+    bool isFallback = locationState.isFallback;
 
-    if (city != null && city.isNotEmpty) {
-      weather = await repo.getWeatherByCity(cityName: city);
+    // ALERTA DE ARQUITECTURA: Mantiene integración nativa FastAPI
+    // FastAPI se encarga de resolver la ciudad mediante query params manuales
+    if (locationState.mode == LocationMode.manual && 
+        locationState.manualCityName != null && 
+        locationState.manualCityName!.isNotEmpty) {
+      weather = await repo.getWeatherByCity(cityName: locationState.manualCityName!);
     } else {
-      // 1. Geolocalización
-      final location = await geoService.getCurrentLocation();
-      isFallback = location.isFallback;
-
-      // 2. Transmisión de datos
+      // 1. Coordenadas GPS (Fallback o Reales)
       weather = await repo.getWeather(
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: locationState.latitude ?? 19.4326, // default safe lat
+        longitude: locationState.longitude ?? -99.1332, // default safe lon
       );
     }
 
-    // 3. Post-procesamiento: Generar recomendaciones de conducción
+    // 2. Post-procesamiento: Generar recomendaciones de conducción
     final recommendations = RecommendationEngine.evaluate(weather);
 
     return WeatherState(
@@ -160,31 +165,27 @@ class WeatherNotifier extends AsyncNotifier<WeatherState> {
     });
   }
 
-  /// Fuerza una recarga completa del estado desde la interfaz.
+  /// Fuerza una recarga completa del estado desde la interfaz (Bypass caché).
   Future<void> refresh() async {
     state = const AsyncLoading();
+    // Invalidamos explícitamente la memoria caché para forzar red
+    await ref.read(weatherRepositoryProvider).clearCache();
     state = await AsyncValue.guard(() => _fetchWeather());
   }
 
-  /// Establece una ciudad fija para el clima, anulando la geolocalización.
-  /// 
-  /// Persiste la elección en preferencias para mantenerla entre sesiones.
-  /// Si [city] es vacío, se restaura el seguimiento por GPS.
+  /// Establece una ciudad fija para el clima utilizando el LocationProvider global
   Future<void> setManualCity(String city) async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    state = const AsyncLoading();
+    // 1. INVALIDACIÓN DE CACHÉ: 
+    // Es crítico limpiar el repositorio al cambiar de modo, de lo contrario 
+    // getWeather(lat, lon) retornaría la instancia 'fresh' de la ciudad manual consultada.
+    await ref.read(weatherRepositoryProvider).clearCache();
 
+    // 2. Transición de Estado Core
     if (city.trim().isEmpty) {
-      await prefs.remove('manual_weather_city');
-      state = await AsyncValue.guard(() => _fetchWeather());
-      return;
+      await ref.read(globalLocationProvider.notifier).useGpsMode();
+    } else {
+      await ref.read(globalLocationProvider.notifier).useManualCity(city);
     }
-
-    state = await AsyncValue.guard(() async {
-      final newState = await _fetchWeather(overrideCity: city);
-      await prefs.setString('manual_weather_city', city);
-      return newState;
-    });
   }
 }
 

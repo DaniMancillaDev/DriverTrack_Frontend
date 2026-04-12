@@ -44,48 +44,48 @@ class NotificationCard extends StatelessWidget {
         
         switch (notif.title) {
           case 'mileage_warning':
-            displayTitle = currentLang.rules.mileage_warning.title
-                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
-                .replaceAll('{model}', payload['model']?.toString() ?? '');
-            displayMessage = currentLang.rules.mileage_warning.message
-                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
-                .replaceAll('{model}', payload['model']?.toString() ?? '')
-                .replaceAll('{plate}', payload['plate']?.toString() ?? '')
-                .replaceAll('{percent}', payload['percent']?.toString() ?? '')
-                .replaceAll('{mileage}', payload['mileage']?.toString() ?? '')
-                .replaceAll('{max_mileage}', payload['max_mileage']?.toString() ?? '');
+            displayTitle = currentLang.rules.mileage_warning.title(
+                brand: payload['brand']?.toString() ?? '',
+                model: payload['model']?.toString() ?? '');
+            displayMessage = currentLang.rules.mileage_warning.message(
+                brand: payload['brand']?.toString() ?? '',
+                model: payload['model']?.toString() ?? '',
+                plate: payload['plate']?.toString() ?? '',
+                percent: payload['percent']?.toString() ?? '',
+                mileage: payload['mileage']?.toString() ?? '',
+                max_mileage: payload['max_mileage']?.toString() ?? '');
             break;
           case 'mileage_critical':
-            displayTitle = currentLang.rules.mileage_critical.title
-                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
-                .replaceAll('{model}', payload['model']?.toString() ?? '');
-            displayMessage = currentLang.rules.mileage_critical.message
-                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
-                .replaceAll('{model}', payload['model']?.toString() ?? '')
-                .replaceAll('{plate}', payload['plate']?.toString() ?? '')
-                .replaceAll('{percent}', payload['percent']?.toString() ?? '')
-                .replaceAll('{mileage}', payload['mileage']?.toString() ?? '')
-                .replaceAll('{max_mileage}', payload['max_mileage']?.toString() ?? '');
+            displayTitle = currentLang.rules.mileage_critical.title(
+                brand: payload['brand']?.toString() ?? '',
+                model: payload['model']?.toString() ?? '');
+            displayMessage = currentLang.rules.mileage_critical.message(
+                brand: payload['brand']?.toString() ?? '',
+                model: payload['model']?.toString() ?? '',
+                plate: payload['plate']?.toString() ?? '',
+                percent: payload['percent']?.toString() ?? '',
+                mileage: payload['mileage']?.toString() ?? '',
+                max_mileage: payload['max_mileage']?.toString() ?? '');
             break;
           case 'maintenance_overdue':
-            displayTitle = currentLang.rules.maintenance_overdue.title
-                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
-                .replaceAll('{model}', payload['model']?.toString() ?? '');
-            displayMessage = currentLang.rules.maintenance_overdue.message
-                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
-                .replaceAll('{model}', payload['model']?.toString() ?? '')
-                .replaceAll('{plate}', payload['plate']?.toString() ?? '')
-                .replaceAll('{days}', payload['days']?.toString() ?? '')
-                .replaceAll('{last_date}', payload['last_date']?.toString() ?? '');
+            displayTitle = currentLang.rules.maintenance_overdue.title(
+                brand: payload['brand']?.toString() ?? '',
+                model: payload['model']?.toString() ?? '');
+            displayMessage = currentLang.rules.maintenance_overdue.message(
+                brand: payload['brand']?.toString() ?? '',
+                model: payload['model']?.toString() ?? '',
+                plate: payload['plate']?.toString() ?? '',
+                days: payload['days']?.toString() ?? '',
+                last_date: payload['last_date']?.toString() ?? '');
             break;
           case 'no_maintenance':
-            displayTitle = currentLang.rules.no_maintenance.title
-                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
-                .replaceAll('{model}', payload['model']?.toString() ?? '');
-            displayMessage = currentLang.rules.no_maintenance.message
-                .replaceAll('{brand}', payload['brand']?.toString() ?? '')
-                .replaceAll('{model}', payload['model']?.toString() ?? '')
-                .replaceAll('{plate}', payload['plate']?.toString() ?? '');
+            displayTitle = currentLang.rules.no_maintenance.title(
+                brand: payload['brand']?.toString() ?? '',
+                model: payload['model']?.toString() ?? '');
+            displayMessage = currentLang.rules.no_maintenance.message(
+                brand: payload['brand']?.toString() ?? '',
+                model: payload['model']?.toString() ?? '',
+                plate: payload['plate']?.toString() ?? '');
             break;
         }
       } catch (_) {

@@ -257,6 +257,9 @@ class MaintenanceDocsNotifier extends AsyncNotifier<List<Maintenance>> {
 
   @override
   Future<List<Maintenance>> build() async {
+    // Si el ID es negativo (vehículo temporal optimista), no consultamos al servidor
+    if (arg.vehicleId != null && arg.vehicleId! < 0) return [];
+
     final repository = ref.watch(maintenanceRepositoryProvider);
     List<Maintenance> docs;
     if (arg.vehicleId != null) {

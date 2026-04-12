@@ -154,11 +154,11 @@ class NotificationTile extends StatelessWidget {
 
     if (diff.inMinutes < 1) return t.time.now;
     if (diff.inMinutes < 60)
-      return t.time.minutesAgo.replaceAll('{n}', '${diff.inMinutes}');
+      return t.time.minutesAgo(n: diff.inMinutes);
     if (diff.inHours < 24)
-      return t.time.hoursAgo.replaceAll('{n}', '${diff.inHours}');
+      return t.time.hoursAgo(n: diff.inHours);
     if (diff.inDays < 7)
-      return t.time.daysAgo.replaceAll('{n}', '${diff.inDays}');
+      return t.time.daysAgo(n: diff.inDays);
     return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
   }
 

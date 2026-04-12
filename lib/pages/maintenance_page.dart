@@ -19,6 +19,7 @@ import '../core/i18n/translations.g.dart';
 import '../core/responsive/responsive.dart';
 import '../theme/app_color_scheme.dart';
 import '../widgets/maintenance/maintenance_empty_state.dart';
+import '../widgets/ui/sliver_header_delegate.dart';
 
 /// Página de historial y gestión de mantenimiento.
 /// 
@@ -104,7 +105,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${Translations.of(context).maintenance.errorAddingService.replaceAll('{error}', '$e')}',
+              '${Translations.of(context).maintenance.errorAddingService(error: '$e')}',
             ),
             backgroundColor: AppColors.red,
             behavior: SnackBarBehavior.floating,
@@ -178,7 +179,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      '${Translations.of(context).maintenance.errorUpdatingService.replaceAll('{error}', '$e')}',
+                      Translations.of(context).maintenance.errorUpdatingService(error: '$e'),
                     ),
                     backgroundColor: AppColors.red,
                     behavior: SnackBarBehavior.floating,
@@ -198,7 +199,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
       title: Translations.of(context).maintenance.removeEntryTitle,
       message: Translations.of(
         context,
-      ).maintenance.removeEntryMessage.replaceAll('{title}', vm.title),
+      ).maintenance.removeEntryMessage(title: vm.title),
       onConfirm: () async {
         try {
           final repository = ref.read(maintenanceRepositoryProvider);
@@ -224,7 +225,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  '${Translations.of(context).maintenance.errorRemovingService.replaceAll('{error}', '$e')}',
+                  '${Translations.of(context).maintenance.errorRemovingService}: $e',
                 ),
                 backgroundColor: AppColors.red,
                 behavior: SnackBarBehavior.floating,
@@ -277,84 +278,70 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
                       )
                       .toList();
 
-            return Stack(
-              children: [
-                // Scroll content — padding top deja espacio al sticky header
-                RefreshIndicator(
-                  onRefresh: () async {
-                    ref.invalidate(maintenanceDocsProvider);
-                    ref.invalidate(vehiclesProvider);
-                  },
-                  color: AppColors.orangePrimary,
-                  backgroundColor: context.colors.surface,
-                  edgeOffset: MediaQuery.of(context).padding.top + r.dim(120),
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    physics: const BouncingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics(),
+            return RefreshIndicator(
+              onRefresh: () async {
+                ref.invalidate(maintenanceDocsProvider);
+                ref.invalidate(vehiclesProvider);
+              },
+              color: AppColors.orangePrimary,
+              backgroundColor: context.colors.surface,
+              edgeOffset: MediaQuery.of(context).padding.top + r.dim(80),
+              child: CustomScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                slivers: [
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: SliverPinnedHeaderDelegate(
+                      height: MediaQuery.of(context).padding.top + r.dim(82),
+                      child: const MaintenanceHeader(),
                     ),
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            r.space(AppSpacing.lg),
-                            // Espacio para el sticky header (~110px) + SafeArea top
-                            MediaQuery.of(context).padding.top + r.dim(120),
-                            r.space(AppSpacing.lg),
-                            0,
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        r.space(AppSpacing.lg),
+                        r.space(AppSpacing.md), // Consistent gap after header
+                        r.space(AppSpacing.lg),
+                        0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          MaintenanceStats(maintenances: viewModels),
+                          SizedBox(height: r.space(AppSpacing.xl)),
+                          FilterPills(
+                            filters: dynamicFilters,
+                            activeFilter: _activeFilter,
+                            onFilterChanged: (filter) =>
+                                setState(() => _activeFilter = filter),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              MaintenanceStats(maintenances: viewModels),
-                              SizedBox(height: r.space(AppSpacing.xl)),
-                              FilterPills(
-                                filters: dynamicFilters,
-                                activeFilter: _activeFilter,
-                                onFilterChanged: (filter) =>
-                                    setState(() => _activeFilter = filter),
-                              ),
-                              SizedBox(height: r.space(AppSpacing.md)),
-                              if (filtered.isEmpty)
-                                MaintenanceEmptyState(
-                                  isFiltering:
-                                      _activeFilter != Translations.of(context).maintenance.allVehicles,
-                                )
-                              else
-                                ...List.generate(
-                                  filtered.length,
-                                  (i) => MaintenanceCard(
-                                    vm: filtered[i],
-                                    vehicleName: getVehicleName(
-                                      filtered[i].vehicleId,
-                                    ),
-                                    onTap: () => _showServiceDetailSheet(filtered[i], getVehicleName),
-                                  ),
+                          SizedBox(height: r.space(AppSpacing.md)),
+                          if (filtered.isEmpty)
+                            MaintenanceEmptyState(
+                              isFiltering:
+                                  _activeFilter != Translations.of(context).maintenance.allVehicles,
+                            )
+                          else
+                            ...List.generate(
+                              filtered.length,
+                              (i) => MaintenanceCard(
+                                vm: filtered[i],
+                                vehicleName: getVehicleName(
+                                  filtered[i].vehicleId,
                                 ),
-                              SizedBox(height: r.dim(100)),
-                            ],
-                          ),
-                        ),
+                                onTap: () => _showServiceDetailSheet(filtered[i], getVehicleName),
+                              ),
+                            ),
+                          SizedBox(height: r.dim(100)),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-
-                // Sticky header — glassmorphism, igual que GarageHeader
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: r.value(mobile: 600, tablet: 700),
-                      ),
-                      child: MaintenanceHeader(),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           },
           loading: _buildLoading,

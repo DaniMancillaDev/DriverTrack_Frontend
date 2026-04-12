@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'unit_system.dart';
 import 'unit_converter.dart';
 
@@ -12,6 +13,11 @@ import 'unit_converter.dart';
 class UnitFormatter {
   const UnitFormatter._();
 
+  /// Formatea un valor para visualización estilo odómetro (sin unidad).
+  /// Ej: 226800.5 -> "226.801" (en ES) o "226,801" (en EN).
+  static String formatOdometer(double value) {
+    return NumberFormat.decimalPattern().format(value.round());
+  }
   /// Formatea un valor de distancia (en km) según el [UnitSystem] solicitado.
   /// 
   /// Retorna un String que incluye el valor redondeado y el símbolo de la unidad.

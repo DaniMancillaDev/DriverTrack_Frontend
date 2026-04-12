@@ -376,7 +376,7 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                     4,
                     CustomInput(
                       controller: _mileageController,
-                      label: t.maintenance.mileage,
+                      label: t.maintenance.odometerDashboard,
                       placeholder: t.maintenance.mileagePlaceholder,
                       errorText: _dirtyFields.contains('mileage')
                           ? _mileageError

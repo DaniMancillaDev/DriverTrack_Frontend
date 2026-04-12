@@ -16,14 +16,14 @@ class AppConfig {
   /// Configuración predeterminada para el entorno local o de desarrollo.
   factory AppConfig.dev() {
     return const AppConfig(
-      baseUrl: 'http://74.208.155.46:8010',
+      baseUrl: 'https://drivertrack.mikecardona076.com',
     );
   }
 
   /// Configuración optimizada para el entorno de producción.
   factory AppConfig.prod() {
     return const AppConfig(
-      baseUrl: 'http://74.208.155.46:8010',
+      baseUrl: 'https://drivertrack.mikecardona076.com',
     );
   }
 }

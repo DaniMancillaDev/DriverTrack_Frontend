@@ -8,52 +8,33 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/map_location.dart';
 import '../../../../providers/app_providers.dart';
 
+import '../../../../core/location/presentation/location_provider.dart';
+
 // User GPS Location Provider
 class UserLocationNotifier extends AsyncNotifier<LatLng?> {
   @override
   FutureOr<LatLng?> build() async {
-    return null;
+    // Esto asegura que el mapa reacciona a los cambios globales de ubicación (ej. desde el clima)
+    final locationStateAsync = ref.watch(globalLocationProvider);
+    
+    return locationStateAsync.when(
+      data: (state) {
+        if (state.latitude != null && state.longitude != null) {
+          return LatLng(state.latitude!, state.longitude!);
+        }
+        return null; // Si está en modo Manual puro por string, no sabemos la coords del mapa aún.
+      },
+      loading: () => null,
+      error: (_, __) => null,
+    );
   }
 
+  /// Limpia forzosamente cualquier caché manual y exige lectura fresca del GPS
   Future<void> fetchCurrentLocation() async {
     state = const AsyncLoading();
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        state = AsyncValue.error(
-          'Location services disabled.',
-          StackTrace.current,
-        );
-        return;
-      }
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          state = AsyncValue.error(
-            'Location permissions denied.',
-            StackTrace.current,
-          );
-          return;
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        state = AsyncValue.error(
-          'Location permissions are permanently denied.',
-          StackTrace.current,
-        );
-        return;
-      }
-
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 10,
-        ),
-      );
-      state = AsyncData(LatLng(position.latitude, position.longitude));
+      // Obligamos al estado global a restaurar modo GPS y leer nueva lat/lon
+      await ref.read(globalLocationProvider.notifier).useGpsMode();
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }

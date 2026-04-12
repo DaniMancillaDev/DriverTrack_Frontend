@@ -24,6 +24,7 @@ import '../widgets/garage/garage_empty_state.dart';
 import '../widgets/garage/vehicle_card.dart';
 import '../widgets/garage/vehicle_card_skeleton.dart';
 import '../widgets/garage/weather_widget.dart';
+import '../widgets/ui/sliver_header_delegate.dart';
 
 /// Página principal del "Garaje" (Dashboard).
 /// 
@@ -186,13 +187,18 @@ class _GaragePageState extends ConsumerState<GaragePage> {
           ref.read(maintenanceDocsProvider(params).notifier).updateLocal(newRecord);
           ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(newRecord);
 
+          // Actualizar el kilometraje del vehículo localmente para reflejar la salud de inmediato
+          if ((data['mileage'] as int) > vehicle.mileage) {
+            final updatedVehicle = vehicle.copyWith(mileage: data['mileage'] as int);
+            ref.read(vehiclesProvider.notifier).updateVehicleLocally(updatedVehicle);
+          }
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  Translations.of(context).garage.serviceLogged.replaceAll(
-                    '{vehicleName}',
-                    vehicle.displayName,
+                  Translations.of(context).garage.serviceLogged(
+                    vehicleName: vehicle.displayName,
                   ),
                 ),
                 backgroundColor: AppColors.green,
@@ -233,6 +239,12 @@ class _GaragePageState extends ConsumerState<GaragePage> {
           ref.read(maintenanceDocsProvider(params).notifier).updateLocal(updatedRecord);
           ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(updatedRecord);
 
+          // Actualizar el kilometraje del vehículo localmente si cambió significativamente
+          if ((data['mileage'] as int) > vehicle.mileage) {
+            final updatedVehicle = vehicle.copyWith(mileage: data['mileage'] as int);
+            ref.read(vehiclesProvider.notifier).updateVehicleLocally(updatedVehicle);
+          }
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -253,9 +265,7 @@ class _GaragePageState extends ConsumerState<GaragePage> {
     ConfirmationDialog.show(
       context,
       title: Translations.of(context).garage.removeVehicleTitle,
-      message: Translations.of(
-        context,
-      ).garage.removeVehicleMessage.replaceAll('{vehicleName}', vehicleName),
+      message: Translations.of(context).garage.removeVehicleMessage(vehicleName: vehicleName),
       onConfirm: () async {
         try {
           await ref.read(vehiclesProvider.notifier).deleteVehicle(vehicleId);
@@ -276,83 +286,70 @@ class _GaragePageState extends ConsumerState<GaragePage> {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: Stack(
-        children: [
-          vehiclesAsyncValue.when(
-            data: (vehiclesList) => Stack(
-              children: [
-                Positioned.fill(
-                  child: RefreshIndicator(
-                    onRefresh: () => ref.read(vehiclesProvider.notifier).refresh(),
-                    color: AppColors.orangePrimary,
-                    backgroundColor: context.colors.surface,
-                    edgeOffset: MediaQuery.of(context).padding.top + r.dim(80),
-                    child: CustomScrollView(
-                      controller: _scrollController,
-                      physics: const BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics(),
-                      ),
-                      slivers: [
-                        SliverPadding(
-                          padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).padding.top + r.dim(80),
-                            left: r.space(AppSpacing.lg),
-                            right: r.space(AppSpacing.lg),
-                            bottom: r.dim(120),
-                          ),
-                          sliver: SliverList(
-                            delegate: SliverChildListDelegate([
-                              Center(
-                                child: ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxWidth: r.value(mobile: 600, tablet: 700),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      GarageStats(vehicles: vehiclesList),
-                                      SizedBox(height: r.space(AppSpacing.xxl)),
-                                      _buildVehiclesSection(vehiclesList, r),
-                                      SizedBox(
-                                        height: r.space(AppSpacing.massive),
-                                      ),
-                                      const WeatherWidget(),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ]),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
+      body: vehiclesAsyncValue.when(
+        data: (vehiclesList) => RefreshIndicator(
+          onRefresh: () => ref.read(vehiclesProvider.notifier).refresh(),
+          color: AppColors.orangePrimary,
+          backgroundColor: context.colors.surface,
+          edgeOffset: MediaQuery.of(context).padding.top + r.dim(80),
+          child: CustomScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: SliverPinnedHeaderDelegate(
+                  height: MediaQuery.of(context).padding.top + r.dim(82),
                   child: GarageHeader(
-                    onNotificationTap: () =>
-                        context.push('/notifications'),
+                    onNotificationTap: () => context.push('/notifications'),
                   ),
                 ),
-              ],
-            ),
-            loading: () => ListView.builder(
-              padding: EdgeInsets.fromLTRB(
-                r.space(AppSpacing.lg),
-                r.dim(100),
-                r.space(AppSpacing.lg),
-                r.dim(100),
               ),
-              itemCount: 3,
-              itemBuilder: (context, _) => const VehicleCardSkeleton(),
-            ),
-            error: (err, stack) => _buildErrorState(r),
+              SliverPadding(
+                padding: EdgeInsets.only(
+                  left: r.space(AppSpacing.lg),
+                  right: r.space(AppSpacing.lg),
+                  bottom: r.dim(120),
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: r.value(mobile: 600, tablet: 700),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(height: r.space(AppSpacing.md)),
+                            GarageStats(vehicles: vehiclesList),
+                            SizedBox(height: r.space(AppSpacing.xxl)),
+                            _buildVehiclesSection(vehiclesList, r),
+                            SizedBox(height: r.space(AppSpacing.massive)),
+                            const WeatherWidget(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ]),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
+        loading: () => ListView.builder(
+          padding: EdgeInsets.fromLTRB(
+            r.space(AppSpacing.lg),
+            r.dim(100),
+            r.space(AppSpacing.lg),
+            r.dim(100),
+          ),
+          itemCount: 3,
+          itemBuilder: (context, _) => const VehicleCardSkeleton(),
+        ),
+        error: (err, stack) => _buildErrorState(r),
       ),
       floatingActionButton: Center(
         child: ConstrainedBox(

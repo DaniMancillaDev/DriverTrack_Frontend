@@ -9,7 +9,7 @@ import '../core/presentation/ui/snackbar_presentation.dart';
 import 'package:go_router/go_router.dart';
 import '../core/error/error_mapper.dart';
 import '../core/i18n/translations.g.dart';
-import '../core/responsive/responsive.g.dart';
+import '../core/responsive/responsive.dart';
 import '../theme/app_color_scheme.dart';
 
 /// Puerta de enlace de autenticación e inicio de sesión.
@@ -211,7 +211,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
         SizedBox(height: r.space(AppSpacing.s)),
         // Nombre de la app debajo del logo
         Text(
-          'DriverTrack',
+          t.common.appName,
           style: AppTextStyles.caption(context).copyWith(
             color: context.colors.textDim,
             letterSpacing: 1.8,
@@ -293,16 +293,22 @@ class _LoginPageState extends ConsumerState<LoginPage>
         ),
         SizedBox(height: r.space(AppSpacing.s)),
 
-        // Forgot password — más visible en naranja
-        Align(
-          alignment: Alignment.centerRight,
-          child: GestureDetector(
-            onTap: () => context.push('/forgot-password'),
-            child: Text(
-              t.auth.forgotPassword,
-              style: AppTextStyles.caption(context).copyWith(
-                color: AppColors.orangeSecondary,
-                fontWeight: FontWeight.w600,
+        // Forgot password — oculto hasta que el endpoint esté funcional
+        Visibility(
+          visible: false,
+          maintainSize: false,
+          maintainAnimation: false,
+          maintainState: false,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: () => context.push('/forgot-password'),
+              child: Text(
+                t.auth.forgotPassword,
+                style: AppTextStyles.caption(context).copyWith(
+                  color: AppColors.orangeSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

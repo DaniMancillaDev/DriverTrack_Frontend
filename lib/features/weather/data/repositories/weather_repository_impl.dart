@@ -28,9 +28,9 @@ class WeatherRepositoryImpl implements WeatherRepository {
     required double latitude,
     required double longitude,
   }) async {
-    // 1. Intentar cache fresco
-    if (localDataSource.isCacheFresh()) {
-      final cached = localDataSource.getCachedWeather();
+    // 1. Intentar cache fresco (GPS)
+    if (localDataSource.isCacheFresh(isManual: false)) {
+      final cached = localDataSource.getCachedWeather(isManual: false);
       if (cached != null) return cached;
     }
 
@@ -41,29 +41,41 @@ class WeatherRepositoryImpl implements WeatherRepository {
         longitude: longitude,
       );
 
-      // Cachear resultado
-      await localDataSource.cacheWeather(weather);
+      // Cachear resultado bajo llave GPS
+      await localDataSource.cacheWeather(weather, isManual: false);
       return weather;
     } catch (e) {
       // 3. Fallback: cache stale
-      final staleCache = localDataSource.getCachedWeather();
+      final staleCache = localDataSource.getCachedWeather(isManual: false);
       if (staleCache != null) return staleCache;
 
-      // 4. Sin datos disponibles
       rethrow;
     }
   }
 
   @override
   Future<WeatherEntity> getWeatherByCity({required String cityName}) async {
+    // 1. Intentar cache fresco (Manual)
+    if (localDataSource.isCacheFresh(isManual: true)) {
+      final cached = localDataSource.getCachedWeather(isManual: true);
+      // Validamos además que el caché corresponda a la ciudad solicitada
+      if (cached != null && cached.cityName.toLowerCase() == cityName.toLowerCase()) {
+        return cached;
+      }
+    }
+
     try {
       final weather = await remoteDataSource.fetchWeatherByCityName(
         cityName: cityName,
       );
 
-      await localDataSource.cacheWeather(weather);
+      await localDataSource.cacheWeather(weather, isManual: true);
       return weather;
     } catch (e) {
+      // Intentar fallback si falla la red
+      final staleCache = localDataSource.getCachedWeather(isManual: true);
+      if (staleCache != null) return staleCache;
+      
       rethrow;
     }
   }

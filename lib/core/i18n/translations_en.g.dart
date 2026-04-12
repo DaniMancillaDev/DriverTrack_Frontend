@@ -61,7 +61,7 @@ class _TranslationsCommonEn implements TranslationsCommonEs {
 	final TranslationsEn _root; // ignore: unused_field
 
 	// Translations
-	@override String get appName => 'DriveTrack';
+	@override String get appName => 'Driver Track';
 	@override String get ok => 'OK';
 	@override String get cancel => 'Cancel';
 	@override String get loading => 'Loading...';
@@ -154,7 +154,7 @@ class _TranslationsRegistrationEn implements TranslationsRegistrationEs {
 	// Translations
 	@override String get title => 'Create Account';
 	@override String get subtitle => 'Fill in your details to get started';
-	@override String get appTagline => 'Your intelligent vehicle companion';
+	@override String get footerTagline => 'Your intelligent vehicle companion';
 	@override String get fullName => 'FULL NAME';
 	@override String get fullNamePlaceholder => 'John Doe';
 	@override String get phoneNumber => 'PHONE NUMBER';
@@ -164,7 +164,7 @@ class _TranslationsRegistrationEn implements TranslationsRegistrationEs {
 	@override String get datePlaceholder => 'YYYY-MM-DD';
 	@override String get passwordPlaceholder => 'Min. 8 characters';
 	@override String get createAccount => 'Create Account';
-	@override String get welcomeSuccess => 'Welcome to DriveTrack!';
+	@override String get welcomeSuccess => 'Welcome to DriverTrack!';
 	@override String get alreadyHaveAccount => 'Already have an account? ';
 	@override String get passwordWeak => 'Weak';
 	@override String get passwordFair => 'Fair';
@@ -202,10 +202,10 @@ class _TranslationsGarageEn implements TranslationsGarageEs {
 	@override String get errorAddingVehicle => 'Could not add vehicle. Please try again.';
 	@override String get errorUpdatingVehicle => 'Could not update vehicle. Please try again.';
 	@override String get errorRemovingVehicle => 'Could not remove vehicle. Please try again.';
-	@override String get serviceLogged => 'Service logged for {vehicleName}';
+	@override String serviceLogged({required Object vehicleName}) => 'Service logged for ${vehicleName}';
 	@override String get serviceRecordUpdated => 'Service record updated';
 	@override String get removeVehicleTitle => 'Remove Vehicle';
-	@override String get removeVehicleMessage => 'Are you sure you want to remove "{vehicleName}" from your garage? This action will also delete all associated maintenance records.';
+	@override String removeVehicleMessage({required Object vehicleName}) => 'Are you sure you want to remove "${vehicleName}" from your garage? This action will also delete all associated maintenance records.';
 	@override String get errorSyncFailed => 'Oops! Sync Failed';
 	@override String get errorSyncMessage => 'We could not load your vehicles from the garage. Please check your connection.';
 	@override String vehicleCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
@@ -217,14 +217,14 @@ class _TranslationsGarageEn implements TranslationsGarageEs {
 	@override String get overallHealth => 'Overall Health';
 	@override String get totalSpent => 'Total Spent';
 	@override String get services => 'Services';
-	@override String get lastService => 'Last: {title} ({time})';
+	@override String lastService({required Object title, required Object time}) => 'Last: ${title} (${time})';
 	@override String get servicesDue => 'Services Due';
 	@override String get noRecordsFound => 'No records found';
 	@override String get noRecordsMessage => 'Keep track of your vehicle\'s health\nby logging your first service.';
 	@override String get emptyGarageTitle => 'Your Garage is Empty';
 	@override String get emptyGarageMessage => 'Tap the button below to add your first vehicle and start tracking its performance.';
 	@override String get deleteServiceTitle => 'Delete Service Record';
-	@override String get deleteServiceMessage => 'Are you sure you want to delete this record for "{title}"? This action cannot be undone.';
+	@override String deleteServiceMessage({required Object title}) => 'Are you sure you want to delete this record for "${title}"? This action cannot be undone.';
 	@override String get editVehicle => 'Edit Vehicle';
 	@override String get removeVehicle => 'Remove Vehicle';
 	@override String get vehicleType => 'Vehicle Type';
@@ -237,23 +237,25 @@ class _TranslationsGarageEn implements TranslationsGarageEs {
 	@override late final _TranslationsGarageAddVehicleFormEn addVehicleForm = _TranslationsGarageAddVehicleFormEn._(_root);
 	@override late final _TranslationsGarageVehicleTypesEn vehicleTypes = _TranslationsGarageVehicleTypesEn._(_root);
 	@override String get vehicleHealth => 'Vehicle Health';
-	@override String get limitMileage => 'Limit {mileage} mi';
+	@override String limitMileage({required Object mileage}) => 'Limit ${mileage} mi';
 	@override String get statusHealthy => 'Healthy';
 	@override String get statusNeedsService => 'Needs Service';
 	@override String get statusCritical => 'Critical';
 	@override String get recentServiceLabel => 'LAST SERVICE';
 	@override String get recentMaintenance => 'RECENT MAINTENANCE';
-	@override String recordsCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
+	@override String recordsCount({required num n, required Object count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
 		one: '1 record',
 		zero: '0 records',
-		other: '{count} records',
+		other: '${count} records',
 	);
 	@override String get totalDistanceMiles => 'Total Miles';
 	@override String get totalDistanceKm => 'Total Kilometers';
+	@override String get totalFleetDistance => 'Total Distance (KM)';
+	@override String get totalFleetDistanceMiles => 'Total Distance (MI)';
 	@override String get unitKilometers => 'Kilometers';
 	@override String get unitMiShort => 'mi';
 	@override String get unitKmShort => 'km';
-	@override String get notificationsUnread => 'Notifications, {count} unread';
+	@override String notificationsUnread({required Object count}) => 'Notifications, ${count} unread';
 	@override String get notificationsNone => 'Notifications, no new updates';
 	@override String get goodAfternoon => 'Good afternoon';
 	@override String get goodEvening => 'Good evening';
@@ -274,11 +276,11 @@ class _TranslationsMaintenanceEn implements TranslationsMaintenanceEs {
 	@override String get serviceAdded => 'Service added successfully';
 	@override String get serviceUpdated => 'Service record updated';
 	@override String get serviceRemoved => 'Service record removed';
-	@override String get errorAddingService => 'Error adding service: {error}';
-	@override String get errorUpdatingService => 'Error updating record: {error}';
+	@override String errorAddingService({required Object error}) => 'Error adding service: ${error}';
+	@override String errorUpdatingService({required Object error}) => 'Error updating record: ${error}';
 	@override String get errorRemovingService => 'Could not remove service. Please try again.';
 	@override String get removeEntryTitle => 'Remove Entry?';
-	@override String get removeEntryMessage => 'Are you sure you want to remove the record for "{title}"? This action cannot be undone.';
+	@override String removeEntryMessage({required Object title}) => 'Are you sure you want to remove the record for "${title}"? This action cannot be undone.';
 	@override String get errorTitle => 'Something went wrong';
 	@override String get errorMessage => 'We had trouble fetching your data. Please check your connection or try again.';
 	@override String get totalSpent => 'Total Spent';
@@ -314,6 +316,8 @@ class _TranslationsMaintenanceEn implements TranslationsMaintenanceEs {
 	@override String get recordPreview => 'RECORD PREVIEW';
 	@override String get untitledService => 'Untitled Service';
 	@override String get unknownVehicle => 'Unknown';
+	@override String get odometerDashboard => 'Odometer (Dashboard)';
+	@override String get goalReachedWarning => 'You have reached your service goal. We recommend updating your next goal in "Edit Vehicle".';
 	@override String get costLabel => 'COST';
 	@override String get costFree => 'Free';
 	@override String get mileageLabel => 'MILEAGE';
@@ -337,7 +341,10 @@ class _TranslationsProfileEn implements TranslationsProfileEs {
 		zero: 'No favorites saved',
 		other: '{n} favorites saved',
 	);
-	@override String get noFavorites => 'No favorite vehicles yet';
+	@override String get noFavorites => 'You don\'t have favorite vehicles yet';
+	@override String lastServiceLabel({required Object time}) => 'Last service: ${time}';
+	@override String get noServicesLogged => 'No services recorded';
+	@override String get registerAction => 'Register';
 	@override String get notifications => 'Notifications';
 	@override String get configureAlerts => 'Configure your alerts';
 	@override String get pushNotifications => 'Push Notifications';
@@ -353,13 +360,13 @@ class _TranslationsProfileEn implements TranslationsProfileEs {
 	@override String get twoFactorEnabled => '● Enabled';
 	@override String get twoFactorDisabled => '○ Disabled — tap to enable';
 	@override String get appSettings => 'App Settings';
-	@override String get appSettingsSubtitle => 'Theme: {theme} · Language: {language}';
+	@override String appSettingsSubtitle({required Object theme, required Object language}) => 'Theme: ${theme} · Language: ${language}';
 	@override String get themeDark => 'Dark';
 	@override String get themeLight => 'Light';
 	@override String get theme => 'Theme';
 	@override String get language => 'Language';
 	@override String get feedbackSupport => 'Support';
-	@override String get rateDriveTrack => 'Rate DriveTrack';
+	@override String get rateDriveTrack => 'Rate DriverTrack';
 	@override String get shareExperience => 'Share your experience';
 	@override String get helpSupport => 'Help & Support';
 	@override String get faqsContact => 'FAQs, Contact us';
@@ -369,7 +376,7 @@ class _TranslationsProfileEn implements TranslationsProfileEs {
 	@override String get footerTagline => 'Crafted with ❤️ for Drivers worldwide';
 	@override String get driver => 'Driver';
 	@override String get activeStatus => 'Active Status';
-	@override String get memberSince => 'Member since {year}';
+	@override String memberSince({required Object year}) => 'Member since ${year}';
 	@override String get statsVehicles => 'Vehicles';
 	@override String get statsVehiclesSub => 'linked';
 	@override String get statsServices => 'Services';
@@ -409,7 +416,7 @@ class _TranslationsNotificationsEn implements TranslationsNotificationsEs {
 
 	// Translations
 	@override String get title => 'Notifications';
-	@override String get unreadSummary => '{unread} unread · {total} total';
+	@override String unreadSummary({required Object unread, required Object total}) => '${unread} unread · ${total} total';
 	@override String get markAllRead => 'Mark all read';
 	@override String get filterAll => 'All';
 	@override String get filterUnread => 'Unread';
@@ -448,6 +455,7 @@ class _TranslationsMapEn implements TranslationsMapEs {
 	// Translations
 	@override String get exploreNearby => 'Explore Nearby';
 	@override String get title => 'Service Map';
+	@override String get subtitle => 'Explore nearby services';
 	@override String get live => 'Live';
 	@override String get searchHint => 'Search workshops, gas stations...';
 	@override String get filterAll => 'All';
@@ -460,9 +468,9 @@ class _TranslationsMapEn implements TranslationsMapEs {
 	@override String get openNow => 'Open Now';
 	@override String get closed => 'Closed';
 	@override String get navigate => 'Navigate';
-	@override String get navigatingTo => 'Navigating to {name}...';
-	@override String get calling => 'Calling {phone}...';
-	@override String get locationsFound => '{count} locations found';
+	@override String navigatingTo({required Object name}) => 'Navigating to ${name}...';
+	@override String calling({required Object phone}) => 'Calling ${phone}...';
+	@override String locationsFound({required Object count}) => '${count} locations found';
 	@override String get specialties => 'Specialties';
 	@override String get myLocation => 'My Location';
 	@override String get loadingMap => 'Loading map...';
@@ -483,13 +491,13 @@ class _TranslationsWeatherWidgetEn implements TranslationsWeatherWidgetEs {
 
 	// Translations
 	@override String get alert => 'WEATHER ALERT';
-	@override String get condition => '{weather} · {temp}';
-	@override String get humidity => '{value}%';
+	@override String condition({required Object weather, required Object temp}) => '${weather} · ${temp}';
+	@override String humidity({required Object value}) => '${value}%';
 	@override String get loading => 'Getting weather...';
 	@override String get errorTitle => 'Weather unavailable';
 	@override String get errorRetry => 'Tap to retry';
 	@override String get fallbackLocation => 'Approximate location';
-	@override String get lastUpdated => 'Updated {time}';
+	@override String lastUpdated({required Object time}) => 'Updated ${time}';
 	@override late final _TranslationsWeatherWidgetConditionsEn conditions = _TranslationsWeatherWidgetConditionsEn._(_root);
 	@override late final _TranslationsWeatherWidgetRecommendationsEn recommendations = _TranslationsWeatherWidgetRecommendationsEn._(_root);
 }
@@ -503,16 +511,16 @@ class _TranslationsCurrencyEn implements TranslationsCurrencyEs {
 	// Translations
 	@override String get title => 'Currency Converter';
 	@override String get refreshTooltip => 'Refresh Rate';
-	@override String get amountLabel => 'Amount ({code})';
+	@override String amountLabel({required Object code}) => 'Amount (${code})';
 	@override String get swapTooltip => 'Swap Currencies';
 	@override String get convertedAmount => 'Converted Amount';
-	@override String get rateLabel => 'Rate: 1 {from} = {rate} {to}';
+	@override String rateLabel({required Object from, required Object rate, required Object to}) => 'Rate: 1 ${from} = ${rate} ${to}';
 	@override String get errorLoad => 'Failed to load exchange rates';
 	@override String get tryAgain => 'Try Again';
 	@override String get converterLabel => 'CURRENCY CONVERTER';
 	@override String get refreshRate => 'Refresh Rate';
 	@override String get swapCurrencies => 'Swap Currencies';
-	@override String get rateDesc => 'Rate: 1 {from} = {rate} {to}';
+	@override String rateDesc({required Object from, required Object rate, required Object to}) => 'Rate: 1 ${from} = ${rate} ${to}';
 	@override String get errorLoadingRates => 'Failed to load exchange rates';
 }
 
@@ -523,10 +531,10 @@ class _TranslationsValidatorsEn implements TranslationsValidatorsEs {
 	final TranslationsEn _root; // ignore: unused_field
 
 	// Translations
-	@override String get requiredParams => '{field} is required';
-	@override String get notEmptyParams => '{field} cannot be empty';
-	@override String get minParams => '{field} must be at least {min}';
-	@override String get maxParams => '{field} cannot exceed {max}';
+	@override String requiredParams({required Object field}) => '${field} is required';
+	@override String notEmptyParams({required Object field}) => '${field} cannot be empty';
+	@override String minParams({required Object field, required Object min}) => '${field} must be at least ${min}';
+	@override String maxParams({required Object field, required Object max}) => '${field} cannot exceed ${max}';
 	@override String get plateRequired => 'License plate is required';
 	@override String get plateTooShort => 'Plate is too short';
 	@override String get plateTooLong => 'Plate is too long';
@@ -574,12 +582,13 @@ class _TranslationsTimeEn implements TranslationsTimeEs {
 
 	// Translations
 	@override String get now => 'Now';
-	@override String get today => 'Today';
-	@override String get minutesAgo => '{n} min ago';
-	@override String get hoursAgo => '{n}h ago';
-	@override String get daysAgo => '{n}d ago';
-	@override String get monthsAgo => '{n}m ago';
-	@override String get yearsAgo => '{n}y ago';
+	@override String get today => 'today';
+	@override String get yesterday => 'yesterday';
+	@override String minutesAgo({required Object n}) => '${n} min ago';
+	@override String hoursAgo({required Object n}) => '${n}h ago';
+	@override String daysAgo({required Object n}) => '${n} days ago';
+	@override String monthsAgo({required Object n}) => '${n} months ago';
+	@override String yearsAgo({required Object n}) => '${n} year(s) ago';
 }
 
 // Path: garage.addVehicleForm
@@ -755,8 +764,8 @@ class _TranslationsNotificationsRulesMileageWarningEn implements TranslationsNot
 	final TranslationsEn _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'High mileage: {brand} {model}';
-	@override String get message => 'Your {brand} {model} ({plate}) is at {percent}% of the maximum mileage ({mileage}/{max_mileage} km). Consider scheduling a service.';
+	@override String title({required Object brand, required Object model}) => 'High mileage: ${brand} ${model}';
+	@override String message({required Object brand, required Object model, required Object plate, required Object percent, required Object mileage, required Object max_mileage}) => 'Your ${brand} ${model} (${plate}) is at ${percent}% of the maximum mileage (${mileage}/${max_mileage} km). Consider scheduling a service.';
 }
 
 // Path: notifications.rules.mileage_critical
@@ -766,8 +775,8 @@ class _TranslationsNotificationsRulesMileageCriticalEn implements TranslationsNo
 	final TranslationsEn _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => '⚠️ Mileage exceeded: {brand} {model}';
-	@override String get message => 'Your {brand} {model} ({plate}) has reached {percent}% of the maximum mileage ({mileage}/{max_mileage} km). It\'s urgent to take your vehicle for service.';
+	@override String title({required Object brand, required Object model}) => '⚠️ Mileage exceeded: ${brand} ${model}';
+	@override String message({required Object brand, required Object model, required Object plate, required Object percent, required Object mileage, required Object max_mileage}) => 'Your ${brand} ${model} (${plate}) has reached ${percent}% of the maximum mileage (${mileage}/${max_mileage} km). It\'s urgent to take your vehicle for service.';
 }
 
 // Path: notifications.rules.maintenance_overdue
@@ -777,8 +786,8 @@ class _TranslationsNotificationsRulesMaintenanceOverdueEn implements Translation
 	final TranslationsEn _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Maintenance overdue: {brand} {model}';
-	@override String get message => 'Your {brand} {model} ({plate}) has gone {days} days without maintenance. The last service was on {last_date}.';
+	@override String title({required Object brand, required Object model}) => 'Maintenance overdue: ${brand} ${model}';
+	@override String message({required Object brand, required Object model, required Object plate, required Object days, required Object last_date}) => 'Your ${brand} ${model} (${plate}) has gone ${days} days without maintenance. The last service was on ${last_date}.';
 }
 
 // Path: notifications.rules.no_maintenance
@@ -788,8 +797,8 @@ class _TranslationsNotificationsRulesNoMaintenanceEn implements TranslationsNoti
 	final TranslationsEn _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'No maintenance: {brand} {model}';
-	@override String get message => 'Your {brand} {model} ({plate}) has no maintenance records. Log your service history to receive smart alerts.';
+	@override String title({required Object brand, required Object model}) => 'No maintenance: ${brand} ${model}';
+	@override String message({required Object brand, required Object model, required Object plate}) => 'Your ${brand} ${model} (${plate}) has no maintenance records. Log your service history to receive smart alerts.';
 }
 
 // Path: notifications.mocks.n1
@@ -901,7 +910,7 @@ class _TranslationsNotificationsMocksN8En implements TranslationsNotificationsMo
 extension on TranslationsEn {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
-			'common.appName' => 'DriveTrack',
+			'common.appName' => 'Driver Track',
 			'common.ok' => 'OK',
 			'common.cancel' => 'Cancel',
 			'common.loading' => 'Loading...',
@@ -967,7 +976,7 @@ extension on TranslationsEn {
 			'forgotPassword.errorResetPassword' => 'Error updating password',
 			'registration.title' => 'Create Account',
 			'registration.subtitle' => 'Fill in your details to get started',
-			'registration.appTagline' => 'Your intelligent vehicle companion',
+			'registration.footerTagline' => 'Your intelligent vehicle companion',
 			'registration.fullName' => 'FULL NAME',
 			'registration.fullNamePlaceholder' => 'John Doe',
 			'registration.phoneNumber' => 'PHONE NUMBER',
@@ -977,7 +986,7 @@ extension on TranslationsEn {
 			'registration.datePlaceholder' => 'YYYY-MM-DD',
 			'registration.passwordPlaceholder' => 'Min. 8 characters',
 			'registration.createAccount' => 'Create Account',
-			'registration.welcomeSuccess' => 'Welcome to DriveTrack!',
+			'registration.welcomeSuccess' => 'Welcome to DriverTrack!',
 			'registration.alreadyHaveAccount' => 'Already have an account? ',
 			'registration.passwordWeak' => 'Weak',
 			'registration.passwordFair' => 'Fair',
@@ -997,10 +1006,10 @@ extension on TranslationsEn {
 			'garage.errorAddingVehicle' => 'Could not add vehicle. Please try again.',
 			'garage.errorUpdatingVehicle' => 'Could not update vehicle. Please try again.',
 			'garage.errorRemovingVehicle' => 'Could not remove vehicle. Please try again.',
-			'garage.serviceLogged' => 'Service logged for {vehicleName}',
+			'garage.serviceLogged' => ({required Object vehicleName}) => 'Service logged for ${vehicleName}',
 			'garage.serviceRecordUpdated' => 'Service record updated',
 			'garage.removeVehicleTitle' => 'Remove Vehicle',
-			'garage.removeVehicleMessage' => 'Are you sure you want to remove "{vehicleName}" from your garage? This action will also delete all associated maintenance records.',
+			'garage.removeVehicleMessage' => ({required Object vehicleName}) => 'Are you sure you want to remove "${vehicleName}" from your garage? This action will also delete all associated maintenance records.',
 			'garage.errorSyncFailed' => 'Oops! Sync Failed',
 			'garage.errorSyncMessage' => 'We could not load your vehicles from the garage. Please check your connection.',
 			'garage.vehicleCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: 'Vehicle', other: 'Vehicles', ), 
@@ -1009,14 +1018,14 @@ extension on TranslationsEn {
 			'garage.overallHealth' => 'Overall Health',
 			'garage.totalSpent' => 'Total Spent',
 			'garage.services' => 'Services',
-			'garage.lastService' => 'Last: {title} ({time})',
+			'garage.lastService' => ({required Object title, required Object time}) => 'Last: ${title} (${time})',
 			'garage.servicesDue' => 'Services Due',
 			'garage.noRecordsFound' => 'No records found',
 			'garage.noRecordsMessage' => 'Keep track of your vehicle\'s health\nby logging your first service.',
 			'garage.emptyGarageTitle' => 'Your Garage is Empty',
 			'garage.emptyGarageMessage' => 'Tap the button below to add your first vehicle and start tracking its performance.',
 			'garage.deleteServiceTitle' => 'Delete Service Record',
-			'garage.deleteServiceMessage' => 'Are you sure you want to delete this record for "{title}"? This action cannot be undone.',
+			'garage.deleteServiceMessage' => ({required Object title}) => 'Are you sure you want to delete this record for "${title}"? This action cannot be undone.',
 			'garage.editVehicle' => 'Edit Vehicle',
 			'garage.removeVehicle' => 'Remove Vehicle',
 			'garage.vehicleType' => 'Vehicle Type',
@@ -1054,19 +1063,21 @@ extension on TranslationsEn {
 			'garage.vehicleTypes.car' => 'Car',
 			'garage.vehicleTypes.motorcycle' => 'Motorcycle',
 			'garage.vehicleHealth' => 'Vehicle Health',
-			'garage.limitMileage' => 'Limit {mileage} mi',
+			'garage.limitMileage' => ({required Object mileage}) => 'Limit ${mileage} mi',
 			'garage.statusHealthy' => 'Healthy',
 			'garage.statusNeedsService' => 'Needs Service',
 			'garage.statusCritical' => 'Critical',
 			'garage.recentServiceLabel' => 'LAST SERVICE',
 			'garage.recentMaintenance' => 'RECENT MAINTENANCE',
-			'garage.recordsCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '1 record', zero: '0 records', other: '{count} records', ), 
+			'garage.recordsCount' => ({required num n, required Object count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '1 record', zero: '0 records', other: '${count} records', ), 
 			'garage.totalDistanceMiles' => 'Total Miles',
 			'garage.totalDistanceKm' => 'Total Kilometers',
+			'garage.totalFleetDistance' => 'Total Distance (KM)',
+			'garage.totalFleetDistanceMiles' => 'Total Distance (MI)',
 			'garage.unitKilometers' => 'Kilometers',
 			'garage.unitMiShort' => 'mi',
 			'garage.unitKmShort' => 'km',
-			'garage.notificationsUnread' => 'Notifications, {count} unread',
+			'garage.notificationsUnread' => ({required Object count}) => 'Notifications, ${count} unread',
 			'garage.notificationsNone' => 'Notifications, no new updates',
 			'garage.goodAfternoon' => 'Good afternoon',
 			'garage.goodEvening' => 'Good evening',
@@ -1078,11 +1089,11 @@ extension on TranslationsEn {
 			'maintenance.serviceAdded' => 'Service added successfully',
 			'maintenance.serviceUpdated' => 'Service record updated',
 			'maintenance.serviceRemoved' => 'Service record removed',
-			'maintenance.errorAddingService' => 'Error adding service: {error}',
-			'maintenance.errorUpdatingService' => 'Error updating record: {error}',
+			'maintenance.errorAddingService' => ({required Object error}) => 'Error adding service: ${error}',
+			'maintenance.errorUpdatingService' => ({required Object error}) => 'Error updating record: ${error}',
 			'maintenance.errorRemovingService' => 'Could not remove service. Please try again.',
 			'maintenance.removeEntryTitle' => 'Remove Entry?',
-			'maintenance.removeEntryMessage' => 'Are you sure you want to remove the record for "{title}"? This action cannot be undone.',
+			'maintenance.removeEntryMessage' => ({required Object title}) => 'Are you sure you want to remove the record for "${title}"? This action cannot be undone.',
 			'maintenance.errorTitle' => 'Something went wrong',
 			'maintenance.errorMessage' => 'We had trouble fetching your data. Please check your connection or try again.',
 			'maintenance.totalSpent' => 'Total Spent',
@@ -1118,6 +1129,8 @@ extension on TranslationsEn {
 			'maintenance.recordPreview' => 'RECORD PREVIEW',
 			'maintenance.untitledService' => 'Untitled Service',
 			'maintenance.unknownVehicle' => 'Unknown',
+			'maintenance.odometerDashboard' => 'Odometer (Dashboard)',
+			'maintenance.goalReachedWarning' => 'You have reached your service goal. We recommend updating your next goal in "Edit Vehicle".',
 			'maintenance.costLabel' => 'COST',
 			'maintenance.costFree' => 'Free',
 			'maintenance.mileageLabel' => 'MILEAGE',
@@ -1133,7 +1146,10 @@ extension on TranslationsEn {
 			'profile.vehiclePreferences' => 'Vehicle Preferences',
 			'profile.favoriteVehicles' => 'Favorite Vehicles',
 			'profile.favoritesSaved' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '1 favorite saved', zero: 'No favorites saved', other: '{n} favorites saved', ), 
-			'profile.noFavorites' => 'No favorite vehicles yet',
+			'profile.noFavorites' => 'You don\'t have favorite vehicles yet',
+			'profile.lastServiceLabel' => ({required Object time}) => 'Last service: ${time}',
+			'profile.noServicesLogged' => 'No services recorded',
+			'profile.registerAction' => 'Register',
 			'profile.notifications' => 'Notifications',
 			'profile.configureAlerts' => 'Configure your alerts',
 			'profile.pushNotifications' => 'Push Notifications',
@@ -1149,13 +1165,13 @@ extension on TranslationsEn {
 			'profile.twoFactorEnabled' => '● Enabled',
 			'profile.twoFactorDisabled' => '○ Disabled — tap to enable',
 			'profile.appSettings' => 'App Settings',
-			'profile.appSettingsSubtitle' => 'Theme: {theme} · Language: {language}',
+			'profile.appSettingsSubtitle' => ({required Object theme, required Object language}) => 'Theme: ${theme} · Language: ${language}',
 			'profile.themeDark' => 'Dark',
 			'profile.themeLight' => 'Light',
 			'profile.theme' => 'Theme',
 			'profile.language' => 'Language',
 			'profile.feedbackSupport' => 'Support',
-			'profile.rateDriveTrack' => 'Rate DriveTrack',
+			'profile.rateDriveTrack' => 'Rate DriverTrack',
 			'profile.shareExperience' => 'Share your experience',
 			'profile.helpSupport' => 'Help & Support',
 			'profile.faqsContact' => 'FAQs, Contact us',
@@ -1165,7 +1181,7 @@ extension on TranslationsEn {
 			'profile.footerTagline' => 'Crafted with ❤️ for Drivers worldwide',
 			'profile.driver' => 'Driver',
 			'profile.activeStatus' => 'Active Status',
-			'profile.memberSince' => 'Member since {year}',
+			'profile.memberSince' => ({required Object year}) => 'Member since ${year}',
 			'profile.statsVehicles' => 'Vehicles',
 			'profile.statsVehiclesSub' => 'linked',
 			'profile.statsServices' => 'Services',
@@ -1196,7 +1212,7 @@ extension on TranslationsEn {
 			'profile.gallery' => 'Gallery',
 			'profile.uploadingPhoto' => 'Uploading photo...',
 			'notifications.title' => 'Notifications',
-			'notifications.unreadSummary' => '{unread} unread · {total} total',
+			'notifications.unreadSummary' => ({required Object unread, required Object total}) => '${unread} unread · ${total} total',
 			'notifications.markAllRead' => 'Mark all read',
 			'notifications.filterAll' => 'All',
 			'notifications.filterUnread' => 'Unread',
@@ -1222,14 +1238,14 @@ extension on TranslationsEn {
 			'notifications.typeError' => 'Error',
 			'notifications.filterInfo' => 'Info',
 			'notifications.summaryInfo' => 'Info',
-			'notifications.rules.mileage_warning.title' => 'High mileage: {brand} {model}',
-			'notifications.rules.mileage_warning.message' => 'Your {brand} {model} ({plate}) is at {percent}% of the maximum mileage ({mileage}/{max_mileage} km). Consider scheduling a service.',
-			'notifications.rules.mileage_critical.title' => '⚠️ Mileage exceeded: {brand} {model}',
-			'notifications.rules.mileage_critical.message' => 'Your {brand} {model} ({plate}) has reached {percent}% of the maximum mileage ({mileage}/{max_mileage} km). It\'s urgent to take your vehicle for service.',
-			'notifications.rules.maintenance_overdue.title' => 'Maintenance overdue: {brand} {model}',
-			'notifications.rules.maintenance_overdue.message' => 'Your {brand} {model} ({plate}) has gone {days} days without maintenance. The last service was on {last_date}.',
-			'notifications.rules.no_maintenance.title' => 'No maintenance: {brand} {model}',
-			'notifications.rules.no_maintenance.message' => 'Your {brand} {model} ({plate}) has no maintenance records. Log your service history to receive smart alerts.',
+			'notifications.rules.mileage_warning.title' => ({required Object brand, required Object model}) => 'High mileage: ${brand} ${model}',
+			'notifications.rules.mileage_warning.message' => ({required Object brand, required Object model, required Object plate, required Object percent, required Object mileage, required Object max_mileage}) => 'Your ${brand} ${model} (${plate}) is at ${percent}% of the maximum mileage (${mileage}/${max_mileage} km). Consider scheduling a service.',
+			'notifications.rules.mileage_critical.title' => ({required Object brand, required Object model}) => '⚠️ Mileage exceeded: ${brand} ${model}',
+			'notifications.rules.mileage_critical.message' => ({required Object brand, required Object model, required Object plate, required Object percent, required Object mileage, required Object max_mileage}) => 'Your ${brand} ${model} (${plate}) has reached ${percent}% of the maximum mileage (${mileage}/${max_mileage} km). It\'s urgent to take your vehicle for service.',
+			'notifications.rules.maintenance_overdue.title' => ({required Object brand, required Object model}) => 'Maintenance overdue: ${brand} ${model}',
+			'notifications.rules.maintenance_overdue.message' => ({required Object brand, required Object model, required Object plate, required Object days, required Object last_date}) => 'Your ${brand} ${model} (${plate}) has gone ${days} days without maintenance. The last service was on ${last_date}.',
+			'notifications.rules.no_maintenance.title' => ({required Object brand, required Object model}) => 'No maintenance: ${brand} ${model}',
+			'notifications.rules.no_maintenance.message' => ({required Object brand, required Object model, required Object plate}) => 'Your ${brand} ${model} (${plate}) has no maintenance records. Log your service history to receive smart alerts.',
 			'notifications.mocks.n1.title' => 'Low tire pressure detected',
 			'notifications.mocks.n1.body' => 'Rear left tire is at 28 PSI. Recommended: 32 PSI.',
 			'notifications.mocks.n1.time' => '2 mins ago',
@@ -1261,6 +1277,7 @@ extension on TranslationsEn {
 			'notifications.mocks.n8.time' => '1 week ago',
 			'map.exploreNearby' => 'Explore Nearby',
 			'map.title' => 'Service Map',
+			'map.subtitle' => 'Explore nearby services',
 			'map.live' => 'Live',
 			'map.searchHint' => 'Search workshops, gas stations...',
 			'map.filterAll' => 'All',
@@ -1273,9 +1290,9 @@ extension on TranslationsEn {
 			'map.openNow' => 'Open Now',
 			'map.closed' => 'Closed',
 			'map.navigate' => 'Navigate',
-			'map.navigatingTo' => 'Navigating to {name}...',
-			'map.calling' => 'Calling {phone}...',
-			'map.locationsFound' => '{count} locations found',
+			'map.navigatingTo' => ({required Object name}) => 'Navigating to ${name}...',
+			'map.calling' => ({required Object phone}) => 'Calling ${phone}...',
+			'map.locationsFound' => ({required Object count}) => '${count} locations found',
 			'map.specialties' => 'Specialties',
 			'map.myLocation' => 'My Location',
 			'map.loadingMap' => 'Loading map...',
@@ -1287,13 +1304,13 @@ extension on TranslationsEn {
 			'map.searchThisArea' => 'Search this area',
 			'map.gpsSearching' => 'Searching for GPS location... Make sure location is enabled on your device.',
 			'weatherWidget.alert' => 'WEATHER ALERT',
-			'weatherWidget.condition' => '{weather} · {temp}',
-			'weatherWidget.humidity' => '{value}%',
+			'weatherWidget.condition' => ({required Object weather, required Object temp}) => '${weather} · ${temp}',
+			'weatherWidget.humidity' => ({required Object value}) => '${value}%',
 			'weatherWidget.loading' => 'Getting weather...',
 			'weatherWidget.errorTitle' => 'Weather unavailable',
 			'weatherWidget.errorRetry' => 'Tap to retry',
 			'weatherWidget.fallbackLocation' => 'Approximate location',
-			'weatherWidget.lastUpdated' => 'Updated {time}',
+			'weatherWidget.lastUpdated' => ({required Object time}) => 'Updated ${time}',
 			'weatherWidget.conditions.clear' => 'Clear',
 			'weatherWidget.conditions.clouds' => 'Cloudy',
 			'weatherWidget.conditions.rain' => 'Rainy',
@@ -1316,21 +1333,21 @@ extension on TranslationsEn {
 			'weatherWidget.recommendations.kDefault' => 'Stable driving conditions. Have a safe trip!',
 			'currency.title' => 'Currency Converter',
 			'currency.refreshTooltip' => 'Refresh Rate',
-			'currency.amountLabel' => 'Amount ({code})',
+			'currency.amountLabel' => ({required Object code}) => 'Amount (${code})',
 			'currency.swapTooltip' => 'Swap Currencies',
 			'currency.convertedAmount' => 'Converted Amount',
-			'currency.rateLabel' => 'Rate: 1 {from} = {rate} {to}',
+			'currency.rateLabel' => ({required Object from, required Object rate, required Object to}) => 'Rate: 1 ${from} = ${rate} ${to}',
 			'currency.errorLoad' => 'Failed to load exchange rates',
 			'currency.tryAgain' => 'Try Again',
 			'currency.converterLabel' => 'CURRENCY CONVERTER',
 			'currency.refreshRate' => 'Refresh Rate',
 			'currency.swapCurrencies' => 'Swap Currencies',
-			'currency.rateDesc' => 'Rate: 1 {from} = {rate} {to}',
+			'currency.rateDesc' => ({required Object from, required Object rate, required Object to}) => 'Rate: 1 ${from} = ${rate} ${to}',
 			'currency.errorLoadingRates' => 'Failed to load exchange rates',
-			'validators.requiredParams' => '{field} is required',
-			'validators.notEmptyParams' => '{field} cannot be empty',
-			'validators.minParams' => '{field} must be at least {min}',
-			'validators.maxParams' => '{field} cannot exceed {max}',
+			'validators.requiredParams' => ({required Object field}) => '${field} is required',
+			'validators.notEmptyParams' => ({required Object field}) => '${field} cannot be empty',
+			'validators.minParams' => ({required Object field, required Object min}) => '${field} must be at least ${min}',
+			'validators.maxParams' => ({required Object field, required Object max}) => '${field} cannot exceed ${max}',
 			'validators.plateRequired' => 'License plate is required',
 			'validators.plateTooShort' => 'Plate is too short',
 			'validators.plateTooLong' => 'Plate is too long',
@@ -1378,12 +1395,13 @@ extension on TranslationsEn {
 			'weather.search' => 'Search',
 			'weather.cityNotFound' => 'City not found. Try «City, Country»',
 			'time.now' => 'Now',
-			'time.today' => 'Today',
-			'time.minutesAgo' => '{n} min ago',
-			'time.hoursAgo' => '{n}h ago',
-			'time.daysAgo' => '{n}d ago',
-			'time.monthsAgo' => '{n}m ago',
-			'time.yearsAgo' => '{n}y ago',
+			'time.today' => 'today',
+			'time.yesterday' => 'yesterday',
+			'time.minutesAgo' => ({required Object n}) => '${n} min ago',
+			'time.hoursAgo' => ({required Object n}) => '${n}h ago',
+			'time.daysAgo' => ({required Object n}) => '${n} days ago',
+			'time.monthsAgo' => ({required Object n}) => '${n} months ago',
+			'time.yearsAgo' => ({required Object n}) => '${n} year(s) ago',
 			_ => null,
 		};
 	}

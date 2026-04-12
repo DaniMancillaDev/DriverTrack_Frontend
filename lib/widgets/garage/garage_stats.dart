@@ -8,6 +8,8 @@ import '../ui/summary_stats.dart';
 import '../../core/i18n/translations.g.dart';
 import '../../core/units/presentation/unit_system_provider.dart';
 import '../../core/units/domain/unit_system.dart';
+import '../../core/units/domain/unit_converter.dart';
+import '../../core/units/domain/unit_formatter.dart';
 
 /// Panel de resumen estadístico para el garaje del usuario.
 /// 
@@ -23,10 +25,11 @@ class GarageStats extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Translations.of(context);
-    final isMetric = ref.watch(unitSystemProvider) == UnitSystem.metric;
+    final unitSystem = ref.watch(unitSystemProvider);
+    final isMetric = unitSystem == UnitSystem.metric;
     final totalDistanceLabel = isMetric
-        ? t.garage.totalDistanceKm
-        : t.garage.totalDistanceMiles;
+        ? t.garage.totalFleetDistance
+        : t.garage.totalFleetDistanceMiles;
 
     if (vehicles.isEmpty) {
       return SummaryStats(
@@ -69,24 +72,22 @@ class GarageStats extends ConsumerWidget {
         }
 
         final servicesDue = vehicles.where((v) {
-          int vehicleMileage = v.mileage;
-          final vehicleRecords = allRecords.where((r) => r.vehicleId == v.id);
-          if (vehicleRecords.isNotEmpty) {
-            final latest = vehicleRecords
-                .map((r) => r.mileage)
-                .reduce((a, b) => a > b ? a : b);
-            if (latest > vehicleMileage) vehicleMileage = latest;
-          }
-          return VehicleViewModel(v, vehicleMileage).status != 'good';
+          final vehicleRecords = allRecords.where((r) => r.vehicleId == v.id).toList();
+          return VehicleViewModel.fromVehicleWithRecords(v, vehicleRecords).status != 'good';
         }).length;
+
+        // Convert value if necessary (assuming base is KM)
+        final double mileageToDisplay = isMetric 
+            ? totalCalculatedMiles.toDouble() 
+            : UnitConverter.kmToMi(totalCalculatedMiles.toDouble());
+
+        final displayValue = UnitFormatter.formatOdometer(mileageToDisplay);
 
         return SummaryStats(
           stats: [
             StatItem(
               label: totalDistanceLabel,
-              value: totalCalculatedMiles >= 1000
-                  ? '${(totalCalculatedMiles / 1000).toStringAsFixed(1)}K'
-                  : totalCalculatedMiles.toString(),
+              value: displayValue,
               accent: AppColors.orangePrimary,
             ),
             StatItem(
@@ -104,13 +105,18 @@ class GarageStats extends ConsumerWidget {
             .where((v) => VehicleViewModel(v).status != 'good')
             .length;
 
+        // Convert fallback value
+        final double fallbackToDisplay = isMetric 
+            ? totalMiles.toDouble() 
+            : UnitConverter.kmToMi(totalMiles.toDouble());
+
+        final displayFallback = UnitFormatter.formatOdometer(fallbackToDisplay);
+
         return SummaryStats(
           stats: [
             StatItem(
               label: totalDistanceLabel,
-              value: totalMiles >= 1000
-                  ? '${(totalMiles / 1000).toStringAsFixed(1)}K'
-                  : totalMiles.toString(),
+              value: displayFallback,
               accent: AppColors.orangePrimary,
             ),
             StatItem(

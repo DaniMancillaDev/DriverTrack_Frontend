@@ -20,7 +20,7 @@ class ProfileStatsSkeleton extends StatelessWidget {
           // No border — real widget has no outer border
         ),
         child: Row(
-          children: List.generate(3, (idx) {
+          children: List.generate(2, (idx) {
             return Expanded(
               child: Row(
                 children: [

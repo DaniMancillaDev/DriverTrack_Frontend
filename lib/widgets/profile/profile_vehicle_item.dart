@@ -5,6 +5,8 @@ import '../../theme/app_color_scheme.dart';
 import '../../models/maintenance_model.dart';
 import '../../viewmodels/vehicle_view_model.dart';
 
+import '../../core/i18n/translations.g.dart';
+
 class ProfileVehicleItem extends StatelessWidget {
   final String name;
   final String details;
@@ -38,22 +40,24 @@ class ProfileVehicleItem extends StatelessWidget {
   }
 
   /// Texto relativo del último servicio: "hace 3 días" / "hace 2 meses" / "hace 1 año".
-  String? _lastServiceText(BuildContext context) {
+  String? _lastServiceText(BuildContext context, Translations t) {
     final last = _lastService;
     if (last == null) return null;
     final diff = DateTime.now().difference(last.date);
-    if (diff.inDays < 1) return 'hoy';
-    if (diff.inDays == 1) return 'ayer';
-    if (diff.inDays < 30) return 'hace ${diff.inDays} días';
-    if (diff.inDays < 365) return 'hace ${(diff.inDays / 30).floor()} meses';
-    return 'hace ${(diff.inDays / 365).floor()} año(s)';
+    
+    if (diff.inDays < 1) return t.time.today;
+    if (diff.inDays == 1) return t.time.yesterday;
+    if (diff.inDays < 30) return t.time.daysAgo(n: diff.inDays);
+    if (diff.inDays < 365) return t.time.monthsAgo(n: (diff.inDays / 30).floor());
+    return t.time.yearsAgo(n: (diff.inDays / 365).floor());
   }
 
   @override
   Widget build(BuildContext context) {
     final r = context.responsive;
     final vm = viewModel;
-    final lastText = _lastServiceText(context);
+    final t = Translations.of(context);
+    final lastText = _lastServiceText(context, t);
 
     return GestureDetector(
       onTap: onTap,
@@ -136,8 +140,8 @@ class ProfileVehicleItem extends StatelessWidget {
                   Expanded(
                     child: Text(
                       lastText != null
-                          ? 'Último servicio: $lastText'
-                          : 'Sin servicios registrados',
+                          ? t.profile.lastServiceLabel(time: lastText)
+                          : t.profile.noServicesLogged,
                       style: AppTextStyles.label(context).copyWith(
                         color: context.colors.textMuted,
                         fontSize: 10,
@@ -151,6 +155,7 @@ class ProfileVehicleItem extends StatelessWidget {
                       onTap: onLogService!,
                       r: r,
                       context: context,
+                      label: t.profile.registerAction,
                     ),
                 ],
               ),
@@ -214,11 +219,13 @@ class _QuickServiceButton extends StatelessWidget {
   final VoidCallback onTap;
   final AppResponsive r;
   final BuildContext context;
+  final String label;
 
   const _QuickServiceButton({
     required this.onTap,
     required this.r,
     required this.context,
+    required this.label,
   });
 
   @override
@@ -246,9 +253,9 @@ class _QuickServiceButton extends StatelessWidget {
               size: r.dim(10),
               color: AppColors.orangePrimary,
             ),
-            SizedBox(width: r.space(3)),
+            SizedBox(width: r.space(AppSpacing.xs)),
             Text(
-              'Registrar',
+              label,
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,

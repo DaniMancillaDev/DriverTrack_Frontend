@@ -56,14 +56,14 @@ class MaintenanceViewModel {
 
     if (difference.inDays == 0) return t.time.today;
     if (difference.inDays < 30) {
-      return t.time.daysAgo.replaceAll('{n}', '${difference.inDays}');
+      return t.time.daysAgo(n: difference.inDays);
     }
     if (difference.inDays < 365) {
       final months = (difference.inDays / 30).floor();
-      return t.time.monthsAgo.replaceAll('{n}', '$months');
+      return t.time.monthsAgo(n: months);
     }
     final years = (difference.inDays / 365).floor();
-    return t.time.yearsAgo.replaceAll('{n}', '$years');
+    return t.time.yearsAgo(n: years);
   }
 
   /// Provee el nombre del vehículo asociado (usualmente inyectado desde el contexto).

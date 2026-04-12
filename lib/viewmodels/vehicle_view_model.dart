@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/vehicle_model.dart';
+import '../models/maintenance_model.dart';
 import '../theme/app_theme.dart';
 import '../core/i18n/translations.g.dart';
 
@@ -15,7 +16,35 @@ class VehicleViewModel {
   /// Kilometraje temporal que sobrescribe el valor real (útil para simulaciones o previsualizaciones).
   final int? _overrideMileage;
 
-  const VehicleViewModel(this.vehicle, [this._overrideMileage]);
+  /// Kilometraje en el que se realizó el último mantenimiento registrado.
+  final int _lastMaintenanceMileage;
+
+  const VehicleViewModel(this.vehicle, [this._overrideMileage, this._lastMaintenanceMileage = 0]);
+
+  /// Crea un ViewModel sincronizado con el historial de mantenimiento.
+  /// 
+  /// Calcula automáticamente el 'kilometraje real' (el mayor entre el odómetro 
+  /// y los registros) y establece la base para el próximo cálculo de salud.
+  factory VehicleViewModel.fromVehicleWithRecords(Vehicle vehicle, List<dynamic> records) {
+    int realMileage = vehicle.mileage;
+    int lastServiceMileage = 0;
+
+    if (records.isNotEmpty) {
+      // Encontrar el kilometraje más alto registrado en mantenimiento
+      final maxRecorded = records
+          .map((r) => (r is Maintenance) ? r.mileage : (r['mileage'] as int))
+          .reduce((a, b) => a > b ? a : b);
+      
+      if (maxRecorded > realMileage) {
+        realMileage = maxRecorded;
+      }
+      
+      // La base para la salud es el último servicio realizado
+      lastServiceMileage = maxRecorded;
+    }
+
+    return VehicleViewModel(vehicle, realMileage, lastServiceMileage);
+  }
 
   /// Identificador persistente del vehículo.
   int get id => vehicle.id;
@@ -92,7 +121,23 @@ class VehicleViewModel {
   /// 
   /// Se calcula como la relación inversa entre el kilometraje actual y el máximo permitido.
   double get healthPercentage {
-    return (100 - (mileage / maxMileage * 100)).toDouble().clamp(0, 100);
+    // Si ya alcanzamos o superamos la meta, la salud es 0%
+    if (mileage >= maxMileage) return 0;
+
+    // Calculamos el intervalo total que el usuario definió (Meta - Último Servicio)
+    // Si no hay servicios previos, el intervalo es desde 0 hasta la meta.
+    final totalInterval = maxMileage - _lastMaintenanceMileage;
+    
+    // Evitar división por cero si la meta es igual al último servicio
+    if (totalInterval <= 0) return 0;
+
+    // Distancia restante hasta la meta
+    final remaining = maxMileage - mileage;
+
+    // El porcentaje es la relación entre lo que queda y el intervalo total esperado
+    final percentage = (remaining / totalInterval) * 100;
+
+    return percentage.clamp(0, 100);
   }
 
   /// Color temático asociado al nivel de urgencia del mantenimiento.

@@ -146,6 +146,12 @@ class AppTheme {
         ),
       ),
       extensions: const [AppColorScheme.dark],
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.surfaceLight,
+        contentTextStyle: const TextStyle(color: AppColors.textMain, fontFamily: 'Inter'),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
     );
   }
 
@@ -202,6 +208,13 @@ class AppTheme {
         ),
       ),
       extensions: const [AppColorScheme.light],
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: const Color(0xFFFFFFFF),
+        contentTextStyle: const TextStyle(color: Color(0xFF1C1C1E), fontFamily: 'Inter'),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 4,
+      ),
     );
   }
 }

@@ -351,10 +351,7 @@ class _ProfileHeroState extends ConsumerState<ProfileHero> {
                 SizedBox(width: r.space(AppSpacing.xs)),
               ProfileBadge(
                 icon: Icons.check_circle_outline,
-                label: t.profile.memberSince.replaceAll(
-                  '{year}',
-                  '$memberYear',
-                ),
+                label: t.profile.memberSince(year: '$memberYear'),
                 color: AppColors.green,
               ),
             ],

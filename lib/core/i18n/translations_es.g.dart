@@ -65,8 +65,8 @@ class TranslationsCommonEs {
 
 	// Translations
 
-	/// es: 'DriveTrack'
-	String get appName => 'DriveTrack';
+	/// es: 'Driver Track'
+	String get appName => 'Driver Track';
 
 	/// es: 'Aceptar'
 	String get ok => 'Aceptar';
@@ -291,10 +291,10 @@ class TranslationsRegistrationEs {
 	String get subtitle => 'Completa tus datos para comenzar';
 
 	/// es: 'Tu compañero inteligente de vehículos'
-	String get appTagline => 'Tu compañero inteligente de vehículos';
+	String get footerTagline => 'Tu compañero inteligente de vehículos';
 
-	/// es: 'NOMBRE COMPLETO'
-	String get fullName => 'NOMBRE COMPLETO';
+	/// es: 'Nombre completo'
+	String get fullName => 'Nombre completo';
 
 	/// es: 'Juan Pérez'
 	String get fullNamePlaceholder => 'Juan Pérez';
@@ -320,8 +320,8 @@ class TranslationsRegistrationEs {
 	/// es: 'Crear cuenta'
 	String get createAccount => 'Crear cuenta';
 
-	/// es: '¡Bienvenido a DriveTrack!'
-	String get welcomeSuccess => '¡Bienvenido a DriveTrack!';
+	/// es: '¡Bienvenido a DriverTrack!'
+	String get welcomeSuccess => '¡Bienvenido a DriverTrack!';
 
 	/// es: '¿Ya tienes cuenta? '
 	String get alreadyHaveAccount => '¿Ya tienes cuenta? ';
@@ -398,8 +398,8 @@ class TranslationsGarageEs {
 	/// es: 'No se pudo eliminar el vehículo. Intenta de nuevo.'
 	String get errorRemovingVehicle => 'No se pudo eliminar el vehículo. Intenta de nuevo.';
 
-	/// es: 'Servicio registrado para {vehicleName}'
-	String get serviceLogged => 'Servicio registrado para {vehicleName}';
+	/// es: 'Servicio registrado para $vehicleName'
+	String serviceLogged({required Object vehicleName}) => 'Servicio registrado para ${vehicleName}';
 
 	/// es: 'Registro de servicio actualizado'
 	String get serviceRecordUpdated => 'Registro de servicio actualizado';
@@ -407,8 +407,8 @@ class TranslationsGarageEs {
 	/// es: '¿Eliminar vehículo?'
 	String get removeVehicleTitle => '¿Eliminar vehículo?';
 
-	/// es: '¿Estás seguro de que quieres eliminar "{vehicleName}" de tu garaje? Esta acción también eliminará todos los registros de mantenimiento asociados.'
-	String get removeVehicleMessage => '¿Estás seguro de que quieres eliminar "{vehicleName}" de tu garaje? Esta acción también eliminará todos los registros de mantenimiento asociados.';
+	/// es: '¿Estás seguro de que quieres eliminar "$vehicleName" de tu garaje? Esta acción también eliminará todos los registros de mantenimiento asociados.'
+	String removeVehicleMessage({required Object vehicleName}) => '¿Estás seguro de que quieres eliminar "${vehicleName}" de tu garaje? Esta acción también eliminará todos los registros de mantenimiento asociados.';
 
 	/// es: '¡Error de sincronización!'
 	String get errorSyncFailed => '¡Error de sincronización!';
@@ -437,8 +437,8 @@ class TranslationsGarageEs {
 	/// es: 'Servicios'
 	String get services => 'Servicios';
 
-	/// es: 'Último: {title} ({time})'
-	String get lastService => 'Último: {title} ({time})';
+	/// es: 'Último: $title ($time)'
+	String lastService({required Object title, required Object time}) => 'Último: ${title} (${time})';
 
 	/// es: 'Servicios pendientes'
 	String get servicesDue => 'Servicios pendientes';
@@ -458,8 +458,8 @@ class TranslationsGarageEs {
 	/// es: '¿Eliminar registro de servicio?'
 	String get deleteServiceTitle => '¿Eliminar registro de servicio?';
 
-	/// es: '¿Estás seguro de que quieres eliminar este registro de "{title}"? Esta acción no se puede deshacer.'
-	String get deleteServiceMessage => '¿Estás seguro de que quieres eliminar este registro de "{title}"? Esta acción no se puede deshacer.';
+	/// es: '¿Estás seguro de que quieres eliminar este registro de "$title"? Esta acción no se puede deshacer.'
+	String deleteServiceMessage({required Object title}) => '¿Estás seguro de que quieres eliminar este registro de "${title}"? Esta acción no se puede deshacer.';
 
 	/// es: 'Editar vehículo'
 	String get editVehicle => 'Editar vehículo';
@@ -494,8 +494,8 @@ class TranslationsGarageEs {
 	/// es: 'Salud del Vehículo'
 	String get vehicleHealth => 'Salud del Vehículo';
 
-	/// es: 'Límite: {mileage} mi'
-	String get limitMileage => 'Límite: {mileage} mi';
+	/// es: 'Límite: $mileage mi'
+	String limitMileage({required Object mileage}) => 'Límite: ${mileage} mi';
 
 	/// es: 'Saludable'
 	String get statusHealthy => 'Saludable';
@@ -512,11 +512,11 @@ class TranslationsGarageEs {
 	/// es: 'MANTENIMIENTO RECIENTE'
 	String get recentMaintenance => 'MANTENIMIENTO RECIENTE';
 
-	/// es: '(one) {1 registro} (zero) {0 registros} (other) {{count} registros}'
-	String recordsCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(n,
+	/// es: '(one) {1 registro} (zero) {0 registros} (other) {$count registros}'
+	String recordsCount({required num n, required Object count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(n,
 		one: '1 registro',
 		zero: '0 registros',
-		other: '{count} registros',
+		other: '${count} registros',
 	);
 
 	/// es: 'Millas totales'
@@ -524,6 +524,12 @@ class TranslationsGarageEs {
 
 	/// es: 'Kilómetros totales'
 	String get totalDistanceKm => 'Kilómetros totales';
+
+	/// es: 'Distancia Total (KM)'
+	String get totalFleetDistance => 'Distancia Total (KM)';
+
+	/// es: 'Distancia Total (MI)'
+	String get totalFleetDistanceMiles => 'Distancia Total (MI)';
 
 	/// es: 'Kilómetros'
 	String get unitKilometers => 'Kilómetros';
@@ -534,8 +540,8 @@ class TranslationsGarageEs {
 	/// es: 'km'
 	String get unitKmShort => 'km';
 
-	/// es: 'Notificaciones, {count} no leídas'
-	String get notificationsUnread => 'Notificaciones, {count} no leídas';
+	/// es: 'Notificaciones, $count no leídas'
+	String notificationsUnread({required Object count}) => 'Notificaciones, ${count} no leídas';
 
 	/// es: 'Notificaciones, sin novedades'
 	String get notificationsNone => 'Notificaciones, sin novedades';
@@ -579,11 +585,11 @@ class TranslationsMaintenanceEs {
 	/// es: 'Registro de servicio eliminado'
 	String get serviceRemoved => 'Registro de servicio eliminado';
 
-	/// es: 'Error al agregar servicio: {error}'
-	String get errorAddingService => 'Error al agregar servicio: {error}';
+	/// es: 'Error al agregar servicio: $error'
+	String errorAddingService({required Object error}) => 'Error al agregar servicio: ${error}';
 
-	/// es: 'Error al actualizar registro: {error}'
-	String get errorUpdatingService => 'Error al actualizar registro: {error}';
+	/// es: 'Error al actualizar registro: $error'
+	String errorUpdatingService({required Object error}) => 'Error al actualizar registro: ${error}';
 
 	/// es: 'No se pudo eliminar el servicio. Intenta de nuevo.'
 	String get errorRemovingService => 'No se pudo eliminar el servicio. Intenta de nuevo.';
@@ -591,8 +597,8 @@ class TranslationsMaintenanceEs {
 	/// es: '¿Eliminar registro?'
 	String get removeEntryTitle => '¿Eliminar registro?';
 
-	/// es: '¿Estás seguro de que quieres eliminar el registro de "{title}"? Esta acción no se puede deshacer.'
-	String get removeEntryMessage => '¿Estás seguro de que quieres eliminar el registro de "{title}"? Esta acción no se puede deshacer.';
+	/// es: '¿Estás seguro de que quieres eliminar el registro de "$title"? Esta acción no se puede deshacer.'
+	String removeEntryMessage({required Object title}) => '¿Estás seguro de que quieres eliminar el registro de "${title}"? Esta acción no se puede deshacer.';
 
 	/// es: 'Algo salió mal'
 	String get errorTitle => 'Algo salió mal';
@@ -699,6 +705,12 @@ class TranslationsMaintenanceEs {
 	/// es: 'Desconocido'
 	String get unknownVehicle => 'Desconocido';
 
+	/// es: 'Odómetro (Tablero)'
+	String get odometerDashboard => 'Odómetro (Tablero)';
+
+	/// es: 'Has alcanzado tu meta de servicio. Te recomendamos actualizar tu próximo objetivo en "Editar Vehículo".'
+	String get goalReachedWarning => 'Has alcanzado tu meta de servicio. Te recomendamos actualizar tu próximo objetivo en "Editar Vehículo".';
+
 	/// es: 'COSTO'
 	String get costLabel => 'COSTO';
 
@@ -743,6 +755,15 @@ class TranslationsProfileEs {
 
 	/// es: 'Aún no tienes vehículos favoritos'
 	String get noFavorites => 'Aún no tienes vehículos favoritos';
+
+	/// es: 'Último servicio: $time'
+	String lastServiceLabel({required Object time}) => 'Último servicio: ${time}';
+
+	/// es: 'Sin servicios registrados'
+	String get noServicesLogged => 'Sin servicios registrados';
+
+	/// es: 'Registrar'
+	String get registerAction => 'Registrar';
 
 	/// es: 'Notificaciones'
 	String get notifications => 'Notificaciones';
@@ -789,8 +810,8 @@ class TranslationsProfileEs {
 	/// es: 'Configuración de la app'
 	String get appSettings => 'Configuración de la app';
 
-	/// es: 'Tema: {theme} · Idioma: {language}'
-	String get appSettingsSubtitle => 'Tema: {theme} · Idioma: {language}';
+	/// es: 'Tema: $theme · Idioma: $language'
+	String appSettingsSubtitle({required Object theme, required Object language}) => 'Tema: ${theme} · Idioma: ${language}';
 
 	/// es: 'Oscuro'
 	String get themeDark => 'Oscuro';
@@ -807,8 +828,8 @@ class TranslationsProfileEs {
 	/// es: 'Soporte'
 	String get feedbackSupport => 'Soporte';
 
-	/// es: 'Calificar DriveTrack'
-	String get rateDriveTrack => 'Calificar DriveTrack';
+	/// es: 'Calificar DriverTrack'
+	String get rateDriveTrack => 'Calificar DriverTrack';
 
 	/// es: 'Comparte tu experiencia'
 	String get shareExperience => 'Comparte tu experiencia';
@@ -837,8 +858,8 @@ class TranslationsProfileEs {
 	/// es: 'Estado activo'
 	String get activeStatus => 'Estado activo';
 
-	/// es: 'Miembro desde {year}'
-	String get memberSince => 'Miembro desde {year}';
+	/// es: 'Miembro desde $year'
+	String memberSince({required Object year}) => 'Miembro desde ${year}';
 
 	/// es: 'Vehículos'
 	String get statsVehicles => 'Vehículos';
@@ -939,8 +960,8 @@ class TranslationsNotificationsEs {
 	/// es: 'Notificaciones'
 	String get title => 'Notificaciones';
 
-	/// es: '{unread} sin leer · {total} en total'
-	String get unreadSummary => '{unread} sin leer · {total} en total';
+	/// es: '$unread sin leer · $total en total'
+	String unreadSummary({required Object unread, required Object total}) => '${unread} sin leer · ${total} en total';
 
 	/// es: 'Marcar todo como leído'
 	String get markAllRead => 'Marcar todo como leído';
@@ -1035,6 +1056,9 @@ class TranslationsMapEs {
 	/// es: 'Mapa de servicios'
 	String get title => 'Mapa de servicios';
 
+	/// es: 'Explora servicios cercanos'
+	String get subtitle => 'Explora servicios cercanos';
+
 	/// es: 'En vivo'
 	String get live => 'En vivo';
 
@@ -1071,14 +1095,14 @@ class TranslationsMapEs {
 	/// es: 'Navegar'
 	String get navigate => 'Navegar';
 
-	/// es: 'Navegando a {name}...'
-	String get navigatingTo => 'Navegando a {name}...';
+	/// es: 'Navegando a $name...'
+	String navigatingTo({required Object name}) => 'Navegando a ${name}...';
 
-	/// es: 'Llamando a {phone}...'
-	String get calling => 'Llamando a {phone}...';
+	/// es: 'Llamando a $phone...'
+	String calling({required Object phone}) => 'Llamando a ${phone}...';
 
-	/// es: '{count} ubicaciones encontradas'
-	String get locationsFound => '{count} ubicaciones encontradas';
+	/// es: '$count ubicaciones encontradas'
+	String locationsFound({required Object count}) => '${count} ubicaciones encontradas';
 
 	/// es: 'Especialidades'
 	String get specialties => 'Especialidades';
@@ -1122,11 +1146,11 @@ class TranslationsWeatherWidgetEs {
 	/// es: 'ALERTA DEL CLIMA'
 	String get alert => 'ALERTA DEL CLIMA';
 
-	/// es: '{weather} · {temp}'
-	String get condition => '{weather} · {temp}';
+	/// es: '$weather · $temp'
+	String condition({required Object weather, required Object temp}) => '${weather} · ${temp}';
 
-	/// es: '{value}%'
-	String get humidity => '{value}%';
+	/// es: '$value%'
+	String humidity({required Object value}) => '${value}%';
 
 	/// es: 'Obteniendo clima...'
 	String get loading => 'Obteniendo clima...';
@@ -1140,8 +1164,8 @@ class TranslationsWeatherWidgetEs {
 	/// es: 'Ubicación aproximada'
 	String get fallbackLocation => 'Ubicación aproximada';
 
-	/// es: 'Actualizado {time}'
-	String get lastUpdated => 'Actualizado {time}';
+	/// es: 'Actualizado $time'
+	String lastUpdated({required Object time}) => 'Actualizado ${time}';
 
 	late final TranslationsWeatherWidgetConditionsEs conditions = TranslationsWeatherWidgetConditionsEs._(_root);
 	late final TranslationsWeatherWidgetRecommendationsEs recommendations = TranslationsWeatherWidgetRecommendationsEs._(_root);
@@ -1161,8 +1185,8 @@ class TranslationsCurrencyEs {
 	/// es: 'Actualizar Tasa'
 	String get refreshTooltip => 'Actualizar Tasa';
 
-	/// es: 'Monto ({code})'
-	String get amountLabel => 'Monto ({code})';
+	/// es: 'Monto ($code)'
+	String amountLabel({required Object code}) => 'Monto (${code})';
 
 	/// es: 'Intercambiar Divisas'
 	String get swapTooltip => 'Intercambiar Divisas';
@@ -1170,8 +1194,8 @@ class TranslationsCurrencyEs {
 	/// es: 'Monto convertido'
 	String get convertedAmount => 'Monto convertido';
 
-	/// es: 'Tasa: 1 {from} = {rate} {to}'
-	String get rateLabel => 'Tasa: 1 {from} = {rate} {to}';
+	/// es: 'Tasa: 1 $from = $rate $to'
+	String rateLabel({required Object from, required Object rate, required Object to}) => 'Tasa: 1 ${from} = ${rate} ${to}';
 
 	/// es: 'Error al cargar tasas de cambio'
 	String get errorLoad => 'Error al cargar tasas de cambio';
@@ -1188,8 +1212,8 @@ class TranslationsCurrencyEs {
 	/// es: 'Intercambiar divisas'
 	String get swapCurrencies => 'Intercambiar divisas';
 
-	/// es: 'Tasa: 1 {from} = {rate} {to}'
-	String get rateDesc => 'Tasa: 1 {from} = {rate} {to}';
+	/// es: 'Tasa: 1 $from = $rate $to'
+	String rateDesc({required Object from, required Object rate, required Object to}) => 'Tasa: 1 ${from} = ${rate} ${to}';
 
 	/// es: 'Error al cargar tasas de cambio'
 	String get errorLoadingRates => 'Error al cargar tasas de cambio';
@@ -1203,17 +1227,17 @@ class TranslationsValidatorsEs {
 
 	// Translations
 
-	/// es: '{field} es requerido'
-	String get requiredParams => '{field} es requerido';
+	/// es: '$field es requerido'
+	String requiredParams({required Object field}) => '${field} es requerido';
 
-	/// es: 'El campo {field} no puede estar vacío'
-	String get notEmptyParams => 'El campo {field} no puede estar vacío';
+	/// es: 'El campo $field no puede estar vacío'
+	String notEmptyParams({required Object field}) => 'El campo ${field} no puede estar vacío';
 
-	/// es: '{field} debe ser al menos {min}'
-	String get minParams => '{field} debe ser al menos {min}';
+	/// es: '$field debe ser al menos $min'
+	String minParams({required Object field, required Object min}) => '${field} debe ser al menos ${min}';
 
-	/// es: '{field} no puede exceder {max}'
-	String get maxParams => '{field} no puede exceder {max}';
+	/// es: '$field no puede exceder $max'
+	String maxParams({required Object field, required Object max}) => '${field} no puede exceder ${max}';
 
 	/// es: 'La matrícula es obligatoria'
 	String get plateRequired => 'La matrícula es obligatoria';
@@ -1317,23 +1341,26 @@ class TranslationsTimeEs {
 	/// es: 'Ahora'
 	String get now => 'Ahora';
 
-	/// es: 'Hoy'
-	String get today => 'Hoy';
+	/// es: 'hoy'
+	String get today => 'hoy';
 
-	/// es: 'Hace {n} min'
-	String get minutesAgo => 'Hace {n} min';
+	/// es: 'ayer'
+	String get yesterday => 'ayer';
 
-	/// es: 'Hace {n}h'
-	String get hoursAgo => 'Hace {n}h';
+	/// es: 'hace $n min'
+	String minutesAgo({required Object n}) => 'hace ${n} min';
 
-	/// es: 'Hace {n}d'
-	String get daysAgo => 'Hace {n}d';
+	/// es: 'hace ${n}h'
+	String hoursAgo({required Object n}) => 'hace ${n}h';
 
-	/// es: 'Hace {n}m'
-	String get monthsAgo => 'Hace {n}m';
+	/// es: 'hace $n días'
+	String daysAgo({required Object n}) => 'hace ${n} días';
 
-	/// es: 'Hace {n}a'
-	String get yearsAgo => 'Hace {n}a';
+	/// es: 'hace $n meses'
+	String monthsAgo({required Object n}) => 'hace ${n} meses';
+
+	/// es: 'hace $n año(s)'
+	String yearsAgo({required Object n}) => 'hace ${n} año(s)';
 }
 
 // Path: garage.addVehicleForm
@@ -1656,11 +1683,11 @@ class TranslationsNotificationsRulesMileageWarningEs {
 
 	// Translations
 
-	/// es: 'Kilometraje alto: {brand} {model}'
-	String get title => 'Kilometraje alto: {brand} {model}';
+	/// es: 'Kilometraje alto: $brand $model'
+	String title({required Object brand, required Object model}) => 'Kilometraje alto: ${brand} ${model}';
 
-	/// es: 'Tu {brand} {model} ({plate}) está al {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Considera programar un servicio.'
-	String get message => 'Tu {brand} {model} ({plate}) está al {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Considera programar un servicio.';
+	/// es: 'Tu $brand $model ($plate) está al $percent% del kilometraje máximo ($mileage/$max_mileage km). Considera programar un servicio.'
+	String message({required Object brand, required Object model, required Object plate, required Object percent, required Object mileage, required Object max_mileage}) => 'Tu ${brand} ${model} (${plate}) está al ${percent}% del kilometraje máximo (${mileage}/${max_mileage} km). Considera programar un servicio.';
 }
 
 // Path: notifications.rules.mileage_critical
@@ -1671,11 +1698,11 @@ class TranslationsNotificationsRulesMileageCriticalEs {
 
 	// Translations
 
-	/// es: '⚠️ Kilometraje excedido: {brand} {model}'
-	String get title => '⚠️ Kilometraje excedido: {brand} {model}';
+	/// es: '⚠️ Kilometraje excedido: $brand $model'
+	String title({required Object brand, required Object model}) => '⚠️ Kilometraje excedido: ${brand} ${model}';
 
-	/// es: 'Tu {brand} {model} ({plate}) ha alcanzado el {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Es urgente llevar tu vehículo a servicio.'
-	String get message => 'Tu {brand} {model} ({plate}) ha alcanzado el {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Es urgente llevar tu vehículo a servicio.';
+	/// es: 'Tu $brand $model ($plate) ha alcanzado el $percent% del kilometraje máximo ($mileage/$max_mileage km). Es urgente llevar tu vehículo a servicio.'
+	String message({required Object brand, required Object model, required Object plate, required Object percent, required Object mileage, required Object max_mileage}) => 'Tu ${brand} ${model} (${plate}) ha alcanzado el ${percent}% del kilometraje máximo (${mileage}/${max_mileage} km). Es urgente llevar tu vehículo a servicio.';
 }
 
 // Path: notifications.rules.maintenance_overdue
@@ -1686,11 +1713,11 @@ class TranslationsNotificationsRulesMaintenanceOverdueEs {
 
 	// Translations
 
-	/// es: 'Mantenimiento vencido: {brand} {model}'
-	String get title => 'Mantenimiento vencido: {brand} {model}';
+	/// es: 'Mantenimiento vencido: $brand $model'
+	String title({required Object brand, required Object model}) => 'Mantenimiento vencido: ${brand} ${model}';
 
-	/// es: 'Tu {brand} {model} ({plate}) lleva {days} días sin mantenimiento. El último servicio fue el {last_date}.'
-	String get message => 'Tu {brand} {model} ({plate}) lleva {days} días sin mantenimiento. El último servicio fue el {last_date}.';
+	/// es: 'Tu $brand $model ($plate) lleva $days días sin mantenimiento. El último servicio fue el $last_date.'
+	String message({required Object brand, required Object model, required Object plate, required Object days, required Object last_date}) => 'Tu ${brand} ${model} (${plate}) lleva ${days} días sin mantenimiento. El último servicio fue el ${last_date}.';
 }
 
 // Path: notifications.rules.no_maintenance
@@ -1701,11 +1728,11 @@ class TranslationsNotificationsRulesNoMaintenanceEs {
 
 	// Translations
 
-	/// es: 'Sin mantenimiento: {brand} {model}'
-	String get title => 'Sin mantenimiento: {brand} {model}';
+	/// es: 'Sin mantenimiento: $brand $model'
+	String title({required Object brand, required Object model}) => 'Sin mantenimiento: ${brand} ${model}';
 
-	/// es: 'Tu {brand} {model} ({plate}) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes.'
-	String get message => 'Tu {brand} {model} ({plate}) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes.';
+	/// es: 'Tu $brand $model ($plate) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes.'
+	String message({required Object brand, required Object model, required Object plate}) => 'Tu ${brand} ${model} (${plate}) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes.';
 }
 
 // Path: notifications.mocks.n1
@@ -1875,7 +1902,7 @@ class TranslationsNotificationsMocksN8Es {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
-			'common.appName' => 'DriveTrack',
+			'common.appName' => 'Driver Track',
 			'common.ok' => 'Aceptar',
 			'common.cancel' => 'Cancelar',
 			'common.loading' => 'Cargando...',
@@ -1941,8 +1968,8 @@ extension on Translations {
 			'forgotPassword.errorResetPassword' => 'Error al actualizar contraseña',
 			'registration.title' => 'Crear cuenta',
 			'registration.subtitle' => 'Completa tus datos para comenzar',
-			'registration.appTagline' => 'Tu compañero inteligente de vehículos',
-			'registration.fullName' => 'NOMBRE COMPLETO',
+			'registration.footerTagline' => 'Tu compañero inteligente de vehículos',
+			'registration.fullName' => 'Nombre completo',
 			'registration.fullNamePlaceholder' => 'Juan Pérez',
 			'registration.phoneNumber' => 'NÚMERO DE TELÉFONO',
 			'registration.phonePlaceholder' => '+52 55 1234 5678',
@@ -1951,7 +1978,7 @@ extension on Translations {
 			'registration.datePlaceholder' => 'YYYY-MM-DD',
 			'registration.passwordPlaceholder' => 'Mín. 8 caracteres',
 			'registration.createAccount' => 'Crear cuenta',
-			'registration.welcomeSuccess' => '¡Bienvenido a DriveTrack!',
+			'registration.welcomeSuccess' => '¡Bienvenido a DriverTrack!',
 			'registration.alreadyHaveAccount' => '¿Ya tienes cuenta? ',
 			'registration.passwordWeak' => 'Débil',
 			'registration.passwordFair' => 'Regular',
@@ -1971,10 +1998,10 @@ extension on Translations {
 			'garage.errorAddingVehicle' => 'No se pudo agregar el vehículo. Intenta de nuevo.',
 			'garage.errorUpdatingVehicle' => 'No se pudo actualizar el vehículo. Intenta de nuevo.',
 			'garage.errorRemovingVehicle' => 'No se pudo eliminar el vehículo. Intenta de nuevo.',
-			'garage.serviceLogged' => 'Servicio registrado para {vehicleName}',
+			'garage.serviceLogged' => ({required Object vehicleName}) => 'Servicio registrado para ${vehicleName}',
 			'garage.serviceRecordUpdated' => 'Registro de servicio actualizado',
 			'garage.removeVehicleTitle' => '¿Eliminar vehículo?',
-			'garage.removeVehicleMessage' => '¿Estás seguro de que quieres eliminar "{vehicleName}" de tu garaje? Esta acción también eliminará todos los registros de mantenimiento asociados.',
+			'garage.removeVehicleMessage' => ({required Object vehicleName}) => '¿Estás seguro de que quieres eliminar "${vehicleName}" de tu garaje? Esta acción también eliminará todos los registros de mantenimiento asociados.',
 			'garage.errorSyncFailed' => '¡Error de sincronización!',
 			'garage.errorSyncMessage' => 'No pudimos cargar tus vehículos. Por favor verifica tu conexión.',
 			'garage.vehicleCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(n, one: 'Vehículo', other: 'Vehículos', ), 
@@ -1983,14 +2010,14 @@ extension on Translations {
 			'garage.overallHealth' => 'Salud general',
 			'garage.totalSpent' => 'Total gastado',
 			'garage.services' => 'Servicios',
-			'garage.lastService' => 'Último: {title} ({time})',
+			'garage.lastService' => ({required Object title, required Object time}) => 'Último: ${title} (${time})',
 			'garage.servicesDue' => 'Servicios pendientes',
 			'garage.noRecordsFound' => 'No se encontraron registros',
 			'garage.noRecordsMessage' => 'Lleva el control de tu vehículo\nregistrando tu primer servicio.',
 			'garage.emptyGarageTitle' => 'Tu garaje está vacío',
 			'garage.emptyGarageMessage' => 'Toca el botón de abajo para agregar tu primer vehículo y comenzar a rastrear su rendimiento.',
 			'garage.deleteServiceTitle' => '¿Eliminar registro de servicio?',
-			'garage.deleteServiceMessage' => '¿Estás seguro de que quieres eliminar este registro de "{title}"? Esta acción no se puede deshacer.',
+			'garage.deleteServiceMessage' => ({required Object title}) => '¿Estás seguro de que quieres eliminar este registro de "${title}"? Esta acción no se puede deshacer.',
 			'garage.editVehicle' => 'Editar vehículo',
 			'garage.removeVehicle' => 'Eliminar vehículo',
 			'garage.vehicleType' => 'Tipo de vehículo',
@@ -2028,19 +2055,21 @@ extension on Translations {
 			'garage.vehicleTypes.car' => 'Coche',
 			'garage.vehicleTypes.motorcycle' => 'Motocicleta',
 			'garage.vehicleHealth' => 'Salud del Vehículo',
-			'garage.limitMileage' => 'Límite: {mileage} mi',
+			'garage.limitMileage' => ({required Object mileage}) => 'Límite: ${mileage} mi',
 			'garage.statusHealthy' => 'Saludable',
 			'garage.statusNeedsService' => 'Requiere Servicio',
 			'garage.statusCritical' => 'Crítico',
 			'garage.recentServiceLabel' => 'ÚLTIMO',
 			'garage.recentMaintenance' => 'MANTENIMIENTO RECIENTE',
-			'garage.recordsCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(n, one: '1 registro', zero: '0 registros', other: '{count} registros', ), 
+			'garage.recordsCount' => ({required num n, required Object count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(n, one: '1 registro', zero: '0 registros', other: '${count} registros', ), 
 			'garage.totalDistanceMiles' => 'Millas totales',
 			'garage.totalDistanceKm' => 'Kilómetros totales',
+			'garage.totalFleetDistance' => 'Distancia Total (KM)',
+			'garage.totalFleetDistanceMiles' => 'Distancia Total (MI)',
 			'garage.unitKilometers' => 'Kilómetros',
 			'garage.unitMiShort' => 'mi',
 			'garage.unitKmShort' => 'km',
-			'garage.notificationsUnread' => 'Notificaciones, {count} no leídas',
+			'garage.notificationsUnread' => ({required Object count}) => 'Notificaciones, ${count} no leídas',
 			'garage.notificationsNone' => 'Notificaciones, sin novedades',
 			'garage.goodAfternoon' => 'Buenas tardes',
 			'garage.goodEvening' => 'Buenas noches',
@@ -2052,11 +2081,11 @@ extension on Translations {
 			'maintenance.serviceAdded' => 'Servicio agregado exitosamente',
 			'maintenance.serviceUpdated' => 'Registro de servicio actualizado',
 			'maintenance.serviceRemoved' => 'Registro de servicio eliminado',
-			'maintenance.errorAddingService' => 'Error al agregar servicio: {error}',
-			'maintenance.errorUpdatingService' => 'Error al actualizar registro: {error}',
+			'maintenance.errorAddingService' => ({required Object error}) => 'Error al agregar servicio: ${error}',
+			'maintenance.errorUpdatingService' => ({required Object error}) => 'Error al actualizar registro: ${error}',
 			'maintenance.errorRemovingService' => 'No se pudo eliminar el servicio. Intenta de nuevo.',
 			'maintenance.removeEntryTitle' => '¿Eliminar registro?',
-			'maintenance.removeEntryMessage' => '¿Estás seguro de que quieres eliminar el registro de "{title}"? Esta acción no se puede deshacer.',
+			'maintenance.removeEntryMessage' => ({required Object title}) => '¿Estás seguro de que quieres eliminar el registro de "${title}"? Esta acción no se puede deshacer.',
 			'maintenance.errorTitle' => 'Algo salió mal',
 			'maintenance.errorMessage' => 'Tuvimos problemas al obtener tus datos. Por favor verifica tu conexión o intenta de nuevo.',
 			'maintenance.totalSpent' => 'Total gastado',
@@ -2092,6 +2121,8 @@ extension on Translations {
 			'maintenance.recordPreview' => 'VISTA PREVIA',
 			'maintenance.untitledService' => 'Servicio sin título',
 			'maintenance.unknownVehicle' => 'Desconocido',
+			'maintenance.odometerDashboard' => 'Odómetro (Tablero)',
+			'maintenance.goalReachedWarning' => 'Has alcanzado tu meta de servicio. Te recomendamos actualizar tu próximo objetivo en "Editar Vehículo".',
 			'maintenance.costLabel' => 'COSTO',
 			'maintenance.costFree' => 'Gratis',
 			'maintenance.mileageLabel' => 'KILOMETRAJE',
@@ -2108,6 +2139,9 @@ extension on Translations {
 			'profile.favoriteVehicles' => 'Vehículos favoritos',
 			'profile.favoritesSaved' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(n, one: '1 favorito guardado', zero: 'Sin favoritos guardados', other: '{n} favoritos guardados', ), 
 			'profile.noFavorites' => 'Aún no tienes vehículos favoritos',
+			'profile.lastServiceLabel' => ({required Object time}) => 'Último servicio: ${time}',
+			'profile.noServicesLogged' => 'Sin servicios registrados',
+			'profile.registerAction' => 'Registrar',
 			'profile.notifications' => 'Notificaciones',
 			'profile.configureAlerts' => 'Configura tus alertas',
 			'profile.pushNotifications' => 'Notificaciones push',
@@ -2123,13 +2157,13 @@ extension on Translations {
 			'profile.twoFactorEnabled' => '● Activo',
 			'profile.twoFactorDisabled' => '○ Inactivo — toca para activar',
 			'profile.appSettings' => 'Configuración de la app',
-			'profile.appSettingsSubtitle' => 'Tema: {theme} · Idioma: {language}',
+			'profile.appSettingsSubtitle' => ({required Object theme, required Object language}) => 'Tema: ${theme} · Idioma: ${language}',
 			'profile.themeDark' => 'Oscuro',
 			'profile.themeLight' => 'Claro',
 			'profile.theme' => 'Tema',
 			'profile.language' => 'Idioma',
 			'profile.feedbackSupport' => 'Soporte',
-			'profile.rateDriveTrack' => 'Calificar DriveTrack',
+			'profile.rateDriveTrack' => 'Calificar DriverTrack',
 			'profile.shareExperience' => 'Comparte tu experiencia',
 			'profile.helpSupport' => 'Ayuda y soporte',
 			'profile.faqsContact' => 'Preguntas frecuentes, Contáctanos',
@@ -2139,7 +2173,7 @@ extension on Translations {
 			'profile.footerTagline' => 'Hecho con ❤️ para conductores en todo el mundo',
 			'profile.driver' => 'Conductor',
 			'profile.activeStatus' => 'Estado activo',
-			'profile.memberSince' => 'Miembro desde {year}',
+			'profile.memberSince' => ({required Object year}) => 'Miembro desde ${year}',
 			'profile.statsVehicles' => 'Vehículos',
 			'profile.statsVehiclesSub' => 'vinculados',
 			'profile.statsServices' => 'Servicios',
@@ -2170,7 +2204,7 @@ extension on Translations {
 			'profile.gallery' => 'Galería',
 			'profile.uploadingPhoto' => 'Subiendo foto...',
 			'notifications.title' => 'Notificaciones',
-			'notifications.unreadSummary' => '{unread} sin leer · {total} en total',
+			'notifications.unreadSummary' => ({required Object unread, required Object total}) => '${unread} sin leer · ${total} en total',
 			'notifications.markAllRead' => 'Marcar todo como leído',
 			'notifications.filterAll' => 'Todos',
 			'notifications.filterUnread' => 'No leídos',
@@ -2196,14 +2230,14 @@ extension on Translations {
 			'notifications.typeError' => 'Error',
 			'notifications.filterInfo' => 'Info',
 			'notifications.summaryInfo' => 'Info',
-			'notifications.rules.mileage_warning.title' => 'Kilometraje alto: {brand} {model}',
-			'notifications.rules.mileage_warning.message' => 'Tu {brand} {model} ({plate}) está al {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Considera programar un servicio.',
-			'notifications.rules.mileage_critical.title' => '⚠️ Kilometraje excedido: {brand} {model}',
-			'notifications.rules.mileage_critical.message' => 'Tu {brand} {model} ({plate}) ha alcanzado el {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Es urgente llevar tu vehículo a servicio.',
-			'notifications.rules.maintenance_overdue.title' => 'Mantenimiento vencido: {brand} {model}',
-			'notifications.rules.maintenance_overdue.message' => 'Tu {brand} {model} ({plate}) lleva {days} días sin mantenimiento. El último servicio fue el {last_date}.',
-			'notifications.rules.no_maintenance.title' => 'Sin mantenimiento: {brand} {model}',
-			'notifications.rules.no_maintenance.message' => 'Tu {brand} {model} ({plate}) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes.',
+			'notifications.rules.mileage_warning.title' => ({required Object brand, required Object model}) => 'Kilometraje alto: ${brand} ${model}',
+			'notifications.rules.mileage_warning.message' => ({required Object brand, required Object model, required Object plate, required Object percent, required Object mileage, required Object max_mileage}) => 'Tu ${brand} ${model} (${plate}) está al ${percent}% del kilometraje máximo (${mileage}/${max_mileage} km). Considera programar un servicio.',
+			'notifications.rules.mileage_critical.title' => ({required Object brand, required Object model}) => '⚠️ Kilometraje excedido: ${brand} ${model}',
+			'notifications.rules.mileage_critical.message' => ({required Object brand, required Object model, required Object plate, required Object percent, required Object mileage, required Object max_mileage}) => 'Tu ${brand} ${model} (${plate}) ha alcanzado el ${percent}% del kilometraje máximo (${mileage}/${max_mileage} km). Es urgente llevar tu vehículo a servicio.',
+			'notifications.rules.maintenance_overdue.title' => ({required Object brand, required Object model}) => 'Mantenimiento vencido: ${brand} ${model}',
+			'notifications.rules.maintenance_overdue.message' => ({required Object brand, required Object model, required Object plate, required Object days, required Object last_date}) => 'Tu ${brand} ${model} (${plate}) lleva ${days} días sin mantenimiento. El último servicio fue el ${last_date}.',
+			'notifications.rules.no_maintenance.title' => ({required Object brand, required Object model}) => 'Sin mantenimiento: ${brand} ${model}',
+			'notifications.rules.no_maintenance.message' => ({required Object brand, required Object model, required Object plate}) => 'Tu ${brand} ${model} (${plate}) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes.',
 			'notifications.mocks.n1.title' => 'Presión de neumáticos baja',
 			'notifications.mocks.n1.body' => 'El neumático trasero izquierdo está a 28 PSI. Recomendado: 32 PSI.',
 			'notifications.mocks.n1.time' => 'hace 2 min',
@@ -2235,6 +2269,7 @@ extension on Translations {
 			'notifications.mocks.n8.time' => 'hace 1 semana',
 			'map.exploreNearby' => 'Explorar cercano',
 			'map.title' => 'Mapa de servicios',
+			'map.subtitle' => 'Explora servicios cercanos',
 			'map.live' => 'En vivo',
 			'map.searchHint' => 'Buscar talleres, gasolineras...',
 			'map.filterAll' => 'Todos',
@@ -2247,9 +2282,9 @@ extension on Translations {
 			'map.openNow' => 'Abierto ahora',
 			'map.closed' => 'Cerrado',
 			'map.navigate' => 'Navegar',
-			'map.navigatingTo' => 'Navegando a {name}...',
-			'map.calling' => 'Llamando a {phone}...',
-			'map.locationsFound' => '{count} ubicaciones encontradas',
+			'map.navigatingTo' => ({required Object name}) => 'Navegando a ${name}...',
+			'map.calling' => ({required Object phone}) => 'Llamando a ${phone}...',
+			'map.locationsFound' => ({required Object count}) => '${count} ubicaciones encontradas',
 			'map.specialties' => 'Especialidades',
 			'map.myLocation' => 'Mi Ubicación',
 			'map.loadingMap' => 'Cargando mapa...',
@@ -2261,13 +2296,13 @@ extension on Translations {
 			'map.searchThisArea' => 'Buscar en esta zona',
 			'map.gpsSearching' => 'Buscando ubicación GPS... Asegúrate de tener la ubicación activada en tu dispositivo.',
 			'weatherWidget.alert' => 'ALERTA DEL CLIMA',
-			'weatherWidget.condition' => '{weather} · {temp}',
-			'weatherWidget.humidity' => '{value}%',
+			'weatherWidget.condition' => ({required Object weather, required Object temp}) => '${weather} · ${temp}',
+			'weatherWidget.humidity' => ({required Object value}) => '${value}%',
 			'weatherWidget.loading' => 'Obteniendo clima...',
 			'weatherWidget.errorTitle' => 'Clima no disponible',
 			'weatherWidget.errorRetry' => 'Toca para reintentar',
 			'weatherWidget.fallbackLocation' => 'Ubicación aproximada',
-			'weatherWidget.lastUpdated' => 'Actualizado {time}',
+			'weatherWidget.lastUpdated' => ({required Object time}) => 'Actualizado ${time}',
 			'weatherWidget.conditions.clear' => 'Despejado',
 			'weatherWidget.conditions.clouds' => 'Nublado',
 			'weatherWidget.conditions.rain' => 'Lluvioso',
@@ -2290,21 +2325,21 @@ extension on Translations {
 			'weatherWidget.recommendations.kDefault' => 'Condiciones estables para conducir. ¡Buen viaje!',
 			'currency.title' => 'Convertidor de Divisas',
 			'currency.refreshTooltip' => 'Actualizar Tasa',
-			'currency.amountLabel' => 'Monto ({code})',
+			'currency.amountLabel' => ({required Object code}) => 'Monto (${code})',
 			'currency.swapTooltip' => 'Intercambiar Divisas',
 			'currency.convertedAmount' => 'Monto convertido',
-			'currency.rateLabel' => 'Tasa: 1 {from} = {rate} {to}',
+			'currency.rateLabel' => ({required Object from, required Object rate, required Object to}) => 'Tasa: 1 ${from} = ${rate} ${to}',
 			'currency.errorLoad' => 'Error al cargar tasas de cambio',
 			'currency.tryAgain' => 'Intentar de nuevo',
 			'currency.converterLabel' => 'CONVERTIDOR DE DIVISAS',
 			'currency.refreshRate' => 'Actualizar tasa',
 			'currency.swapCurrencies' => 'Intercambiar divisas',
-			'currency.rateDesc' => 'Tasa: 1 {from} = {rate} {to}',
+			'currency.rateDesc' => ({required Object from, required Object rate, required Object to}) => 'Tasa: 1 ${from} = ${rate} ${to}',
 			'currency.errorLoadingRates' => 'Error al cargar tasas de cambio',
-			'validators.requiredParams' => '{field} es requerido',
-			'validators.notEmptyParams' => 'El campo {field} no puede estar vacío',
-			'validators.minParams' => '{field} debe ser al menos {min}',
-			'validators.maxParams' => '{field} no puede exceder {max}',
+			'validators.requiredParams' => ({required Object field}) => '${field} es requerido',
+			'validators.notEmptyParams' => ({required Object field}) => 'El campo ${field} no puede estar vacío',
+			'validators.minParams' => ({required Object field, required Object min}) => '${field} debe ser al menos ${min}',
+			'validators.maxParams' => ({required Object field, required Object max}) => '${field} no puede exceder ${max}',
 			'validators.plateRequired' => 'La matrícula es obligatoria',
 			'validators.plateTooShort' => 'La matrícula es muy corta',
 			'validators.plateTooLong' => 'La matrícula es muy larga',
@@ -2352,12 +2387,13 @@ extension on Translations {
 			'weather.search' => 'Buscar',
 			'weather.cityNotFound' => 'Ciudad no encontrada. Intenta con «Ciudad, País»',
 			'time.now' => 'Ahora',
-			'time.today' => 'Hoy',
-			'time.minutesAgo' => 'Hace {n} min',
-			'time.hoursAgo' => 'Hace {n}h',
-			'time.daysAgo' => 'Hace {n}d',
-			'time.monthsAgo' => 'Hace {n}m',
-			'time.yearsAgo' => 'Hace {n}a',
+			'time.today' => 'hoy',
+			'time.yesterday' => 'ayer',
+			'time.minutesAgo' => ({required Object n}) => 'hace ${n} min',
+			'time.hoursAgo' => ({required Object n}) => 'hace ${n}h',
+			'time.daysAgo' => ({required Object n}) => 'hace ${n} días',
+			'time.monthsAgo' => ({required Object n}) => 'hace ${n} meses',
+			'time.yearsAgo' => ({required Object n}) => 'hace ${n} año(s)',
 			_ => null,
 		};
 	}

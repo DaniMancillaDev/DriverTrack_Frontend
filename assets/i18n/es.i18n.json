@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "DriveTrack",
+    "appName": "Driver Track",
     "ok": "Aceptar",
     "cancel": "Cancelar",
     "loading": "Cargando...",
@@ -72,8 +72,8 @@
   "registration": {
     "title": "Crear cuenta",
     "subtitle": "Completa tus datos para comenzar",
-    "appTagline": "Tu compañero inteligente de vehículos",
-    "fullName": "NOMBRE COMPLETO",
+    "footerTagline": "Tu compañero inteligente de vehículos",
+    "fullName": "Nombre completo",
     "fullNamePlaceholder": "Juan Pérez",
     "phoneNumber": "NÚMERO DE TELÉFONO",
     "phonePlaceholder": "+52 55 1234 5678",
@@ -82,7 +82,7 @@
     "datePlaceholder": "YYYY-MM-DD",
     "passwordPlaceholder": "Mín. 8 caracteres",
     "createAccount": "Crear cuenta",
-    "welcomeSuccess": "¡Bienvenido a DriveTrack!",
+    "welcomeSuccess": "¡Bienvenido a DriverTrack!",
     "alreadyHaveAccount": "¿Ya tienes cuenta? ",
     "passwordWeak": "Débil",
     "passwordFair": "Regular",
@@ -106,10 +106,10 @@
     "errorAddingVehicle": "No se pudo agregar el vehículo. Intenta de nuevo.",
     "errorUpdatingVehicle": "No se pudo actualizar el vehículo. Intenta de nuevo.",
     "errorRemovingVehicle": "No se pudo eliminar el vehículo. Intenta de nuevo.",
-    "serviceLogged": "Servicio registrado para {vehicleName}",
+    "serviceLogged": "Servicio registrado para $vehicleName",
     "serviceRecordUpdated": "Registro de servicio actualizado",
     "removeVehicleTitle": "¿Eliminar vehículo?",
-    "removeVehicleMessage": "¿Estás seguro de que quieres eliminar \"{vehicleName}\" de tu garaje? Esta acción también eliminará todos los registros de mantenimiento asociados.",
+    "removeVehicleMessage": "¿Estás seguro de que quieres eliminar \"$vehicleName\" de tu garaje? Esta acción también eliminará todos los registros de mantenimiento asociados.",
     "errorSyncFailed": "¡Error de sincronización!",
     "errorSyncMessage": "No pudimos cargar tus vehículos. Por favor verifica tu conexión.",
     "vehicleCount": {
@@ -121,14 +121,14 @@
     "overallHealth": "Salud general",
     "totalSpent": "Total gastado",
     "services": "Servicios",
-    "lastService": "Último: {title} ({time})",
+    "lastService": "Último: $title ($time)",
     "servicesDue": "Servicios pendientes",
     "noRecordsFound": "No se encontraron registros",
     "noRecordsMessage": "Lleva el control de tu vehículo\nregistrando tu primer servicio.",
     "emptyGarageTitle": "Tu garaje está vacío",
     "emptyGarageMessage": "Toca el botón de abajo para agregar tu primer vehículo y comenzar a rastrear su rendimiento.",
     "deleteServiceTitle": "¿Eliminar registro de servicio?",
-    "deleteServiceMessage": "¿Estás seguro de que quieres eliminar este registro de \"{title}\"? Esta acción no se puede deshacer.",
+    "deleteServiceMessage": "¿Estás seguro de que quieres eliminar este registro de \"$title\"? Esta acción no se puede deshacer.",
     "editVehicle": "Editar vehículo",
     "removeVehicle": "Eliminar vehículo",
     "vehicleType": "Tipo de vehículo",
@@ -170,7 +170,7 @@
       "motorcycle": "Motocicleta"
     },
     "vehicleHealth": "Salud del Vehículo",
-    "limitMileage": "Límite: {mileage} mi",
+    "limitMileage": "Límite: $mileage mi",
     "statusHealthy": "Saludable",
     "statusNeedsService": "Requiere Servicio",
     "statusCritical": "Crítico",
@@ -179,14 +179,16 @@
     "recordsCount": {
       "one": "1 registro",
       "zero": "0 registros",
-      "other": "{count} registros"
+      "other": "$count registros"
     },
     "totalDistanceMiles": "Millas totales",
     "totalDistanceKm": "Kilómetros totales",
+    "totalFleetDistance": "Distancia Total (KM)",
+    "totalFleetDistanceMiles": "Distancia Total (MI)",
     "unitKilometers": "Kilómetros",
     "unitMiShort": "mi",
     "unitKmShort": "km",
-    "notificationsUnread": "Notificaciones, {count} no leídas",
+    "notificationsUnread": "Notificaciones, $count no leídas",
     "notificationsNone": "Notificaciones, sin novedades",
     "goodAfternoon": "Buenas tardes",
     "goodEvening": "Buenas noches"
@@ -200,11 +202,11 @@
     "serviceAdded": "Servicio agregado exitosamente",
     "serviceUpdated": "Registro de servicio actualizado",
     "serviceRemoved": "Registro de servicio eliminado",
-    "errorAddingService": "Error al agregar servicio: {error}",
-    "errorUpdatingService": "Error al actualizar registro: {error}",
+    "errorAddingService": "Error al agregar servicio: $error",
+    "errorUpdatingService": "Error al actualizar registro: $error",
     "errorRemovingService": "No se pudo eliminar el servicio. Intenta de nuevo.",
     "removeEntryTitle": "¿Eliminar registro?",
-    "removeEntryMessage": "¿Estás seguro de que quieres eliminar el registro de \"{title}\"? Esta acción no se puede deshacer.",
+    "removeEntryMessage": "¿Estás seguro de que quieres eliminar el registro de \"$title\"? Esta acción no se puede deshacer.",
     "errorTitle": "Algo salió mal",
     "errorMessage": "Tuvimos problemas al obtener tus datos. Por favor verifica tu conexión o intenta de nuevo.",
     "totalSpent": "Total gastado",
@@ -240,6 +242,8 @@
     "recordPreview": "VISTA PREVIA",
     "untitledService": "Servicio sin título",
     "unknownVehicle": "Desconocido",
+    "odometerDashboard": "Odómetro (Tablero)",
+    "goalReachedWarning": "Has alcanzado tu meta de servicio. Te recomendamos actualizar tu próximo objetivo en \"Editar Vehículo\".",
     "costLabel": "COSTO",
     "costFree": "Gratis",
     "mileageLabel": "KILOMETRAJE",
@@ -264,6 +268,9 @@
       "other": "{n} favoritos guardados"
     },
     "noFavorites": "Aún no tienes vehículos favoritos",
+    "lastServiceLabel": "Último servicio: $time",
+    "noServicesLogged": "Sin servicios registrados",
+    "registerAction": "Registrar",
     "notifications": "Notificaciones",
     "configureAlerts": "Configura tus alertas",
     "pushNotifications": "Notificaciones push",
@@ -279,13 +286,13 @@
     "twoFactorEnabled": "● Activo",
     "twoFactorDisabled": "○ Inactivo — toca para activar",
     "appSettings": "Configuración de la app",
-    "appSettingsSubtitle": "Tema: {theme} · Idioma: {language}",
+    "appSettingsSubtitle": "Tema: $theme · Idioma: $language",
     "themeDark": "Oscuro",
     "themeLight": "Claro",
     "theme": "Tema",
     "language": "Idioma",
     "feedbackSupport": "Soporte",
-    "rateDriveTrack": "Calificar DriveTrack",
+    "rateDriveTrack": "Calificar DriverTrack",
     "shareExperience": "Comparte tu experiencia",
     "helpSupport": "Ayuda y soporte",
     "faqsContact": "Preguntas frecuentes, Contáctanos",
@@ -295,7 +302,7 @@
     "footerTagline": "Hecho con ❤️ para conductores en todo el mundo",
     "driver": "Conductor",
     "activeStatus": "Estado activo",
-    "memberSince": "Miembro desde {year}",
+    "memberSince": "Miembro desde $year",
     "statsVehicles": "Vehículos",
     "statsVehiclesSub": "vinculados",
     "statsServices": "Servicios",
@@ -328,7 +335,7 @@
   },
   "notifications": {
     "title": "Notificaciones",
-    "unreadSummary": "{unread} sin leer · {total} en total",
+    "unreadSummary": "$unread sin leer · $total en total",
     "markAllRead": "Marcar todo como leído",
     "filterAll": "Todos",
     "filterUnread": "No leídos",
@@ -356,20 +363,20 @@
     "summaryInfo": "Info",
     "rules": {
       "mileage_warning": {
-          "title": "Kilometraje alto: {brand} {model}",
-          "message": "Tu {brand} {model} ({plate}) está al {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Considera programar un servicio."
+          "title": "Kilometraje alto: $brand $model",
+          "message": "Tu $brand $model ($plate) está al $percent% del kilometraje máximo ($mileage/$max_mileage km). Considera programar un servicio."
       },
       "mileage_critical": {
-          "title": "⚠️ Kilometraje excedido: {brand} {model}",
-          "message": "Tu {brand} {model} ({plate}) ha alcanzado el {percent}% del kilometraje máximo ({mileage}/{max_mileage} km). Es urgente llevar tu vehículo a servicio."
+          "title": "⚠️ Kilometraje excedido: $brand $model",
+          "message": "Tu $brand $model ($plate) ha alcanzado el $percent% del kilometraje máximo ($mileage/$max_mileage km). Es urgente llevar tu vehículo a servicio."
       },
       "maintenance_overdue": {
-          "title": "Mantenimiento vencido: {brand} {model}",
-          "message": "Tu {brand} {model} ({plate}) lleva {days} días sin mantenimiento. El último servicio fue el {last_date}."
+          "title": "Mantenimiento vencido: $brand $model",
+          "message": "Tu $brand $model ($plate) lleva $days días sin mantenimiento. El último servicio fue el $last_date."
       },
       "no_maintenance": {
-          "title": "Sin mantenimiento: {brand} {model}",
-          "message": "Tu {brand} {model} ({plate}) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes."
+          "title": "Sin mantenimiento: $brand $model",
+          "message": "Tu $brand $model ($plate) no tiene registros de mantenimiento. Registra tu historial de servicios para recibir alertas inteligentes."
       }
     },
     "mocks": {
@@ -423,6 +430,7 @@
   "map": {
     "exploreNearby": "Explorar cercano",
     "title": "Mapa de servicios",
+    "subtitle": "Explora servicios cercanos",
     "live": "En vivo",
     "searchHint": "Buscar talleres, gasolineras...",
     "filterAll": "Todos",
@@ -435,9 +443,9 @@
     "openNow": "Abierto ahora",
     "closed": "Cerrado",
     "navigate": "Navegar",
-    "navigatingTo": "Navegando a {name}...",
-    "calling": "Llamando a {phone}...",
-    "locationsFound": "{count} ubicaciones encontradas",
+    "navigatingTo": "Navegando a $name...",
+    "calling": "Llamando a $phone...",
+    "locationsFound": "$count ubicaciones encontradas",
     "specialties": "Especialidades",
     "myLocation": "Mi Ubicación",
     "loadingMap": "Cargando mapa...",
@@ -451,13 +459,13 @@
   },
   "weatherWidget": {
     "alert": "ALERTA DEL CLIMA",
-    "condition": "{weather} · {temp}",
-    "humidity": "{value}%",
+    "condition": "$weather · $temp",
+    "humidity": "$value%",
     "loading": "Obteniendo clima...",
     "errorTitle": "Clima no disponible",
     "errorRetry": "Toca para reintentar",
     "fallbackLocation": "Ubicación aproximada",
-    "lastUpdated": "Actualizado {time}",
+    "lastUpdated": "Actualizado $time",
     "conditions": {
       "clear": "Despejado",
       "clouds": "Nublado",
@@ -486,23 +494,23 @@
   "currency": {
     "title": "Convertidor de Divisas",
     "refreshTooltip": "Actualizar Tasa",
-    "amountLabel": "Monto ({code})",
+    "amountLabel": "Monto ($code)",
     "swapTooltip": "Intercambiar Divisas",
     "convertedAmount": "Monto convertido",
-    "rateLabel": "Tasa: 1 {from} = {rate} {to}",
+    "rateLabel": "Tasa: 1 $from = $rate $to",
     "errorLoad": "Error al cargar tasas de cambio",
     "tryAgain": "Intentar de nuevo",
     "converterLabel": "CONVERTIDOR DE DIVISAS",
     "refreshRate": "Actualizar tasa",
     "swapCurrencies": "Intercambiar divisas",
-    "rateDesc": "Tasa: 1 {from} = {rate} {to}",
+    "rateDesc": "Tasa: 1 $from = $rate $to",
     "errorLoadingRates": "Error al cargar tasas de cambio"
   },
   "validators": {
-    "requiredParams": "{field} es requerido",
-    "notEmptyParams": "El campo {field} no puede estar vacío",
-    "minParams": "{field} debe ser al menos {min}",
-    "maxParams": "{field} no puede exceder {max}",
+    "requiredParams": "$field es requerido",
+    "notEmptyParams": "El campo $field no puede estar vacío",
+    "minParams": "$field debe ser al menos $min",
+    "maxParams": "$field no puede exceder $max",
     "plateRequired": "La matrícula es obligatoria",
     "plateTooShort": "La matrícula es muy corta",
     "plateTooLong": "La matrícula es muy larga",
@@ -558,11 +566,12 @@
   },
   "time": {
     "now": "Ahora",
-    "today": "Hoy",
-    "minutesAgo": "Hace {n} min",
-    "hoursAgo": "Hace {n}h",
-    "daysAgo": "Hace {n}d",
-    "monthsAgo": "Hace {n}m",
-    "yearsAgo": "Hace {n}a"
+    "today": "hoy",
+    "yesterday": "ayer",
+    "minutesAgo": "hace $n min",
+    "hoursAgo": "hace ${n}h",
+    "daysAgo": "hace $n días",
+    "monthsAgo": "hace $n meses",
+    "yearsAgo": "hace $n año(s)"
   }
 }

@@ -1,6 +1,13 @@
-import '../../../../theme/app_color_scheme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-/// Widget de conversión de divisas en tiempo real.
+import '../../domain/entities/currency.dart';
+import '../providers/currency_provider.dart';
+import '../../../../core/i18n/translations.g.dart';
+import '../../../../theme/app_theme.dart';
+import '../../../../core/responsive/responsive.dart';
+import '../../../../theme/app_color_scheme.dart';/// Widget de conversión de divisas en tiempo real.
 /// 
 /// Permite al usuario convertir montos entre USD y MXN (y viceversa) utilizando 
 /// tasas de cambio actualizadas. Se integra con [currencyNotifierProvider] para:
@@ -198,10 +205,10 @@ class _CurrencyConverterWidgetState
                 // Exchange rate footnote
                 SizedBox(height: r.space(AppSpacing.md)),
                 Text(
-                  Translations.of(context).currency.rateDesc
-                      .replaceAll('{from}', state.activeCurrency.code)
-                      .replaceAll('{rate}', displayRate.toStringAsFixed(4))
-                      .replaceAll('{to}', targetCurrency.code),
+                  Translations.of(context).currency.rateDesc(
+                      from: state.activeCurrency.code,
+                      rate: displayRate.toStringAsFixed(4),
+                      to: targetCurrency.code),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: context.colors.textMuted,
                     letterSpacing: 0.2,
@@ -276,16 +283,6 @@ class _CurrencyConverterWidgetState
   }
 }
 
-/// Widget principal para la conversión de divisas.
-/// 
-/// Gestiona la lógica de entrada de usuario y la visualización de tasas de cambio.
-/// Se integra con [currencyNotifierProvider] para:
-/// * Obtener tasas de cambio en tiempo real.
-/// * Manejar estados de carga y error.
-/// * Persistir la selección de divisas del usuario.
-class CurrencyConverterWidget extends StatelessWidget {
-  // ... (implementation details)
-}
 
 class _CurrencyRow extends StatelessWidget {
   final String code;

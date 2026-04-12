@@ -42,6 +42,8 @@ class MaintenanceHeader extends StatelessWidget {
                         children: [
                           Text(
                             Translations.of(context).maintenance.logSubtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: textTheme.bodySmall?.copyWith(
                               color: context.colors.textDim,
                             ),

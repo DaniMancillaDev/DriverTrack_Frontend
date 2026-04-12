@@ -9,12 +9,10 @@ class GetNotifications {
   GetNotifications(this.repository);
 
   Future<PaginatedNotifications> call({
-    required int userId,
     int skip = 0,
     int limit = 20,
   }) {
     return repository.getNotifications(
-      userId: userId,
       skip: skip,
       limit: limit,
     );

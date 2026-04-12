@@ -97,7 +97,7 @@ class _NotificationIconButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: count > 0 
-          ? Translations.of(context).garage.notificationsUnread.replaceAll('{count}', count.toString())
+          ? Translations.of(context).garage.notificationsUnread(count: count.toString())
           : Translations.of(context).garage.notificationsNone,
       child: GestureDetector(
         onTap: onTap,

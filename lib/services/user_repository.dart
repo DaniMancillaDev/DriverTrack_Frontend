@@ -63,8 +63,8 @@ class UserRepository {
   /// Finaliza el proceso de actualización de foto tras la carga exitosa al bucket.
   Future<User> confirmPhotoUpload({required String objectKey}) async {
     final response = await _apiClient.put(
-      '/users/me/photo/confirm?object_key=${Uri.encodeComponent(objectKey)}',
-      {},
+      '/users/me/photo/confirm',
+      {'object_key': objectKey},
     );
     return User.fromJson(response);
   }

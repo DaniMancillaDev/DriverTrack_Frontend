@@ -46,17 +46,7 @@ class _VehicleCardState extends ConsumerState<VehicleCard> {
 
     return maintenanceAsync.maybeWhen(
       data: (records) {
-        int realMileage = widget.vehicleData.mileage;
-        if (records.isNotEmpty) {
-          final maxRecorded = records
-              .map((r) => r.mileage)
-              .reduce((a, b) => a > b ? a : b);
-          if (maxRecorded > realMileage) {
-            realMileage = maxRecorded;
-          }
-        }
-
-        final v = VehicleViewModel(widget.vehicleData, realMileage);
+        final v = VehicleViewModel.fromVehicleWithRecords(widget.vehicleData, records);
         return _buildCard(context, ref, v, records);
       },
       orElse: () {
@@ -81,11 +71,6 @@ class _VehicleCardState extends ConsumerState<VehicleCard> {
 
     final scale = _isPressed ? 0.98 : 1.0;
 
-    String statusText = v.status == 'critical'
-        ? t.garage.statusCritical
-        : (v.status == 'attention'
-              ? t.garage.statusNeedsService
-              : t.garage.statusHealthy);
 
     String getFormattedMileage() => UnitFormatter.formatDistance(
       v.mileage.toDouble(),

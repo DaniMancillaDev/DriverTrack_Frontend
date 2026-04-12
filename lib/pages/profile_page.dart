@@ -219,10 +219,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             final allRecords = maintenanceAsync.value ?? [];
 
             return favorites.map((vehicle) {
-              final vm = VehicleViewModel(vehicle);
               final vehicleRecords = allRecords
                   .where((rec) => rec.vehicleId == vehicle.id)
                   .toList();
+                  
+              final vm = VehicleViewModel.fromVehicleWithRecords(vehicle, vehicleRecords);
 
               Color brandColor = AppColors.orangeSecondary;
               final typeSlug = vehicle.vehicleType.slug.toLowerCase();
@@ -294,7 +295,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  t.garage.serviceLogged.replaceAll('{vehicleName}', vehicle.displayName),
+                  t.garage.serviceLogged(vehicleName: vehicle.displayName),
                 ),
                 backgroundColor: AppColors.green,
                 behavior: SnackBarBehavior.floating,
@@ -462,14 +463,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         icon: Icons.settings_outlined,
         accent: AppColors.accent,
         label: t.profile.appSettings,
-        subtitle: t.profile.appSettingsSubtitle
-            .replaceAll(
-              '{theme}',
-              currentThemeSlug == 'dark'
+        subtitle: t.profile.appSettingsSubtitle(
+              theme: currentThemeSlug == 'dark'
                   ? t.profile.themeDark
                   : t.profile.themeLight,
-            )
-            .replaceAll('{language}', currentLangTag),
+              language: currentLangTag,
+        ),
         onTap: () => _toggleSection('settings'),
         trailing: Icon(
           isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
