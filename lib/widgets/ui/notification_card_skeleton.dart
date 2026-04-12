@@ -26,7 +26,7 @@ class NotificationCardSkeleton extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon Placeholder
+            // Marcador de posición del icono
             SkeletonLoader(
               width: r.dim(38),
               height: r.dim(38),
@@ -34,33 +34,33 @@ class NotificationCardSkeleton extends StatelessWidget {
             ),
             SizedBox(width: r.space(AppSpacing.s)),
             
-            // Content Placeholders
+            // Marcadores de posición del contenido
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
+                  // Título
                   SkeletonLoader(
                     width: r.dim(160),
                     height: r.dim(14),
                   ),
                   SizedBox(height: r.space(10)),
                   
-                  // Message Line 1
+                  // Línea 1 del mensaje
                   SkeletonLoader(
                     width: double.infinity,
                     height: r.dim(12),
                   ),
                   SizedBox(height: r.space(6)),
                   
-                  // Message Line 2
+                  // Línea 2 del mensaje
                   SkeletonLoader(
                     width: r.dim(120),
                     height: r.dim(12),
                   ),
                   SizedBox(height: r.space(12)),
                   
-                  // Timestamp row
+                  // Fila de marca temporal
                   Row(
                     children: [
                       SkeletonLoader(

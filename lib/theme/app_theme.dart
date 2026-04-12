@@ -9,14 +9,14 @@ import 'app_color_scheme.dart';
 /// * **Semantic**: Colores de estado (Éxito, Error, Advertencia).
 /// * **Text**: Jerarquía tipográfica desde Main hasta Ghost.
 class AppColors {
-  // Backgrounds
+  // Fondos
   static const Color background = Color(0xFF000000);
   static const Color surface = Color(0xFF1A1A1E);
   static const Color surfaceLight = Color(0xFF25252A);
   static const Color surfaceLight2 = Color(0xFF323238);
   static const Color inputBackground = Color(0xFF1E1E24);
   
-  // Accents & Brand
+  // Acentos y Marca
   static const Color orangePrimary = Color(0xFFFF6B1A);
   static const Color orangeSecondary = Color(0xFFFF9C1A);
   static const Color accent = Color(0xFFFF6B1A); // Anteriormente Morado, ahora alineado a la marca.
@@ -25,28 +25,28 @@ class AppColors {
   static const Color borderLight = Color(0xFF383844);
   static const Color divider = Color(0xFF202028);
 
-  // Status Colors
+  // Colores de estado
   static const Color info = Color(0xFF00D4E8); // Cyan
   static const Color success = Color(0xFF4CAF82); // Green
   static const Color error = Color(0xFFFF4D4D); // Red
   static const Color warning = Color(0xFFFFBE3D); // Yellow
 
-  // Legacy variables (retained for fallback)
+  // Variables heredadas (conservadas como respaldo)
   static const Color cyan = Color(0xFF00D4E8);
   static const Color green = Color(0xFF4CAF82);
   static const Color red = Color(0xFFFF4D4D);
-  static const Color purple = Color(0xFFFF6B1A); // Deprecated purple logic -> orange
+  static const Color purple = Color(0xFFFF6B1A); // Lógica de púrpura deprecada -> naranja
   static const Color yellow = Color(0xFFFFBE3D);
 
-  // Text
+  // Texto
   static const Color textMain = Colors.white;
   static const Color textSecondary = Color(0xFFA0A0B0);
   static const Color textMuted = Color(0xFF6B6B7A);
-  static const Color textDark = Color(0xFF5A5A6A); // Used typically inside dark chips
+  static const Color textDark = Color(0xFF5A5A6A); // Usado típicamente dentro de chips oscuros
   static const Color textDim = Color(0xFF4A4A5A);
   static const Color textGhost = Color(0xFF3A3A48);
 
-  // Gradients
+  // Gradientes
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,

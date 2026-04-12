@@ -96,7 +96,7 @@ class _MaintenanceCardState extends ConsumerState<MaintenanceCard> {
                 ),
                 SizedBox(width: r.space(AppSpacing.lg)),
 
-                // Central Info
+                // Información central
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

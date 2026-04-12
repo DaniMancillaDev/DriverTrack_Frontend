@@ -136,8 +136,8 @@ class WeatherNotifier extends AsyncNotifier<WeatherState> {
     } else {
       // 1. Coordenadas GPS (Fallback o Reales)
       weather = await repo.getWeather(
-        latitude: locationState.latitude ?? 19.4326, // default safe lat
-        longitude: locationState.longitude ?? -99.1332, // default safe lon
+        latitude: locationState.latitude ?? 19.4326, // latitud segura por defecto
+        longitude: locationState.longitude ?? -99.1332, // longitud segura por defecto
       );
     }
 

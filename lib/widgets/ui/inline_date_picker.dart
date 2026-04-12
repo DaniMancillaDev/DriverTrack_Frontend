@@ -111,7 +111,7 @@ class _InlineDatePickerState extends State<InlineDatePicker> {
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             children: [
-              // Drag handle
+              // Asa de arrastre
               Container(
                 width: 40,
                 height: 4,

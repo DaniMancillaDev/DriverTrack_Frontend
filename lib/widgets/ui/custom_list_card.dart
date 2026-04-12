@@ -27,7 +27,7 @@ class CustomListCard extends StatelessWidget {
 
   const CustomListCard({
     super.key,
-    this.child, // Optional child, falls back to Row if null
+    this.child, // Hijo opcional, retrocede a Row si es nulo
     this.leading,
     this.title,
     this.subtitle,

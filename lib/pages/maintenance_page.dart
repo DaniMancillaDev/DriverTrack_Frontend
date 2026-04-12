@@ -91,6 +91,14 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
       ref.read(maintenanceDocsProvider(params).notifier).updateLocal(savedRecord);
       ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(savedRecord);
 
+      // Actualizar el kilometraje del vehículo localmente.
+      // AddServiceSheet ya resuelve el valor absoluto, siempre actualizamos si cambió.
+      final newMileage = data['mileage'] as int;
+      if (newMileage != match.mileage) {
+        final updatedVehicle = match.copyWith(mileage: newMileage);
+        ref.read(vehiclesProvider.notifier).updateVehicleLocally(updatedVehicle);
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -303,7 +311,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
                         r.space(AppSpacing.lg),
-                        r.space(AppSpacing.md), // Consistent gap after header
+                        r.space(AppSpacing.md), // Espaciado consistente después del encabezado
                         r.space(AppSpacing.lg),
                         0,
                       ),

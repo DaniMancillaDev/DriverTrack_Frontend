@@ -17,14 +17,14 @@ class ProfileStatsSkeleton extends StatelessWidget {
         decoration: BoxDecoration(
           color: context.colors.surface,
           borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
-          // No border — real widget has no outer border
+          // Sin borde — el widget real no tiene borde exterior
         ),
         child: Row(
           children: List.generate(2, (idx) {
             return Expanded(
               child: Row(
                 children: [
-                  // Divider between cells (matches Container 1px divider)
+                  // Divisor entre celdas (coincide con el divisor de 1px del Container)
                   if (idx > 0)
                     Container(
                       width: 1,
@@ -42,17 +42,17 @@ class ProfileStatsSkeleton extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Value (number)
+                          // Valor (número)
                           SkeletonLoader(
                             width: r.dim(36),
                             height: r.dim(22),
                             borderRadius: AppRadius.s,
                           ),
                           SizedBox(height: r.space(6)),
-                          // Label
+                          // Etiqueta
                           SkeletonLoader(width: r.dim(50), height: r.dim(11)),
                           SizedBox(height: r.space(4)),
-                          // Sub label
+                          // Sub-etiqueta
                           SkeletonLoader(width: r.dim(38), height: r.dim(10)),
                         ],
                       ),

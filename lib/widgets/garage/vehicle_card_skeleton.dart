@@ -25,7 +25,7 @@ class VehicleCardSkeleton extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Image placeholder
+          // Marcador de posición de imagen
           SkeletonLoader(
             width: r.dim(80),
             height: r.dim(80),
@@ -33,13 +33,13 @@ class VehicleCardSkeleton extends StatelessWidget {
           ),
           SizedBox(width: r.space(16)),
 
-          // Content column
+          // Columna de contenido
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Title row: dot + name
+                // Fila de título: punto + nombre
                 Row(
                   children: [
                     SkeletonLoader(
@@ -53,12 +53,12 @@ class VehicleCardSkeleton extends StatelessWidget {
                 ),
                 SizedBox(height: r.space(6)),
 
-                // Mileage · Plate
+                // Kilometraje · Placa
                 SkeletonLoader(width: r.dim(90), height: r.dim(12)),
 
                 SizedBox(height: r.space(14)),
 
-                // Footer: health badge + arrow
+                // Pie: insignia de salud + flecha
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

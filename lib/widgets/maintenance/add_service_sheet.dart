@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../core/presentation/ui/app_notification.dart';
 import '../ui/custom_input.dart';
 import '../ui/custom_dropdown.dart';
 import '../ui/sheet_container.dart';
@@ -19,6 +21,7 @@ import '../../features/currency/presentation/widgets/currency_display.dart';
 import '../../features/currency/presentation/providers/currency_provider.dart';
 import '../../features/currency/domain/entities/currency.dart';
 import '../../theme/app_color_scheme.dart';
+import '../../providers/app_providers.dart';
 
 /// Formulario para el registro y edición de actividades de mantenimiento.
 /// 
@@ -77,10 +80,18 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
     }
   }
 
-  // Validation state
+  // Estado de validación
   String? _serviceError;
   String? _costError;
   String? _mileageError;
+
+  // Kilometraje actual del vehículo seleccionado, leído del provider en tiempo real.
+  // Esto evita usar un valor congelado del snapshot pasado al constructor.
+  int get _currentMileage {
+    if (_selectedVehicle == null) return 0;
+    final liveVehicle = ref.read(vehiclesProvider).value?.where((v) => v.id == _selectedVehicle!.id).firstOrNull;
+    return liveVehicle?.mileage ?? _selectedVehicle!.mileage;
+  }
 
   @override
   void initState() {
@@ -144,6 +155,8 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
       );
       _costError = FormValidators.cost(_costController.text, context);
       _mileageError = FormValidators.mileage(_mileageController.text, context);
+
+      // Sin validación de rango inferior — se maneja con diálogo de confirmación en _handleSave
     });
   }
 
@@ -180,12 +193,47 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
       finalCost = finalCost / currencyState.exchangeRate.rate;
     }
 
+    // Resolver kilometraje final según el valor ingresado
+    final rawMileage = int.tryParse(_mileageController.text) ?? 0;
+    int resolvedMileage = rawMileage;
+
+    // Si el valor es menor al odómetro actual, preguntar al usuario
+    if (rawMileage < _currentMileage && rawMileage > 0) {
+      final completer = Completer<int>();
+      final t = Translations.of(context);
+
+      AppNotification.show(
+        context,
+        title: t.maintenance.odometerDashboard,
+        message: t.maintenance.odometerActionMessage(
+          current: _currentMileage,
+          input: rawMileage,
+        ),
+        icon: Icons.speed_rounded,
+        iconColor: AppColors.orangeSecondary,
+        actions: [
+          AppNotificationAction(
+            label: t.maintenance.odometerActionReplace,
+            onPressed: () => completer.complete(rawMileage),
+          ),
+          AppNotificationAction(
+            label: t.maintenance.odometerActionAdd,
+            isPrimary: true,
+            onPressed: () => completer.complete(_currentMileage + rawMileage),
+          ),
+        ],
+      );
+
+      // Esperar la decisión del usuario
+      resolvedMileage = await completer.future;
+    }
+
     final entry = {
       'vehicle_id': _selectedVehicle!.id,
       'description': _serviceController.text,
       'date': _selectedDate.toIso8601String().split('T')[0],
       'cost': finalCost,
-      'mileage': int.tryParse(_mileageController.text) ?? 0,
+      'mileage': resolvedMileage,
       'category': _selectedCategory,
       'notes': _notesController.text.isEmpty ? null : _notesController.text,
     };
@@ -217,7 +265,7 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
     }
   }
 
-  // Removed _selectDate since we now use InlineDatePicker
+  // Se eliminó _selectDate ya que ahora se usa InlineDatePicker
 
   Widget _buildAnimatedItem(int index, Widget child) {
     return TweenAnimationBuilder<double>(
@@ -344,7 +392,7 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
             ),
             const SizedBox(height: AppSpacing.lg),
 
-            // Cost and Mileage on the same row
+            // Costo y Kilometraje en la misma fila
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -374,20 +422,28 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
                 Expanded(
                   child: _buildAnimatedItem(
                     4,
-                    CustomInput(
-                      controller: _mileageController,
-                      label: t.maintenance.odometerDashboard,
-                      placeholder: t.maintenance.mileagePlaceholder,
-                      errorText: _dirtyFields.contains('mileage')
-                          ? _mileageError
-                          : null,
-                      prefixIcon: Icon(
-                        Icons.speed_rounded,
-                        size: 16,
-                        color: context.colors.textSecondary,
-                      ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (_) => _markDirty('mileage'),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // El modo de odómetro se detecta automáticamente:
+                        // - Si input >= current: se considera lectura absoluta
+                        // - Si input < current: se pregunta al usuario (sumar o reemplazar)
+                        CustomInput(
+                          controller: _mileageController,
+                          label: t.maintenance.odometerDashboard,
+                          placeholder: t.maintenance.mileagePlaceholder,
+                          errorText: _dirtyFields.contains('mileage')
+                              ? _mileageError
+                              : null,
+                          prefixIcon: Icon(
+                            Icons.speed_rounded,
+                            size: 16,
+                            color: context.colors.textSecondary,
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (_) => _markDirty('mileage'),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -582,4 +638,5 @@ class _AddServiceSheetState extends ConsumerState<AddServiceSheet> {
       ),
     );
   }
+
 }

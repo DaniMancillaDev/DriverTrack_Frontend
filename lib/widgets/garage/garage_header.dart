@@ -138,9 +138,9 @@ class _NotificationIconButton extends StatelessWidget {
                       minHeight: r.dim(16),
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.red, // Flat limited palette (Tip 2)
+                      color: AppColors.red, // Paleta plana limitada (Tip 2)
                       borderRadius: BorderRadius.circular(AppRadius.full),
-                      // Removed heavy 2px background border
+                      // Se eliminó el borde de fondo pesado de 2px
                     ),
                     child: Center(
                       child: Text(

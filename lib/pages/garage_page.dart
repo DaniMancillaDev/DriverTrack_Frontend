@@ -17,7 +17,7 @@ import '../core/i18n/translations.g.dart';
 import '../core/responsive/responsive.dart';
 import '../theme/app_color_scheme.dart';
 
-// Modular Widgets
+// Widgets modulares
 import '../widgets/garage/garage_header.dart';
 import '../widgets/garage/garage_stats.dart';
 import '../widgets/garage/garage_empty_state.dart';
@@ -187,9 +187,12 @@ class _GaragePageState extends ConsumerState<GaragePage> {
           ref.read(maintenanceDocsProvider(params).notifier).updateLocal(newRecord);
           ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(newRecord);
 
-          // Actualizar el kilometraje del vehículo localmente para reflejar la salud de inmediato
-          if ((data['mileage'] as int) > vehicle.mileage) {
-            final updatedVehicle = vehicle.copyWith(mileage: data['mileage'] as int);
+          // Actualizar el kilometraje del vehículo localmente.
+          // AddServiceSheet ya resuelve el valor absoluto (lectura o current + incremento),
+          // así que siempre actualizamos para reflejar la salud de inmediato.
+          final newMileage = data['mileage'] as int;
+          if (newMileage != vehicle.mileage) {
+            final updatedVehicle = vehicle.copyWith(mileage: newMileage);
             ref.read(vehiclesProvider.notifier).updateVehicleLocally(updatedVehicle);
           }
 
@@ -239,9 +242,11 @@ class _GaragePageState extends ConsumerState<GaragePage> {
           ref.read(maintenanceDocsProvider(params).notifier).updateLocal(updatedRecord);
           ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).updateLocal(updatedRecord);
 
-          // Actualizar el kilometraje del vehículo localmente si cambió significativamente
-          if ((data['mileage'] as int) > vehicle.mileage) {
-            final updatedVehicle = vehicle.copyWith(mileage: data['mileage'] as int);
+          // Actualizar el kilometraje del vehículo localmente.
+          // AddServiceSheet ya resuelve el valor absoluto, siempre actualizamos si cambió.
+          final editMileage = data['mileage'] as int;
+          if (editMileage != vehicle.mileage) {
+            final updatedVehicle = vehicle.copyWith(mileage: editMileage);
             ref.read(vehiclesProvider.notifier).updateVehicleLocally(updatedVehicle);
           }
 
@@ -379,8 +384,12 @@ class _GaragePageState extends ConsumerState<GaragePage> {
         vehicle: VehicleViewModel(vehicle),
         onClose: () => Navigator.pop(context),
         onLogService: () {
-          Navigator.pop(context);
-          _handleLogService(vehicle);
+          // No cerramos el VehicleDetailSheet — abrimos AddServiceSheet encima.
+          // Al cerrar AddServiceSheet, el provider se actualiza y VehicleDetailSheet
+          // se reconstruye automáticamente gracias a ref.watch(maintenanceDocsProvider).
+          // Leer vehículo actualizado del provider para evitar snapshot congelado.
+          final liveVehicle = ref.read(vehiclesProvider).value?.where((v) => v.id == vehicle.id).firstOrNull ?? vehicle;
+          _handleLogService(liveVehicle);
         },
         onEdit: () {
           Navigator.pop(context);
@@ -394,8 +403,11 @@ class _GaragePageState extends ConsumerState<GaragePage> {
           _handleRemoveService(vehicle, id);
         },
         onEditService: (maintenance) {
-          Navigator.pop(context);
-          _showEditServiceSheet(vehicle, maintenance);
+          // No cerramos el VehicleDetailSheet — abrimos edit sheet encima.
+          // Al cerrarlo, el provider se actualiza y VehicleDetailSheet se reconstruye solo.
+          // Leer vehículo actualizado del provider para evitar snapshot congelado.
+          final liveVehicle = ref.read(vehiclesProvider).value?.where((v) => v.id == vehicle.id).firstOrNull ?? vehicle;
+          _showEditServiceSheet(liveVehicle, maintenance);
         },
       ),
     );
@@ -424,8 +436,8 @@ class _GaragePageState extends ConsumerState<GaragePage> {
         if (vehiclesList.isEmpty)
           const GarageEmptyState()
         else
-          // U1 fix: list generated without spread operator.
-          // For potential large lists, consider migrating to SliverList.builder.
+          // Corrección U1: lista generada sin operador de propagación.
+          // Para listas potencialmente grandes, considerar migrar a SliverList.builder.
           ...List.generate(
             vehiclesList.length,
             (i) => VehicleCard(
@@ -505,7 +517,9 @@ class _GaragePageState extends ConsumerState<GaragePage> {
     try {
       final repository = ref.read(maintenanceRepositoryProvider);
       await repository.deleteMaintenanceRecord(serviceId);
-      ref.invalidate(maintenanceDocsProvider);
+      final params = MaintenanceParams(vehicleId: vehicle.id);
+      ref.read(maintenanceDocsProvider(params).notifier).deleteLocal(serviceId);
+      ref.read(maintenanceDocsProvider(const MaintenanceParams()).notifier).deleteLocal(serviceId);
       _showSuccessSnackBar(Translations.of(context).maintenance.serviceRemoved);
     } on SessionExpiredException {
       _showSessionExpiredMessage();

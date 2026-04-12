@@ -708,6 +708,39 @@ class TranslationsMaintenanceEs {
 	/// es: 'Odómetro (Tablero)'
 	String get odometerDashboard => 'Odómetro (Tablero)';
 
+	/// es: 'Lectura'
+	String get mileageModeReading => 'Lectura';
+
+	/// es: '+ Km'
+	String get mileageModeIncrement => '+ Km';
+
+	/// es: 'Km recorridos'
+	String get mileageTraveled => 'Km recorridos';
+
+	/// es: 'ej. 500'
+	String get mileageTraveledPlaceholder => 'ej. 500';
+
+	/// es: 'No puede ser menor al odómetro actual ($current)'
+	String mileageLowerThanCurrent({required Object current}) => 'No puede ser menor al odómetro actual (${current})';
+
+	/// es: 'Actual: $current km | Ingresado: $input km'
+	String odometerActionMessage({required Object current, required Object input}) => 'Actual: ${current} km | Ingresado: ${input} km';
+
+	/// es: 'Sumar'
+	String get odometerActionAdd => 'Sumar';
+
+	/// es: 'Reemplazar'
+	String get odometerActionReplace => 'Reemplazar';
+
+	/// es: 'Limite de favoritos'
+	String get favoriteLimitTitle => 'Limite de favoritos';
+
+	/// es: 'Ya tienes $max favoritos guardados. Quita uno para poder agregar este vehiculo.'
+	String favoriteLimitMessage({required Object max}) => 'Ya tienes ${max} favoritos guardados. Quita uno para poder agregar este vehiculo.';
+
+	/// es: 'Entendido'
+	String get understood => 'Entendido';
+
 	/// es: 'Has alcanzado tu meta de servicio. Te recomendamos actualizar tu próximo objetivo en "Editar Vehículo".'
 	String get goalReachedWarning => 'Has alcanzado tu meta de servicio. Te recomendamos actualizar tu próximo objetivo en "Editar Vehículo".';
 
@@ -2122,6 +2155,17 @@ extension on Translations {
 			'maintenance.untitledService' => 'Servicio sin título',
 			'maintenance.unknownVehicle' => 'Desconocido',
 			'maintenance.odometerDashboard' => 'Odómetro (Tablero)',
+			'maintenance.mileageModeReading' => 'Lectura',
+			'maintenance.mileageModeIncrement' => '+ Km',
+			'maintenance.mileageTraveled' => 'Km recorridos',
+			'maintenance.mileageTraveledPlaceholder' => 'ej. 500',
+			'maintenance.mileageLowerThanCurrent' => ({required Object current}) => 'No puede ser menor al odómetro actual (${current})',
+			'maintenance.odometerActionMessage' => ({required Object current, required Object input}) => 'Actual: ${current} km | Ingresado: ${input} km',
+			'maintenance.odometerActionAdd' => 'Sumar',
+			'maintenance.odometerActionReplace' => 'Reemplazar',
+			'maintenance.favoriteLimitTitle' => 'Limite de favoritos',
+			'maintenance.favoriteLimitMessage' => ({required Object max}) => 'Ya tienes ${max} favoritos guardados. Quita uno para poder agregar este vehiculo.',
+			'maintenance.understood' => 'Entendido',
 			'maintenance.goalReachedWarning' => 'Has alcanzado tu meta de servicio. Te recomendamos actualizar tu próximo objetivo en "Editar Vehículo".',
 			'maintenance.costLabel' => 'COSTO',
 			'maintenance.costFree' => 'Gratis',

@@ -183,7 +183,7 @@ class ProfileSimpleRow extends StatelessWidget {
           vertical: r.space(AppSpacing.s),
         ),
         color: Colors
-            .transparent, // Removed heavy bottom borders and solid background for cleaner whitespace (Tip 1)
+            .transparent, // Se eliminaron bordes inferiores pesados y fondo sólido para un espacio en blanco más limpio (Tip 1)
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

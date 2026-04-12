@@ -40,7 +40,7 @@ class VehicleTypeToggle extends StatelessWidget {
           decoration: BoxDecoration(
             color: context.colors.surface,
             borderRadius: BorderRadius.circular(r.r(AppRadius.xl)),
-            // Removed caging border for white-space fluidity (Tip 1)
+            // Se eliminó el borde de jaula para fluidez del espacio en blanco (Tip 1)
           ),
           child: Row(
             children: vehicleTypes.asMap().entries.map((entry) {

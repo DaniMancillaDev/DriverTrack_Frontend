@@ -44,20 +44,20 @@ class GarageStats extends ConsumerWidget {
       );
     }
 
-    // Watch for maintenance records for all vehicles
+    // Observa los registros de mantenimiento para todos los vehículos
     final maintenanceAsync = ref.watch(
       maintenanceDocsProvider(const MaintenanceParams()),
     );
 
     return maintenanceAsync.maybeWhen(
       data: (allRecords) {
-        // Calculate Total Miles by taking the max mileage for each vehicle
+        // Calcula el kilometraje total tomando el máximo de cada vehículo
         int totalCalculatedMiles = 0;
         for (var vehicle in vehicles) {
           int vehicleMileage = vehicle.mileage;
           final vehicleRecords = allRecords
               .where((r) => r.vehicleId == vehicle.id)
-              .toList(); // materialize to avoid multiple iterations
+              .toList(); // Materializar para evitar múltiples iteraciones
 
           if (vehicleRecords.isNotEmpty) {
             final latestRecordMileage = vehicleRecords
@@ -76,7 +76,7 @@ class GarageStats extends ConsumerWidget {
           return VehicleViewModel.fromVehicleWithRecords(v, vehicleRecords).status != 'good';
         }).length;
 
-        // Convert value if necessary (assuming base is KM)
+        // Convierte el valor si es necesario (asumiendo que la base es KM)
         final double mileageToDisplay = isMetric 
             ? totalCalculatedMiles.toDouble() 
             : UnitConverter.kmToMi(totalCalculatedMiles.toDouble());
@@ -98,14 +98,14 @@ class GarageStats extends ConsumerWidget {
           ],
         );
       },
-      // Keep showing basic stats while loading or on error
+      // Mantiene estadísticas básicas visibles durante carga o error
       orElse: () {
         final totalMiles = vehicles.fold<int>(0, (sum, v) => sum + v.mileage);
         final servicesDue = vehicles
             .where((v) => VehicleViewModel(v).status != 'good')
             .length;
 
-        // Convert fallback value
+        // Convierte el valor de respaldo
         final double fallbackToDisplay = isMetric 
             ? totalMiles.toDouble() 
             : UnitConverter.kmToMi(totalMiles.toDouble());

@@ -108,7 +108,7 @@ class CustomButton extends StatelessWidget {
         break;
     }
 
-    // If loading, we use a different background (shimmer)
+    // Si está cargando, usamos un fondo diferente (shimmer)
     if (isLoading && variant == ButtonVariant.gradient) {
       return Container(
         width: width ?? (size == ButtonSize.icon ? minWidth : double.infinity),
@@ -177,7 +177,7 @@ class CustomButton extends StatelessWidget {
       );
     }
 
-    // Standard variants using Theme.of(context)
+    // Variantes estándar usando Theme.of(context)
     switch (variant) {
       case ButtonVariant.destructive:
         return ElevatedButton(

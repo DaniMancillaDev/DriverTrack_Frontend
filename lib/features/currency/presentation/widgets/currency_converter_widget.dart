@@ -269,7 +269,7 @@ class _CurrencyConverterWidgetState
                   child: Text(
                     Translations.of(context).currency.tryAgain,
                     style: AppTextStyles.bodyMedium(context).copyWith(
-                      color: Colors.white, // Safe: background is orange primary which needs white text
+                      color: Colors.white, // Seguro: el fondo es naranja primario que requiere texto blanco
                       fontWeight: FontWeight.w700,
                     ),
                   ),

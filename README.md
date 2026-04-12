@@ -31,12 +31,12 @@
 
 ## 🏗️ Arquitectura General
 
-| Flutter App | | FastAPI Backend |
-|---|---|---|
-| `DriverTrack FE` | **REST + JWT ──►** | `DriverTrack API` |
-| | **◄── JSON Response** | |
-| WebSocket (Notifications) | | PostgreSQL / SQLite |
-| | | MinIO / S3 (Fotos) |
+| Flutter App               |                       | FastAPI Backend     |
+| ---------------------------| -----------------------| ---------------------|
+| `DriverTrack FE`          | **REST + JWT ──►**    | `DriverTrack API`   |
+|                           | **◄── JSON Response** |                     |
+| WebSocket (Notifications) |                       | PostgreSQL / SQLite |
+|                           |                       | MinIO / S3 (Fotos)  |
 
 ### Flujo General
 
@@ -344,20 +344,11 @@ docker compose up -d --build
 
 ### Desplegar Backend (Opciones)
 
-| Plataforma | Configuración |
-|-----------|--------------|
-| **Render** | Docker deploy, puerto 8010, variables de entorno en dashboard |
-| **Railway** | Conectar repo GitHub, auto-detecta Dockerfile |
-| **VPS + Docker** | `docker compose up -d` + Nginx Proxy Manager para SSL |
-
-### Publicar en Play Store (Futuro)
-
-1. Crear cuenta de desarrollador Google Play ($25 USD)
-2. Configurar signing key propia en `android/app/build.gradle.kts`
-3. Generar AAB: `flutter build appbundle --release`
-4. Crear listing en Google Play Console
-5. Subir AAB, completar ficha de store
-6. Revisión interna → producción
+| Plataforma       | Configuración                                                 |
+| ------------------| ---------------------------------------------------------------|
+| **Render**       | Docker deploy, puerto 8010, variables de entorno en dashboard |
+| **Railway**      | Conectar repo GitHub, auto-detecta Dockerfile                 |
+| **VPS + Docker** | `docker compose up -d` + Nginx Proxy Manager para SSL         |
 
 ---
 

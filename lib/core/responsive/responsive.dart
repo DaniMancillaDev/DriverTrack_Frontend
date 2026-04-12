@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // ─────────────────────────────────────────────────────────────
-// Breakpoints
+// Puntos de quiebre (Breakpoints)
 // ─────────────────────────────────────────────────────────────
 
 /// Orquestador de los umbrales de visualización (Breakpoints).
@@ -25,7 +25,7 @@ class AppBreakpoints {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Device classification
+// Clasificación de dispositivos
 // ─────────────────────────────────────────────────────────────
 
 /// Categorías de dispositivos soportadas por el sistema de diseño.
@@ -44,7 +44,7 @@ enum DeviceType {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Core responsive utility
+// Utilidad principal de adaptabilidad
 // ─────────────────────────────────────────────────────────────
 
 /// Clase principal para la gestión de la adaptabilidad en la aplicación.
@@ -112,7 +112,7 @@ class AppResponsive {
     );
   }
 
-  // ─── Convenience getters ──────────────────────────────────
+  // ─── Getters de conveniencia ──────────────────────────────────
 
   /// Indica si el dispositivo es un móvil pequeño.
   bool get isMobileSmall => deviceType == DeviceType.mobileSmall;
@@ -129,7 +129,7 @@ class AppResponsive {
   /// Indica si la orientación actual es horizontal.
   bool get isLandscape => orientation == Orientation.landscape;
 
-  // ─── Scaling methods ──────────────────────────────────────
+  // ─── Métodos de escalado ──────────────────────────────────────
 
   /// Tamaño de fuente adaptativo.
   /// Reemplaza valores `fontSize` fijos por valores escalados según el dispositivo.
@@ -147,7 +147,7 @@ class AppResponsive {
   /// Espaciado adaptativo (usar para márgenes y paddings).
   double space(double size) => size * scaleFactor;
 
-  // ─── Responsive value selection ───────────────────────────
+  // ─── Selección de valores adaptativos ───────────────────────────
 
   /// Selecciona un valor específico basado en el tipo de dispositivo actual.
   ///
@@ -170,7 +170,7 @@ class AppResponsive {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Extension on BuildContext for easy access
+// Extensión sobre BuildContext para acceso rápido
 // ─────────────────────────────────────────────────────────────
 
 /// Extensión para facilitar el acceso a la lógica de responsividad.
@@ -181,7 +181,7 @@ extension ResponsiveExtension on BuildContext {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ResponsiveBuilder widget
+// Widget ResponsiveBuilder
 // ─────────────────────────────────────────────────────────────
 
 /// Widget que expone la lógica de responsividad a través de un constructor (builder).
@@ -203,7 +203,7 @@ class ResponsiveBuilder extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Responsive Icon Sizes
+// Tamaños de iconos adaptativos
 // ─────────────────────────────────────────────────────────────
 
 /// Centraliza los tamaños de iconos adaptativos del sistema.
@@ -243,7 +243,7 @@ class AppIconSizes {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Responsive Text Styles
+// Estilos de texto adaptativos
 // ─────────────────────────────────────────────────────────────
 
 /// Centraliza los estilos de texto adaptativos del sistema.
@@ -342,7 +342,7 @@ class AppTextStyles {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Responsive Spacing
+// Espaciado adaptativo
 // ─────────────────────────────────────────────────────────────
 
 /// Centraliza los márgenes y paddings dinámicos.

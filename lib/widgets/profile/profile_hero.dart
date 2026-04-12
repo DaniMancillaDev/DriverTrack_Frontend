@@ -61,7 +61,7 @@ class _ProfileHeroState extends ConsumerState<ProfileHero> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Drag handle
+            // Asa de arrastre
             Container(
               width: r.dim(40),
               height: r.dim(4),
@@ -239,7 +239,7 @@ class _ProfileHeroState extends ConsumerState<ProfileHero> {
                 ),
                 child: _buildAvatar(r, fallbackName, photoUrl),
               ),
-              // Upload indicator overlay
+              // Superposición del indicador de subida
               if (_isUploading)
                 Positioned.fill(
                   child: Container(
@@ -259,7 +259,7 @@ class _ProfileHeroState extends ConsumerState<ProfileHero> {
                     ),
                   ),
                 ),
-              // Camera button
+              // Botón de cámara
               Positioned(
                 bottom: 0,
                 right: 0,

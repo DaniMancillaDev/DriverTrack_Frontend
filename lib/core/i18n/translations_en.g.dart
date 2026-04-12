@@ -317,6 +317,17 @@ class _TranslationsMaintenanceEn implements TranslationsMaintenanceEs {
 	@override String get untitledService => 'Untitled Service';
 	@override String get unknownVehicle => 'Unknown';
 	@override String get odometerDashboard => 'Odometer (Dashboard)';
+	@override String get mileageModeReading => 'Reading';
+	@override String get mileageModeIncrement => '+ Km';
+	@override String get mileageTraveled => 'Km traveled';
+	@override String get mileageTraveledPlaceholder => 'e.g., 500';
+	@override String mileageLowerThanCurrent({required Object current}) => 'Cannot be lower than the current odometer (${current})';
+	@override String odometerActionMessage({required Object current, required Object input}) => 'Current: ${current} km | Entered: ${input} km';
+	@override String get odometerActionAdd => 'Add';
+	@override String get odometerActionReplace => 'Replace';
+	@override String get favoriteLimitTitle => 'Favorite limit';
+	@override String favoriteLimitMessage({required Object max}) => 'You already have ${max} saved favorites. Remove one to add this vehicle.';
+	@override String get understood => 'Understood';
 	@override String get goalReachedWarning => 'You have reached your service goal. We recommend updating your next goal in "Edit Vehicle".';
 	@override String get costLabel => 'COST';
 	@override String get costFree => 'Free';
@@ -1130,6 +1141,17 @@ extension on TranslationsEn {
 			'maintenance.untitledService' => 'Untitled Service',
 			'maintenance.unknownVehicle' => 'Unknown',
 			'maintenance.odometerDashboard' => 'Odometer (Dashboard)',
+			'maintenance.mileageModeReading' => 'Reading',
+			'maintenance.mileageModeIncrement' => '+ Km',
+			'maintenance.mileageTraveled' => 'Km traveled',
+			'maintenance.mileageTraveledPlaceholder' => 'e.g., 500',
+			'maintenance.mileageLowerThanCurrent' => ({required Object current}) => 'Cannot be lower than the current odometer (${current})',
+			'maintenance.odometerActionMessage' => ({required Object current, required Object input}) => 'Current: ${current} km | Entered: ${input} km',
+			'maintenance.odometerActionAdd' => 'Add',
+			'maintenance.odometerActionReplace' => 'Replace',
+			'maintenance.favoriteLimitTitle' => 'Favorite limit',
+			'maintenance.favoriteLimitMessage' => ({required Object max}) => 'You already have ${max} saved favorites. Remove one to add this vehicle.',
+			'maintenance.understood' => 'Understood',
 			'maintenance.goalReachedWarning' => 'You have reached your service goal. We recommend updating your next goal in "Edit Vehicle".',
 			'maintenance.costLabel' => 'COST',
 			'maintenance.costFree' => 'Free',

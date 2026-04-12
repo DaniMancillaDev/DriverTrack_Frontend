@@ -76,7 +76,7 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
                 stops: [
                   0.0,
                   (_animation.value + 1) /
-                      2, // Map -2..2 to roughly 0..1 range for movement
+                      2, // Mapea el rango -2..2 a aproximadamente 0..1 para el movimiento
                   1.0,
                 ],
               ),

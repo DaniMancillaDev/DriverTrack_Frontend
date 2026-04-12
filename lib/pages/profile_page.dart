@@ -17,7 +17,7 @@ import '../models/maintenance_model.dart';
 import '../models/vehicle_model.dart';
 import '../viewmodels/vehicle_view_model.dart';
 
-// Modular Widgets
+// Widgets modulares
 import '../core/units/presentation/unit_system_provider.dart';
 import '../core/units/domain/unit_system.dart';
 import '../widgets/profile/profile_hero.dart';
@@ -314,7 +314,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final prefsAsync = ref.watch(profilePreferencesProvider);
     final notifier = ref.read(profilePreferencesProvider.notifier);
 
-    // Determine loading/error state
+    // Determina el estado de carga/error
     final isLoading = prefsAsync.isLoading;
     final hasError = prefsAsync.hasError;
     final prefs = prefsAsync.value ?? const ProfilePreferences();

@@ -40,7 +40,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
     final newPwd = _newPasswordController.text;
     final confirmPwd = _confirmPasswordController.text;
 
-    // Validations
+    // Validaciones
     if (currentPwd.isEmpty || newPwd.isEmpty || confirmPwd.isEmpty) {
       setState(() => _errorMessage = 'All fields are required');
       return;
@@ -66,7 +66,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
         newPassword: newPwd,
       );
       
-      // Update local state so UI reflects it immediately
+      // Actualiza el estado local para que la UI lo refleje inmediatamente
       ref.read(authProvider.notifier).updatePasswordChangedAt(DateTime.now());
 
       if (mounted) {
@@ -120,7 +120,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Drag handle
+            // Asa de arrastre
             Center(
               child: Container(
                 width: r.dim(40),
@@ -133,7 +133,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
               ),
             ),
 
-            // Title
+            // Título
             Row(
               children: [
                 Icon(
@@ -153,7 +153,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
             ),
             SizedBox(height: r.space(AppSpacing.lg)),
 
-            // Current password
+            // Contraseña actual
             _buildPasswordField(
               label: t.profile.currentPassword,
               controller: _currentPasswordController,
@@ -162,7 +162,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
             ),
             SizedBox(height: r.space(AppSpacing.md)),
 
-            // New password
+            // Nueva contraseña
             _buildPasswordField(
               label: t.profile.newPassword,
               controller: _newPasswordController,
@@ -171,7 +171,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
             ),
             SizedBox(height: r.space(AppSpacing.md)),
 
-            // Confirm password
+            // Confirmar contraseña
             _buildPasswordField(
               label: t.profile.confirmNewPassword,
               controller: _confirmPasswordController,
@@ -205,7 +205,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
             ],
             SizedBox(height: r.space(AppSpacing.lg)),
 
-            // Save button
+            // Botón de guardar
             SizedBox(
               width: double.infinity,
               child: CustomButton(

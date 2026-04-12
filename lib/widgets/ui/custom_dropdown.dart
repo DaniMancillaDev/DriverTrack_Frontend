@@ -38,7 +38,7 @@ class CustomDropdown<T> extends StatelessWidget {
     Widget dropdown = Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       decoration: BoxDecoration(
-        color: context.colors.surface, // Background handles contrast (Tip 1)
+        color: context.colors.surface, // El fondo maneja el contraste (Tip 1)
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: DropdownButtonHideUnderline(

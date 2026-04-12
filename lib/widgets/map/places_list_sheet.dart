@@ -59,7 +59,7 @@ class _PlacesListSheetState extends State<PlacesListSheet> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Handle / Initial Strip
+              // Asa / Franja inicial
               _buildHandleStrip(context, locations),
               Flexible(
                 child: ListView.builder(

@@ -34,7 +34,7 @@ class MaintenanceCardSkeleton extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon container (44×44)
+          // Contenedor de icono (44×44)
           SkeletonLoader(
             width: r.dim(44),
             height: r.dim(44),
@@ -42,12 +42,12 @@ class MaintenanceCardSkeleton extends StatelessWidget {
           ),
           SizedBox(width: r.space(AppSpacing.lg)),
 
-          // Central info column
+          // Columna de información central
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Dot + title row
+                // Fila de punto + título
                 Row(
                   children: [
                     SkeletonLoader(
@@ -61,12 +61,12 @@ class MaintenanceCardSkeleton extends StatelessWidget {
                 ),
                 SizedBox(height: r.space(AppSpacing.xs)),
 
-                // Meta string: vehicle • date • mileage
+                // Cadena meta: vehículo • fecha • kilometraje
                 SkeletonLoader(width: r.dim(180), height: r.dim(12)),
 
                 SizedBox(height: r.space(AppSpacing.s)),
 
-                // Notes pill (optional, always show placeholder)
+                // Píldora de notas (opcional, siempre muestra marcador)
                 SkeletonLoader(
                   width: double.infinity,
                   height: r.dim(28),
@@ -78,7 +78,7 @@ class MaintenanceCardSkeleton extends StatelessWidget {
 
           SizedBox(width: r.space(AppSpacing.md)),
 
-          // Trailing cost
+          // Costo final
           SkeletonLoader(width: r.dim(52), height: r.dim(20)),
         ],
       ),

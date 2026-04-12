@@ -89,11 +89,11 @@ class NotificationCard extends StatelessWidget {
             break;
         }
       } catch (_) {
-        // Fallback to raw text if JSON is malformed
+        // Respaldo a texto plano si el JSON está malformado
       }
     }
 
-    // Wrap unread cards with a left accent strip — mobile pattern, no full border
+    // Envuelve las tarjetas no leídas con una franja de acento izquierda — patrón móvil, sin borde completo
     Widget card = Container(
       decoration: BoxDecoration(
         color: context.colors.surface,
@@ -109,7 +109,7 @@ class NotificationCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Icon — compact 38×38
+                // Icono — compacto 38×38
                 Container(
                   width: r.dim(38),
                   height: r.dim(38),
@@ -124,12 +124,12 @@ class NotificationCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: r.space(AppSpacing.s)),
-                // Content
+                // Contenido
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Title only — icon color already communicates type
+                      // Solo título — el color del icono ya comunica el tipo
                       Text(
                         displayTitle,
                         style: AppTextStyles.bodyMedium(context).copyWith(
@@ -222,8 +222,8 @@ class NotificationCard extends StatelessWidget {
   String _formatTimestamp(DateTime timestamp, BuildContext context) {
     final now = DateTime.now();
     final diff = now.difference(timestamp);
-    // #7 fix: timestamp strings are locale-neutral (numbers + short units).
-    // Full i18n would require plural keys in slang — using compact format as fallback.
+    // Corrección #7: las cadenas de marca temporal son neutras al idioma (números + unidades cortas).
+    // Una i18n completa requeriría claves plurales en slang — usando formato compacto como respaldo.
     if (diff.inMinutes < 1) return Translations.of(context).time.now;
     if (diff.inMinutes < 60) return '${diff.inMinutes}m';
     if (diff.inHours < 24) return '${diff.inHours}h';

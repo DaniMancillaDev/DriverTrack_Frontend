@@ -49,7 +49,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
   LatLng? _lastSearchCenter;
   bool _isLocating = false;
 
-  // Default center if no user location (e.g. Mexico City for the mock data)
+  // Centro por defecto si no hay ubicación del usuario (ej. Ciudad de México para datos de prueba)
   final LatLng _defaultCenter = const LatLng(19.4326, -99.1332);
 
   @override
@@ -70,8 +70,8 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
       );
     });
 
-    // GPS will now only activate upon user request via the "My Location" button
-    // which calls _centerOnUser -> fetchCurrentLocation.
+    // El GPS ahora solo se activa bajo solicitud del usuario mediante el botón
+    // "Mi ubicación", el cual llama a _centerOnUser -> fetchCurrentLocation.
   }
 
   @override
@@ -105,7 +105,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
   void _onLocationSelected(MapLocation loc) {
     ref.read(selectedLocationProvider.notifier).setLocation(loc);
 
-    // Animate map to location
+    // Anima el mapa hacia la ubicación
     _animatedMapMove(LatLng(loc.latitude, loc.longitude), 15.0);
   }
 
@@ -168,7 +168,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final mapStyle = isDark ? 'dark_all' : 'light_all';
 
-    // Empty state feedback (No results found)
+    // Retroalimentación de estado vacío (Sin resultados)
     ref.listen(nearbyLocationsProvider, (previous, next) {
       if (!next.isLoading && next.hasValue && next.value!.isEmpty && _hasSearched) {
         if (mounted) {
@@ -185,18 +185,18 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
       }
     });
 
-    // Errors from Overpass API (429/504) are now handled silently 
-    // to prevent spamming the user with red snackbars. The map will gracefully
-    // retain the previously loaded points if a request fails.
+    // Los errores de la API Overpass (429/504) ahora se manejan silenciosamente
+    // para evitar saturar al usuario con snackbars rojos. El mapa conservará
+    // los puntos previamente cargados si una petición falla.
 
-    // Auto-fly removed to prevent "returning to previous zone" annoyance.
-    // The user will now stay where they panned.
+    // Se eliminó el auto-fly para evitar la molestia de "regresar a la zona anterior".
+    // El usuario ahora permanece donde desplazó el mapa.
 
     return Scaffold(
       backgroundColor: context.colors.background,
       body: Column(
         children: [
-          // ── Header (non-floating, in natural Column flow) ──
+          // ── Encabezado (no flotante, en flujo natural del Column) ──
           MapHeaderWidget(
             onFilterChanged: () {
               _unselectLocation();
@@ -207,11 +207,11 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
             },
           ),
 
-          // ── Map area (Expanded + Stack for floating controls) ──
+          // ── Área del mapa (Expanded + Stack para controles flotantes) ──
           Expanded(
             child: Stack(
               children: [
-                // 1. Interactive Map
+                // 1. Mapa interactivo
                 FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
@@ -225,7 +225,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
                           .read(mapBoundsProvider.notifier)
                           .setBounds(camera.visibleBounds);
 
-                      // If the user moved the map manually, show the "Search here" button
+                      // Si el usuario movió el mapa manualmente, muestra el botón "Buscar aquí"
                       if (hasGesture) {
                         setState(() => _mapMovedSinceSearch = true);
                       }
@@ -243,10 +243,10 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
                       tileProvider: CancellableNetworkTileProvider(),
                     ),
 
-                    // Map locations from provider
+                    // Ubicaciones del mapa desde el provider
                     locationsAsync.when(
                       skipLoadingOnReload:
-                          true, // Crucial: Don't hide markers while dragging/loading new ones
+                          true, // Crucial: No ocultar marcadores mientras se arrastra/cargan nuevos
                       data: (locations) => MapMarkerLayer(
                         locations: locations,
                         selectedId: selectedLocation?.id,
@@ -264,7 +264,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
                       },
                     ),
 
-                    // User location marker
+                    // Marcador de ubicación del usuario
                     userLocationAsync.when(
                       data: (LatLng? loc) {
                         if (loc == null) return const SizedBox.shrink();
@@ -292,7 +292,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
                   ],
                 ),
 
-                // 2. "Search this area" — floating pill (Google Maps pattern)
+                // 2. "Buscar en esta área" — píldora flotante (patrón de Google Maps)
                 Positioned(
                   top: r.space(AppSpacing.lg),
                   left: 0,
@@ -366,7 +366,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
                   ),
                 ),
 
-                // 3. Map Controls (Zoom, My Location)
+                // 3. Controles del mapa (Zoom, Mi ubicación)
                 Positioned(
                   right: r.space(AppSpacing.lg),
                   bottom: r.space(AppSpacing.xxxl),
@@ -377,7 +377,7 @@ class _ServiceMapPageState extends ConsumerState<ServiceMapPage>
                   ),
                 ),
 
-                // 4. Bottom Detail / List Sheets
+                // 4. Sheets inferiores de Detalle / Lista
                 if (selectedLocation != null)
                   Positioned(
                     left: 0,

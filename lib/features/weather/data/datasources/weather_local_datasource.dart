@@ -30,7 +30,7 @@ class WeatherLocalDataSource {
 
       if (model.isFresh(ttl: cacheTtl)) return model;
 
-      return model; // Fallback stale
+      return model; // Respaldo obsoleto
     } catch (_) {
       return null;
     }

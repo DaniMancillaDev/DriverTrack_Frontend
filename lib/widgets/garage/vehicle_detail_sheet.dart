@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../core/presentation/ui/app_notification.dart';
 import '../../theme/app_theme.dart';
 import '../../viewmodels/vehicle_view_model.dart';
 import '../../providers/app_providers.dart';
@@ -209,7 +210,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch for maintenance records for this specific vehicle
+    // Observa los registros de mantenimiento para este vehículo específico
     final maintenanceAsync = ref.watch(
       maintenanceDocsProvider(MaintenanceParams(vehicleId: widget.vehicle.id)),
     );
@@ -223,7 +224,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
           orElse: () => widget.vehicle.vehicle,
         );
 
-        // Create a synchronized ViewModel with the real mileage and last service base
+        // Crea un ViewModel sincronizado con el kilometraje real y la base del último servicio
         final syncedVehicle = VehicleViewModel.fromVehicleWithRecords(
           latestCoreVehicle,
           records,
@@ -439,13 +440,13 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(
         AppRadius.xl,
-      ), // Updated to xl for consistency
+      ), // Actualizado a xl para consistencia
       child: Stack(
         children: [
           vehicle.displayImageUrl.startsWith('http')
               ? Image.network(
                   vehicle.displayImageUrl,
-                  height: 220, // Increased height for better hero presence
+                  height: 220, // Altura aumentada para mejor presencia visual del hero
                   width: double.infinity,
                   fit: BoxFit.cover,
                   alignment: const Alignment(0.0, -0.6), // Encuadre ligeramente hacia arriba para ilustraciones
@@ -477,7 +478,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                 child: CircularProgressIndicator(color: AppColors.orangePrimary),
               ),
             ),
-          // Gradient: subtle bottom-only fade for readability
+          // Gradiente: difuminado sutil solo en la parte inferior para legibilidad
           Container(
             height: 220,
             width: double.infinity,
@@ -492,7 +493,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
               ),
             ),
           ),
-          // Edit Photo Button (Center overlay)
+          // Botón de editar foto (superposición centrada)
           Positioned.fill(
             child: Material(
               color: Colors.transparent,
@@ -517,7 +518,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
               ),
             ),
           ),
-          // Top Right: Floating Actions (Favorite & More)
+          // Superior derecha: Acciones flotantes (Favorito y Más)
           Positioned(
             top: AppSpacing.md,
             right: AppSpacing.md,
@@ -536,45 +537,13 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
                         0;
                     if (currentFavs >= VehiclesNotifier.maxFavorites) {
                       if (mounted) {
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            backgroundColor: context.colors.surface,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppRadius.xl),
-                            ),
-                            icon: Icon(
-                              Icons.favorite_border,
-                              color: AppColors.orangeSecondary,
-                              size: 36,
-                            ),
-                            title: Text(
-                              'Límite de favoritos',
-                              style: AppTextStyles.sheetTitle(context),
-                              textAlign: TextAlign.center,
-                            ),
-                            content: Text(
-                              'Ya tienes ${VehiclesNotifier.maxFavorites} favoritos guardados. Quita uno para poder agregar este vehículo.',
-                              style: AppTextStyles.bodySmall(context).copyWith(
-                                color: context.colors.textMuted,
-                                height: 1.5,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            actionsAlignment: MainAxisAlignment.center,
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: AppColors.orangePrimary,
-                                  textStyle: AppTextStyles.bodyMedium(context).copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                child: const Text('Entendido'),
-                              ),
-                            ],
-                          ),
+                        final t = Translations.of(context);
+                        AppNotification.show(
+                          context,
+                          title: t.maintenance.favoriteLimitTitle,
+                          message: t.maintenance.favoriteLimitMessage(max: VehiclesNotifier.maxFavorites),
+                          icon: Icons.favorite_border,
+                          iconColor: AppColors.orangeSecondary,
                         );
                       }
                       return;
@@ -626,7 +595,7 @@ class _VehicleDetailSheetState extends ConsumerState<VehicleDetailSheet> {
               ],
             ),
           ),
-          // Bottom Left: Health Pill
+          // Inferior izquierda: Píldora de salud
           Positioned(
             bottom: AppSpacing.md,
             left: AppSpacing.md,

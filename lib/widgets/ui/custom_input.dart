@@ -116,19 +116,19 @@ class CustomInput extends StatelessWidget {
           vertical: r.space(AppSpacing.s),
         ),
 
-        // Default border
+        // Borde por defecto
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
           borderSide: BorderSide(color: context.colors.border, width: 1.0),
         ),
 
-        // Focus state
+        // Estado de foco
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
           borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
 
-        // Error state
+        // Estado de error
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(r.r(AppRadius.md)),
           borderSide: BorderSide(color: colorScheme.error, width: 1),

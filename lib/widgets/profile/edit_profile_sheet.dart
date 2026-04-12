@@ -93,7 +93,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Drag handle
+          // Asa de arrastre
           Center(
             child: Container(
               width: r.dim(40),
@@ -106,7 +106,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
             ),
           ),
 
-          // Title
+          // Título
           Text(
             t.profile.editProfile,
             style: AppTextStyles.headline(context).copyWith(
@@ -123,7 +123,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
           ),
           SizedBox(height: r.space(AppSpacing.lg)),
 
-          // Name field
+          // Campo de nombre
           Text(
             t.profile.editProfileName.toUpperCase(),
             style: AppTextStyles.label(context).copyWith(
@@ -170,7 +170,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
           ],
           SizedBox(height: r.space(AppSpacing.lg)),
 
-          // Save button
+          // Botón de guardar
           SizedBox(
             width: double.infinity,
             child: CustomButton(

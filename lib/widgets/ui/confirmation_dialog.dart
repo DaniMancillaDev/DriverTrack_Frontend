@@ -73,7 +73,7 @@ class ConfirmationDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Drag handle
+          // Asa de arrastre
           Center(
             child: Container(
               width: r.dim(36),
@@ -86,7 +86,7 @@ class ConfirmationDialog extends StatelessWidget {
             ),
           ),
 
-          // Icon
+          // Icono
           Container(
             width: r.dim(48),
             height: r.dim(48),
@@ -117,7 +117,7 @@ class ConfirmationDialog extends StatelessWidget {
           ),
           SizedBox(height: r.space(AppSpacing.xl)),
 
-          // Actions
+          // Acciones
           Row(
             children: [
               Expanded(

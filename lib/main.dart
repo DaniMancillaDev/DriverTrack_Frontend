@@ -93,7 +93,7 @@ class _AppWithLocale extends ConsumerWidget {
     // Leer el ThemeMode actual desde themeProvider (persiste en SharedPreferences).
     final themeMode = ref.watch(themeProvider).value ?? ThemeMode.dark;
     final router = ref.watch(goRouterProvider);
-    final currentAppLocale = ref.watch(localeProvider); // Guarantee rebuild
+    final currentAppLocale = ref.watch(localeProvider); // Garantiza reconstrucción
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
@@ -104,7 +104,7 @@ class _AppWithLocale extends ConsumerWidget {
       locale: currentAppLocale.flutterLocale,
       supportedLocales: AppLocale.values.map((l) => l.flutterLocale),
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      // Clamp text scaling for accessibility without breaking UI
+      // Limita el escalado de texto para accesibilidad sin romper la UI
       builder: (context, child) {
         final mediaQuery = MediaQuery.of(context);
         final clampedScale = mediaQuery.textScaler.scale(1.0).clamp(0.8, 1.3);

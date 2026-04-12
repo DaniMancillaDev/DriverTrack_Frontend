@@ -26,9 +26,9 @@ class CustomSwitch extends StatelessWidget {
     final Widget switchWidget = Switch(
       value: value,
       onChanged: enabled ? onChanged : null,
-      activeThumbColor: colorScheme.onPrimary, // thumb color when active
-      activeTrackColor: colorScheme.primary, // bg-primary when active
-      inactiveThumbColor: colorScheme.surface, // bg-card thumb when inactive
+      activeThumbColor: colorScheme.onPrimary, // Color del pulgar cuando está activo
+      activeTrackColor: colorScheme.primary, // bg-primary cuando está activo
+      inactiveThumbColor: colorScheme.surface, // bg-card del pulgar cuando está inactivo
       inactiveTrackColor:
           colorScheme.surfaceContainerHighest, // bg-switch-background
       trackOutlineColor: WidgetStateProperty.resolveWith(
