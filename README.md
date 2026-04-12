@@ -1,8 +1,7 @@
 <p align="center">
-  <img src="assets/images/app_icon.png" width="120" alt="DriverTrack Logo">
+  <img src="assets/images/app_icon.png" width="450" style="margin: 0 auto;" alt="DriverTrack Logo">
 </p>
-
-<h1 align="center">DriverTrack Frontend</h1>
+<h1 align="center" style="margin-top: 8px;">DriverTrack Frontend</h1>
 
 <p align="center">
   <strong>Inteligencia Automotriz en tu Bolsillo</strong>
@@ -32,19 +31,12 @@
 
 ## 🏗️ Arquitectura General
 
-```
-┌─────────────────────┐       REST + JSON        ┌──────────────────────┐
-│                     │  ──────────────────────►  │                      │
-│   Flutter App       │       JWT (Bearer)        │   FastAPI Backend    │
-│   (DriverTrack FE)  │  ◄──────────────────────  │   (DriverTrack API)  │
-│                     │       JSON Response        │                      │
-└─────────────────────┘                           └──────────────────────┘
-         │                                                  │
-    ┌────┴─────┐                                    ┌──────┴──────┐
-    │ WebSocket │                                    │  PostgreSQL  │
-    │ (Notifications)│                                │  / SQLite    │
-    └──────────┘                                     └─────────────┘
-```
+| Flutter App | | FastAPI Backend |
+|---|---|---|
+| `DriverTrack FE` | **REST + JWT ──►** | `DriverTrack API` |
+| | **◄── JSON Response** | |
+| WebSocket (Notifications) | | PostgreSQL / SQLite |
+| | | MinIO / S3 (Fotos) |
 
 ### Flujo General
 
